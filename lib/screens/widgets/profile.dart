@@ -1,0 +1,132 @@
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class ProfileDropdownTile extends StatefulWidget {
+  const ProfileDropdownTile({Key? key}) : super(key: key);
+
+  @override
+  State<ProfileDropdownTile> createState() => _ProfileDropdownTileState();
+}
+
+class _ProfileDropdownTileState extends State<ProfileDropdownTile>
+    with SingleTickerProviderStateMixin {
+  bool isExpanded = false;
+
+  late final AnimationController _controller;
+  late final Animation<double> _arrowRotation;
+  late final Animation<double> _expandAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    _arrowRotation = Tween<double>(begin: 0, end: 0.5).animate(_controller);
+    _expandAnimation =
+        CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+  }
+
+  void toggleDropdown() {
+    setState(() {
+      isExpanded = !isExpanded;
+      isExpanded ? _controller.forward() : _controller.reverse();
+    });
+  }
+
+  Widget _buildSubItem({
+    required IconData icon,
+    required String title,
+    required String route,
+  }) {
+    return ListTile(
+      dense: true,
+      contentPadding: const EdgeInsets.only(left: 72, right: 16),
+      leading: Icon(icon, size: 20),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 14),
+      ),
+      onTap: () {
+        Get.toNamed(route);
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // MAIN TILE
+        ListTile(
+          leading: const Icon(Icons.person_outline),
+          title: const Text(
+            "Nikhil Singh",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          trailing: RotationTransition(
+            turns: _arrowRotation,
+            child: const Icon(Icons.keyboard_arrow_down),
+          ),
+          onTap: toggleDropdown,
+        ),
+
+        // DROPDOWN (FIXED)
+        ClipRect(
+          child: SizeTransition(
+            sizeFactor: _expandAnimation,
+            axisAlignment: -1,
+            child: Column(
+              children: [
+                _buildSubItem(
+                  icon: Icons.person,
+                  title: "My Profile",
+                  route: "/myprofile",
+                ),
+                _buildSubItem(
+                  icon: Icons.inbox_outlined,
+                  title: "My Inbox",
+                  route: "/myinbox",
+                ),
+                _buildSubItem(
+                  icon: Icons.inbox_outlined,
+                  title: "My Listings",
+                  route: "/mylisting",
+                ),
+                _buildSubItem(
+                  icon: Icons.inbox_outlined,
+                  title: "Add Listings",
+                  route: "/addlistings",
+                ),
+                _buildSubItem(
+                  icon: Icons.lightbulb_outline,
+                  title: "My Ideas",
+                  route: "/myideas",
+                ),
+                _buildSubItem(
+                  icon: Icons.add_circle_outline,
+                  title: "Add My Ideas",
+                  route: "/addmyideas",
+                ),
+                _buildSubItem(
+                  icon: Icons.logout,
+                  title: "Logout",
+                  route: "/logout",
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
