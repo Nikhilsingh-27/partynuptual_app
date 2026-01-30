@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/vendordesc.dart';
 
 class BusinessDetailPage extends StatefulWidget {
   final String listingid;
-  const BusinessDetailPage({super.key,required this.listingid});
+  const BusinessDetailPage({super.key, required this.listingid});
 
   @override
   State<BusinessDetailPage> createState() => _BusinessDetailPageState();
 }
 
 class _BusinessDetailPageState extends State<BusinessDetailPage> {
-  
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController phoneCtrl = TextEditingController();
@@ -21,15 +21,40 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
   final String location =
       "2515 Santa Clara Ave Alameda, CA 94501 Serving Alameda Area";
   final String phone = "5106314056";
-  @override
-  void initState(){
-    super.initState();
-    print("ll");
-    print(widget.listingid);
+
+  bool isloading=true;
+  final List<String> galleryImages = [
+    'assets/b.jpeg',
+    'assets/b.jpg',
+    'assets/b1.jpg',
+  ];
+
+  final List<String> videoThumbs = [
+    'https://www.pexels.com/download/video/35174752/',
+    'https://www.pexels.com/download/video/35174767/',
+    'https://www.pexels.com/download/video/35174755/',
+  ];
+
+  Map<String, dynamic> listing = {};
+  Future<void> fetchlistingbyid(String id) async {
+    final response = await HomeService().getlistingbyid(id: id);
+    setState(() {
+      listing = response["data"] ?? {};
+      isloading=false;
+     
+    });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    
+    //print(widget.listingid);
+    fetchlistingbyid(widget.listingid);
+  }
+
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -44,10 +69,9 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: SingleChildScrollView(
+      body: isloading?Center(child: const CircularProgressIndicator()): SingleChildScrollView(
         child: Column(
           children: [
-
             /// 🔹 ADDED BY VENDOR HEADER
 
             /// 🔹 MAIN CONTENT
@@ -67,7 +91,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            businessName,
+                            listing["company_name"] ?? "",
                             style: const TextStyle(
                               fontSize: 22,
                               fontWeight: FontWeight.bold,
@@ -76,26 +100,35 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              const Icon(Icons.location_on,
-                                  size: 18, color: Colors.grey),
+                              const Icon(
+                                Icons.location_on,
+                                size: 18,
+                                color: Colors.grey,
+                              ),
                               const SizedBox(width: 6),
                               Expanded(
-                                child: Text(location,
-                                    style: const TextStyle(color: Colors.grey)),
+                                child: Text(
+                                  listing["office_address"] ?? "",
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
                           Row(
                             children: const [
-                              Icon(Icons.verified,
-                                  color: Colors.green, size: 18),
+                              Icon(
+                                Icons.verified,
+                                color: Colors.green,
+                                size: 18,
+                              ),
                               SizedBox(width: 6),
                               Text(
                                 "Verified Listing",
                                 style: TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.w600),
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ],
                           ),
@@ -110,8 +143,9 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                 backgroundColor: Colors.pink.shade50,
                                 foregroundColor: Colors.red,
                                 elevation: 0,
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
@@ -123,7 +157,13 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                     ),
 
                     const SizedBox(height: 16),
-                    const ListingDetailsDropdown(),
+                    ListingDetailsDropdown(
+                      lat: listing["lattitude"] ?? "",
+                      long: listing["longnitude"] ?? "",
+                      desc: listing["about"] ?? "",
+                      gallery: galleryImages,
+                      video: videoThumbs,
+                    ),
                     const SizedBox(height: 16),
                     Container(
                       width: double.infinity,
@@ -146,10 +186,17 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                               CircleAvatar(
                                 radius: 40,
                                 backgroundColor: Colors.grey,
-                                child: Icon(Icons.person, size: 40, color: Colors.white),
+                                child: Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.white,
+                                ),
                               ),
                               SizedBox(height: 8),
-                              Text("Added By", style: TextStyle(color: Colors.grey)),
+                              Text(
+                                "Added By",
+                                style: TextStyle(color: Colors.grey),
+                              ),
                               Text(
                                 "Vendor",
                                 style: TextStyle(
@@ -163,14 +210,15 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                       ),
                     ),
 
-                    SizedBox(height: 20,),
+                    SizedBox(height: 20),
+
                     /// CONTACT DETAILS
                     _sectionCard(
                       Column(
                         children: [
-                          _infoRow(Icons.phone, phone),
+                          _infoRow(Icons.phone, listing["phone_number"]),
                           const SizedBox(height: 12),
-                          _infoRow(Icons.location_on, location),
+                          _infoRow(Icons.location_on, listing["office_address"]),
                         ],
                       ),
                     ),
@@ -185,7 +233,9 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                           const Text(
                             "Send Business Inquiry",
                             style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                           const SizedBox(height: 16),
                           _input(nameCtrl, "Your Name"),
@@ -204,11 +254,12 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                               label: const Text("Send Inquiry"),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
-                                padding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),
@@ -247,16 +298,13 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
     ],
   );
 
-  Widget _input(TextEditingController c, String label,
-      {int maxLines = 1}) =>
+  Widget _input(TextEditingController c, String label, {int maxLines = 1}) =>
       TextField(
         controller: c,
         maxLines: maxLines,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         ),
       );
 }

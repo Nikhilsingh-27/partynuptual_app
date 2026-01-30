@@ -4,8 +4,20 @@ import 'package:new_app/screens/widgets/video_card.dart';
 
 
 class ListingDetailsDropdown extends StatefulWidget {
-  const ListingDetailsDropdown({super.key});
+  String lat;
+  String long;
+  String desc;
+  List gallery;
+  List video;
 
+ListingDetailsDropdown({
+    super.key,
+    required this.lat,
+    required this.long,
+    required this.desc,
+    required this.gallery,
+    required this.video,
+  });
   @override
   State<ListingDetailsDropdown> createState() => _ListingDetailsDropdownState();
 }
@@ -55,7 +67,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
           child: Padding(
             padding: const EdgeInsets.all(12),
             child: Text(
-              descriptionText,
+              widget.desc,
               style: const TextStyle(fontSize: 14, height: 1.5),
             ),
           ),
