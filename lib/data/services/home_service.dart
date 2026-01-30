@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 import '../../core/network/dio_client.dart';
 import '../../core/network/api_endpoints.dart';
 import '../models/home_model.dart';
@@ -8,7 +9,7 @@ class HomeService {
 
   Future<HomeModel> fetchHomeData() async {
     try {
-      final Response response = await _dio.get(ApiEndpoints.home);
+      final response = await _dio.get(ApiEndpoints.home);
 
       return HomeModel.fromJson(response.data);
     } on DioException catch (e) {
@@ -74,7 +75,7 @@ class HomeService {
           "limit": limit,
         },
       );
-      print(response.data);
+      // print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? "Category listing API error");
@@ -92,7 +93,7 @@ class HomeService {
           "limit": limit,
         },
       );
-      print(response.data);
+      // print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? "Category listing API error");
@@ -110,10 +111,46 @@ class HomeService {
           "limit": limit,
         },
       );
-      print(response.data);
+      // print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? "Category listing API error");
+    }
+  }
+
+  Future<Map<String,dynamic>>getstates({required int id})async{
+    try{
+      final response = await _dio.get(
+        "${ApiEndpoints.states}/$id"
+      );
+      // print(response.data);
+      return response.data;
+    } on DioException catch(e){
+      throw Exception(e.response?.data??"State not Found");
+    }
+  }
+
+  Future<Map<String,dynamic>>getvideos()async{
+    try{
+      final response = await _dio.get(
+        ApiEndpoints.videos
+      );
+      //print(response.data);
+      return response.data;
+    } on DioException catch(e){
+      throw Exception(e.response?.data??"vido not Found");
+    }
+  }
+
+  Future<Map<String,dynamic>>getlistingbyid({required String id})async{
+    try{
+      final response = await _dio.get(
+        "${ApiEndpoints.listing}/$id"
+      );
+      print(response.data);
+      return response.data;
+    }on DioException catch(e){
+      throw Exception(e.response?.data??"Not found");
     }
   }
 

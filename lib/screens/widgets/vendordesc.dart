@@ -99,7 +99,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
                       context,
                       MaterialPageRoute(
                         builder: (_) => VideoCard(
-                          videoUrl: videoThumbs[i],
+                          videoId: videoThumbs[i],
                         ),
                       ),
                     );

@@ -91,6 +91,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: buildListingCard(
                   context: context,
+                  listingid: item["listing_id"],
                   image: getLogoImageUrl(item['logo_image']),
                   name: item['company_name'] ?? '',
                   description: item['about'] ?? '',

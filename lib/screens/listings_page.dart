@@ -128,6 +128,7 @@ class _ListingsPageState extends State<ListingsPage> {
                           final listing = listingList[index];
                           return _buildListingCard(
                             context: context,
+                            listingid: listing["listing_id"],
                             image: fixImageUrl(listing['logo_image'] ?? ''),
                             name: listing['company_name'] ?? '',
                             description: listing['about'] ?? '',
@@ -194,6 +195,7 @@ class _ListingsPageState extends State<ListingsPage> {
 
 Widget _buildListingCard({
   required BuildContext context,
+  required String listingid,
   required String image,
   required String name,
   required String description,
@@ -350,7 +352,9 @@ Widget _buildListingCard({
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BusinessDetailPage(),
+                            builder: (_) => BusinessDetailPage(
+                              listingid:listingid
+                            ),
                           ),
                         );
                       },

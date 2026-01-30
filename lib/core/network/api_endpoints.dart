@@ -8,4 +8,7 @@ class ApiEndpoints {
   static const String categoryid="/listings_by_category";
   static const String blogs="/blogs";
   static const String ideas="/share_ideas";
+  static const String states="/get_states";
+  static const String videos="/get_videos";
+  static const String listing="/listing";
 }

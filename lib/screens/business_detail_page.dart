@@ -3,13 +3,15 @@ import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/vendordesc.dart';
 
 class BusinessDetailPage extends StatefulWidget {
-  const BusinessDetailPage({super.key});
+  final String listingid;
+  const BusinessDetailPage({super.key,required this.listingid});
 
   @override
   State<BusinessDetailPage> createState() => _BusinessDetailPageState();
 }
 
 class _BusinessDetailPageState extends State<BusinessDetailPage> {
+  
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController phoneCtrl = TextEditingController();
@@ -19,9 +21,15 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
   final String location =
       "2515 Santa Clara Ave Alameda, CA 94501 Serving Alameda Area";
   final String phone = "5106314056";
-
+  @override
+  void initState(){
+    super.initState();
+    print("ll");
+    print(widget.listingid);
+  }
   @override
   Widget build(BuildContext context) {
+  
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(

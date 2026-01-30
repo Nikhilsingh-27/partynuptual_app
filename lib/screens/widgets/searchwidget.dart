@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/home_controller.dart';
+import 'package:new_app/data/services/home_service.dart';
 
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
@@ -13,27 +14,30 @@ class _SearchWidgetState extends State<SearchWidget> {
   final HomeController controller = Get.find();
 
   // Dummy categories (can be API later)
-  final List<String> categories = [
-    'Hair Stylist',
-    'Pet Store',
-    'Bakers',
-    'Caterer',
-    'Photographer'
-  ];
-
-  // Dummy states (can be API later)
-  final List<String> states = [
-    'California',
-    'Texas',
-    'New York',
-    'Delhi',
-    'Maharashtra'
-  ];
 
   String? selectedCategory;
   String? selectedCountryId;
-  String? selectedCategoryId;// ✅ store country_id
+  String? selectedCategoryId; // ✅ store country_id
   String? selectedState;
+  String? selectedStateId;
+  
+  List stateList = [];
+  bool isStateLoading = false;
+
+  Future<void> fetchStates(int id) async {
+    setState(() {
+      isStateLoading = true;
+      stateList.clear();
+      selectedStateId = null;
+    });
+
+    final response = await HomeService().getstates(id: id);
+
+    setState(() {
+      stateList = response['data'] ?? [];
+      isStateLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,12 +51,11 @@ class _SearchWidgetState extends State<SearchWidget> {
       // ✅ API countries (List<Map>)
       final List countries = homeData.data["data"]["countries"] as List;
 
-      final List allcategory = homeData.data["data"]["categories_all"]as List;
+      final List allcategory = homeData.data["data"]["categories_all"] as List;
       return Container(
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
-
             /// CATEGORY DROPDOWN
             Expanded(
               child: _buildDropdown<String>(
@@ -94,9 +97,14 @@ class _SearchWidgetState extends State<SearchWidget> {
                   );
                 }).toList(),
                 onChanged: (value) {
+                  if (value == null) return;
                   setState(() {
                     selectedCountryId = value;
+                    selectedState = null; // reset state when country changes
+                    stateList.clear();
                   });
+
+                  fetchStates(int.parse(value));
                 },
               ),
             ),
@@ -106,19 +114,32 @@ class _SearchWidgetState extends State<SearchWidget> {
             /// STATE DROPDOWN
             Expanded(
               child: _buildDropdown<String>(
-                hint: 'State',
-                value: selectedState,
-                items: states.map((state) {
+                hint: isStateLoading
+                    ? 'Loading...'
+                    : selectedCountryId == null
+                    ? 'State'
+                    : 'State',
+                value: stateList.isEmpty ? null : selectedStateId,
+                items: stateList.map<DropdownMenuItem<String>>((state) {
                   return DropdownMenuItem<String>(
-                    value: state,
-                    child: Text(state, style: const TextStyle(fontSize: 12)),
+                    value: state['state_id'].toString(),
+                    child: Text(
+                      state['name'],
+                      style: const TextStyle(fontSize: 12),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   );
                 }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedState = value;
-                  });
-                },
+                onChanged:
+                    (selectedCountryId == null ||
+                        isStateLoading ||
+                        stateList.isEmpty)
+                    ? null
+                    : (String? value) {
+                        setState(() {
+                          selectedStateId = value;
+                        });
+                      },
               ),
             ),
 
@@ -138,21 +159,23 @@ class _SearchWidgetState extends State<SearchWidget> {
                 constraints: const BoxConstraints(),
                 onPressed: () {
                   final selectedCountry = countries.firstWhere(
-                        (c) => c['country_id'].toString() == selectedCountryId,
-                        orElse: () => null,
+                    (c) => c['country_id'].toString() == selectedCountryId,
+                    orElse: () => null,
                   );
                   final selectedcategory = allcategory.firstWhere(
-                        (c) => c['category_id'].toString() == selectedCategoryId,
+                    (c) => c['category_id'].toString() == selectedCategoryId,
+                    orElse: () => null,
+                  );
+                  final selectedstate = stateList.firstWhere(
+                    (c) => c['state_id'].toString() == selectedStateId,
                     orElse: () => null,
                   );
 
-                  debugPrint(
-                    '''
+                  debugPrint('''
                     Category: ${selectedcategory?['category_name']}
                     Country: ${selectedCountry?['name']}
-                    State: $selectedState
-                    ''',
-                  );
+                    State : ${selectedstate?['name']}
+                    ''');
                 },
               ),
             ),
@@ -167,7 +190,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     required String hint,
     required T? value,
     required List<DropdownMenuItem<T>> items,
-    required ValueChanged<T?> onChanged,
+    ValueChanged<T?>? onChanged,
   }) {
     return Container(
       height: 40,

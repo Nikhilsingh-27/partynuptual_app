@@ -3,6 +3,7 @@ import 'package:new_app/screens/business_detail_page.dart';
 
 Widget buildListingCard({
   required BuildContext context,
+  required String listingid,
   required String image,
   required String name,
   required String description,
@@ -165,7 +166,7 @@ Widget buildListingCard({
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BusinessDetailPage(),
+                            builder: (_) => BusinessDetailPage(listingid: listingid,),
                           ),
                         );
                       },

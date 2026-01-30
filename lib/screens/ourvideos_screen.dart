@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/video_card.dart';
+
 class OurVideoScreen extends StatefulWidget {
   const OurVideoScreen({super.key});
 
@@ -9,44 +11,67 @@ class OurVideoScreen extends StatefulWidget {
 }
 
 class _OurVideoScreenState extends State<OurVideoScreen> {
-  List<String> dummyVideoUrls = [
-    "https://www.youtube.com/watch?v=EYz0D-QD0z8",
-    "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4",
-    "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_5mb.mp4",
-    "https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4",
-    "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_10mb.mp4",
-  ];
+  List<String> allvideo = [];
+  bool isLoading = true;
+
+  Future<void> getvideo() async {
+    try {
+      final response = await HomeService().getvideos();
+      setState(() {
+        allvideo = List<String>.from(response["data"] ?? []);
+        isLoading = false;
+      });
+    } catch (e) {
+      isLoading = false;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getvideo();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Hot & Trending Videos"),),
+      appBar: AppBar(title: const Text("Hot & Trending Videos")),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.only(left:15.0),
-              child: Text("Watch the latest trending videos across all categories."),
+            const Padding(
+              padding: EdgeInsets.only(left: 15),
+              child: Text(
+                "Watch the latest trending videos across all categories.",
+              ),
             ),
+
             Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                    mainAxisSpacing: 10,
-                    crossAxisSpacing: 10,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: dummyVideoUrls.length,
-                  itemBuilder: (context,index){
-                    final video=dummyVideoUrls[index];
-                    return VideoCard(videoUrl: video);
-                  }),
+              padding: const EdgeInsets.all(15),
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 10,
+                            crossAxisSpacing: 10,
+                            childAspectRatio: 16 / 9, // 🔥 correct for video
+                          ),
+                      itemCount: allvideo.length,
+                      itemBuilder: (context, index) {
+                        return VideoCard(
+                          key: ValueKey(allvideo[index]),
+                          videoId: allvideo[index],
+                        );
+                      },
+                    ),
             ),
-            BottomSection()
+
+            const BottomSection(),
           ],
         ),
       ),
