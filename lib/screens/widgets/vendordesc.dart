@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:new_app/screens/widgets/video_card.dart';
 
-
 class ListingDetailsDropdown extends StatefulWidget {
   String lat;
   String long;
@@ -10,7 +9,7 @@ class ListingDetailsDropdown extends StatefulWidget {
   List gallery;
   List video;
 
-ListingDetailsDropdown({
+  ListingDetailsDropdown({
     super.key,
     required this.lat,
     required this.long,
@@ -26,8 +25,36 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
   GoogleMapController? mapController;
   LatLng mapCenter = const LatLng(28.6139, 77.2090); // default Delhi
 
+  static const LatLng defaultLocation = LatLng(28.6139, 77.2090); // Delhi
+
   // Marker for showing selected location
   final Set<Marker> markers = {};
+
+  late LatLng staticLocation;
+  @override
+  void initState() {
+    super.initState();
+    print(widget.lat);
+    print(widget.long);
+    double lat = double.tryParse(widget.lat) ?? 0;
+    double lng = double.tryParse(widget.long) ?? 0;
+
+    bool isValidLocation = lat != 0 && lng != 0;
+
+    LatLng finalLocation = isValidLocation ? LatLng(lat, lng) : defaultLocation;
+
+    mapCenter = finalLocation;
+
+    if (isValidLocation) {
+      markers.add(
+        Marker(
+          markerId: const MarkerId('static_marker'),
+          position: finalLocation,
+          infoWindow: const InfoWindow(title: 'Business Location'),
+        ),
+      );
+    }
+  }
 
   final List<bool> _expanded = [false, false, false, false];
 
@@ -41,7 +68,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
   final List<String> videoThumbs = [
     'https://www.pexels.com/download/video/35174752/',
     'https://www.pexels.com/download/video/35174767/',
-    'https://www.pexels.com/download/video/35174755/'
+    'https://www.pexels.com/download/video/35174755/',
   ];
 
   final String descriptionText =
@@ -82,14 +109,17 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
               padding: const EdgeInsets.all(12),
               itemBuilder: (_, i) => ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.asset(
-                  galleryImages[i],
+                child: Image.network(
+                  "https://partynuptual.com/public/uploads/listing/"
+                  "${widget.gallery[i]['owner_id']}/"
+                  "${widget.gallery[i]['listing_id']}/"
+                  "${widget.gallery[i]['file_name']}",
                   width: 160,
                   fit: BoxFit.cover,
                 ),
               ),
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemCount: galleryImages.length,
+              itemCount: widget.gallery.length,
             ),
           ),
         ),
@@ -110,9 +140,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => VideoCard(
-                          videoId: videoThumbs[i],
-                        ),
+                        builder: (_) => VideoCard(videoId: videoThumbs[i]),
                       ),
                     );
                   },
@@ -153,9 +181,11 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
               ),
               alignment: Alignment.center,
               child: GoogleMap(
-                initialCameraPosition: CameraPosition(target: mapCenter, zoom: 14),
+                initialCameraPosition: CameraPosition(
+                  target: mapCenter,
+                  zoom: 14,
+                ),
                 onMapCreated: (controller) => mapController = controller,
-                onCameraMove: (position) => mapCenter = position.target,
                 markers: markers,
               ),
             ),
@@ -176,10 +206,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-          ),
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8),
         ],
       ),
       child: Column(
@@ -192,15 +219,16 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
               });
             },
             child: Padding(
-              padding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     title,
                     style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.w600),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   CircleAvatar(
                     radius: 16,
@@ -221,12 +249,11 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
             curve: Curves.easeInOut,
             child: _expanded[index]
                 ? SizedBox(
-              width: double.infinity, // 🔑 keep width stable
-              child: child,
-            )
+                    width: double.infinity, // 🔑 keep width stable
+                    child: child,
+                  )
                 : const SizedBox.shrink(),
           ),
-
         ],
       ),
     );

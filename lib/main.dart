@@ -3,8 +3,12 @@ import 'package:get/get.dart';
 import 'package:new_app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import './controllers/authentication_controller.dart';
+
+
 
 void main() {
+  Get.put(AuthenticationController());
   runApp(const MyApp());
 }
 

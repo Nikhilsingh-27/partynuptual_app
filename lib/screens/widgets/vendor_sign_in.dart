@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../home_page.dart';
 import '../forgot_password.dart';
 import './vendor_sign_up.dart';
+import '../../controllers/authentication_controller.dart';
+import 'package:get/get.dart';
 
 class VendorSignIn extends StatefulWidget {
   const VendorSignIn({super.key});
@@ -11,6 +13,8 @@ class VendorSignIn extends StatefulWidget {
 }
 
 class _VendorSignInState extends State<VendorSignIn> {
+  final auth = Get.find<AuthenticationController>();
+
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -35,13 +39,10 @@ class _VendorSignInState extends State<VendorSignIn> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
       ),
 
       body: Container(
-        decoration: BoxDecoration(
-          color:Colors.white,
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -60,14 +61,13 @@ class _VendorSignInState extends State<VendorSignIn> {
                     children: [
                       Center(
                         child: Text(
-                            'Vendor Sign In',
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[900],
-                            ),
-                      ),
-
+                          'Vendor Sign In',
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.grey[900],
+                          ),
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Center(
@@ -187,12 +187,25 @@ class _VendorSignInState extends State<VendorSignIn> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        await auth.login(
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text.trim(),
+                          role: "vendor", // or whatever your API expects
+                        );
+
+                        if (auth.userData.value != null) {
+                          Get.offAll(() => HomePage());
+                        } else {
+                          Get.snackbar(
+                            "Login Failed",
+                            auth.error.value,
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => HomePage(),
-                          ),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -247,10 +260,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                     children: [
                       Text(
                         'Don\'t have an account? ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       TextButton(
                         onPressed: () {
@@ -281,4 +291,3 @@ class _VendorSignInState extends State<VendorSignIn> {
     );
   }
 }
-

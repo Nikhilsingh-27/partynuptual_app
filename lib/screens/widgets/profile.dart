@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
 
 class ProfileDropdownTile extends StatefulWidget {
+  
   const ProfileDropdownTile({Key? key}) : super(key: key);
 
   @override
@@ -11,10 +13,12 @@ class ProfileDropdownTile extends StatefulWidget {
 class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     with SingleTickerProviderStateMixin {
   bool isExpanded = false;
+  final auth = Get.find<AuthenticationController>();
 
   late final AnimationController _controller;
   late final Animation<double> _arrowRotation;
   late final Animation<double> _expandAnimation;
+  
 
   @override
   void initState() {
@@ -41,6 +45,7 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     required String title,
     required String route,
   }) {
+    
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.only(left: 72, right: 16),
@@ -60,17 +65,18 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     _controller.dispose();
     super.dispose();
   }
-
+  
   @override
   Widget build(BuildContext context) {
-    return Column(
+    return Obx((){
+      return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // MAIN TILE
         ListTile(
           leading: const Icon(Icons.person_outline),
-          title: const Text(
-            "Nikhil Singh",
+          title: Text(
+            auth.username ?? "Guest",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           trailing: RotationTransition(
@@ -128,5 +134,8 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
         ),
       ],
     );
+  
+    });
+    
   }
 }

@@ -2,6 +2,7 @@
 
 
 import 'package:flutter/material.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/screens/blogs_screen.dart';
 import 'package:new_app/screens/widgets/autoscrollforideas.dart';
 import 'package:new_app/screens/widgets/profile.dart';
@@ -32,6 +33,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  final auth = Get.find<AuthenticationController>();
+  
   final partyurl="https://partynuptual.com/public";
 
   final HomeController controller = Get.put(HomeController());
@@ -173,7 +177,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+
     final homeCategories = categories.take(6).toList();
+    
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(100),
@@ -194,7 +200,11 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       endDrawer: Drawer(
-        child: ListView(
+        
+        child: Obx((){
+          final role=auth.role??'';
+
+          return ListView(
           padding: EdgeInsets.zero,
           children: [
             SizedBox(
@@ -210,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
             ),
-            ProfileDropdownTile(),
+            if (role.contains('vendor') || role.contains('guest'))ProfileDropdownTile(),
             ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text(
@@ -282,10 +292,14 @@ class _HomePageState extends State<HomePage> {
               },
             )
           ],
-        ),
+        );
+        })
+      
       ),
       backgroundColor: Colors.white,
       body: Obx(() {
+        String role=auth.role??'';
+        print(role);
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
@@ -365,8 +379,11 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 30),
-              SearchWidget(),
+              
+              if (role.contains('vendor') || role.contains('guest'))...[
+                const SizedBox(height: 30),
+                SearchWidget(),
+              ],
               SizedBox(height: 40,),
               // Connect With Your Community Vendors Section
               Center(

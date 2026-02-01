@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../home_page.dart';
 import '../forgot_password.dart';
 import './vendor_sign_up.dart';
+import 'package:get/get.dart';
+import '../../controllers/authentication_controller.dart';
 
 class GuestSignIn extends StatefulWidget {
   const GuestSignIn({super.key});
@@ -11,6 +13,8 @@ class GuestSignIn extends StatefulWidget {
 }
 
 class _GuestSignInState extends State<GuestSignIn> {
+  final auth = Get.find<AuthenticationController>();
+
   bool _obscurePassword = true;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -36,13 +40,10 @@ class _GuestSignInState extends State<GuestSignIn> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
       ),
 
       body: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-        ),
+        decoration: BoxDecoration(color: Colors.white),
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
@@ -57,7 +58,6 @@ class _GuestSignInState extends State<GuestSignIn> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
-
                     children: [
                       Center(
                         child: Text(
@@ -187,12 +187,24 @@ class _GuestSignInState extends State<GuestSignIn> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        await auth.login(
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text.trim(),
+                          role: "guest",
+                        );
+                        if (auth.userData.value != null) {
+                          Get.offAll(() => HomePage());
+                        } else {
+                          Get.snackbar(
+                            "Login Failed",
+                            auth.error.value,
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => HomePage(),
-                          ),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
                       },
                       style: ElevatedButton.styleFrom(
@@ -247,10 +259,7 @@ class _GuestSignInState extends State<GuestSignIn> {
                     children: [
                       Text(
                         'Don\'t have an account? ',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                       ),
                       TextButton(
                         onPressed: () {
@@ -281,4 +290,3 @@ class _GuestSignInState extends State<GuestSignIn> {
     );
   }
 }
-

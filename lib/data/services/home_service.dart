@@ -147,11 +147,26 @@ class HomeService {
       final response = await _dio.get(
         "${ApiEndpoints.listing}/$id"
       );
+
+      return response.data;
+    }on DioException catch(e){
+      throw Exception(e.response?.data??"Not found");
+    }
+  }
+
+  Future<Map<String,dynamic>>gallerybyid({required String id})async{
+    try{
+      final response = await _dio.get(
+        "${ApiEndpoints.gallery}/$id"
+      );
       print(response.data);
       return response.data;
     }on DioException catch(e){
       throw Exception(e.response?.data??"Not found");
     }
   }
+  
+  
+  
 
 }

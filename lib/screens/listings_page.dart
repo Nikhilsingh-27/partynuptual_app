@@ -45,7 +45,7 @@ class _ListingsPageState extends State<ListingsPage> {
         page: currentPage,
         limit: limit,
       );
-
+      
       final newListings = data['data'] as List<dynamic>;
 
       setState(() {

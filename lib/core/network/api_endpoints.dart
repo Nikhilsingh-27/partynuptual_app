@@ -11,4 +11,9 @@ class ApiEndpoints {
   static const String states="/get_states";
   static const String videos="/get_videos";
   static const String listing="/listing";
+  static const String gallery="/gallery_listing";
+
+  static const String checkusername="/check_username";
+  static const String signup="/signup";
+  static const String login="/login";
 }

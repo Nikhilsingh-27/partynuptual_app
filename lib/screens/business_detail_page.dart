@@ -36,10 +36,15 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
   ];
 
   Map<String, dynamic> listing = {};
+  List gallerylist =[];
   Future<void> fetchlistingbyid(String id) async {
     final response = await HomeService().getlistingbyid(id: id);
+    final gallerydata = await HomeService().gallerybyid(id: id);
     setState(() {
       listing = response["data"] ?? {};
+
+      gallerylist = gallerydata["data"]??[];
+
       isloading=false;
      
     });
@@ -161,7 +166,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                       lat: listing["lattitude"] ?? "",
                       long: listing["longnitude"] ?? "",
                       desc: listing["about"] ?? "",
-                      gallery: galleryImages,
+                      gallery: gallerylist,
                       video: videoThumbs,
                     ),
                     const SizedBox(height: 16),
