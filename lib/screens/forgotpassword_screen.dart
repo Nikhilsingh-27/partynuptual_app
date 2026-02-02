@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/data/services/authentication_service.dart';
+import 'package:get/get.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -16,10 +18,34 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     super.dispose();
   }
 
-  void _onResetPressed() {
+  void _onResetPressed() async {
     final emailOrUsername = emailController.text.trim();
-    print("Entered email/username: $emailOrUsername");
+
+    try {
+      final response =
+      await AuthenticationService().forgotpassfun(email: emailOrUsername);
+
+      Get.snackbar(
+        "Success",
+        "Temporary password is sent to your email",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.green,
+        colorText: Colors.white,
+        duration: const Duration(seconds: 3),
+      );
+
+      Get.offAllNamed("/home"); // better than toNamed
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Something went wrong",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
   }
+
 
   @override
   Widget build(BuildContext context) {

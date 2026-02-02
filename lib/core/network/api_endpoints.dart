@@ -16,4 +16,5 @@ class ApiEndpoints {
   static const String checkusername="/check_username";
   static const String signup="/signup";
   static const String login="/login";
+  static const String forgot="/forgot_password";
 }

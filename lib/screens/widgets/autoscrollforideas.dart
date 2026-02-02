@@ -58,8 +58,7 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
       }
 
       final ideas = homeData.data["data"]["share_ideas"] as List;
-      print("mm");
-      print(ideas);
+
       _startAutoScroll(ideas.length);
 
       return Padding(

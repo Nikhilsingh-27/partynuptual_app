@@ -279,18 +279,21 @@ class _HomePageState extends State<HomePage> {
                 }
 
             ),
-
-            SignInDropdown(),
-            SignUpDropdown(),
-            ListTile(
-              leading:const Icon(Icons.lock_outline),
-              title: const Text(
-                "Forgot Password",style: TextStyle(fontWeight: FontWeight.bold)
+            if (role=='') ...[
+              SignInDropdown(),
+              SignUpDropdown(),
+              ListTile(
+                leading: const Icon(Icons.lock_outline),
+                title: const Text(
+                  "Forgot Password",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/forgotpassword");
+                },
               ),
-              onTap: (){
-                Get.toNamed("/forgotpassword");
-              },
-            )
+            ]
+
           ],
         );
         })

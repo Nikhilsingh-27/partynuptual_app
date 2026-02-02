@@ -14,6 +14,25 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
+  String getLogoImageUrl(String? logoPath) {
+    const String baseUrl = "https://partynuptual.com/";
+    const String defaultImage =
+        "${baseUrl}public/front/assets/img/list-8.jpg";
+
+    if (logoPath == null || logoPath.trim().isEmpty) {
+      return defaultImage;
+    }
+
+
+    final String imageName = logoPath.split('/').last;
+
+    if (imageName.isEmpty) {
+      return defaultImage;
+    }
+
+    return "${baseUrl}/public/uploads/logo/$imageName";
+  }
+
   final List<dynamic> listingList = []; // Store fetched listings
   int currentPage = 1;
   int limit = 10;
@@ -224,7 +243,7 @@ Widget _buildListingCard({
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               child: Image.network(
-                "https://partynuptual.com/public/$image",
+                "https://partynuptual.com/public/uploads/logo/$image",
                 height: MediaQuery.of(context).size.width-16,
                 width: MediaQuery.of(context).size.width-16,
                 fit: BoxFit.contain,
