@@ -97,6 +97,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
                   description: item['about'] ?? '',
                   phone: item['phone_number'] ?? '',
                   location: item['office_address'] ?? '',
+                  ownerid: item['owner_id']??''
                 ),
               );
             },

@@ -27,7 +27,8 @@ class AuthenticationController extends GetxController {
     user['role'] = role; // ✅ add role manually
 
     userData.value = user;
-    print(userData); // adjust based on API structure
+    print(userData.value);
+    print(userData.value?['user_id']);// adjust based on API structure
     } catch (e) {
       error.value = e.toString();
     } finally {
@@ -36,7 +37,7 @@ class AuthenticationController extends GetxController {
   }
 
   // getters for global access
-  String? get userId => userData.value?['id']?.toString();
+  String? get userId => userData.value?['user_id']?.toString();
   String? get username => userData.value?['username'];
   String? get email => userData.value?['email'];
   String? get role => userData.value?['role'];

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/profileimg/imgupload.dart';
+import 'package:get/get.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -9,6 +12,10 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
+
+  final AuthenticationController auth = Get.find<AuthenticationController>();
+
+
   // Controllers
   final TextEditingController firstNameCtrl = TextEditingController();
   final TextEditingController lastNameCtrl = TextEditingController();
@@ -26,6 +33,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // print(auth.userId);
     return Scaffold(
       backgroundColor: Colors.white,
 
@@ -81,8 +89,33 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () {
-                      print("⚠️ Delete Account Clicked");
+                    onPressed: () async{
+                      final response = await ProfileService()
+                          .deleteAccountfun(id: auth.userId ?? "");
+
+                      if (response["status"]=="success") {
+                        // Navigate to home and clear previous routes
+                        Get.offAllNamed('/home');
+
+                        // Show success snackbar
+                        Get.snackbar(
+                          "Success",
+                          "Account successfully deleted",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                          duration: const Duration(seconds: 3),
+                        );
+                      } else {
+                        // Optional: failure snackbar
+                        Get.snackbar(
+                          "Error",
+                          "Failed to delete account",
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.red,
+                          colorText: Colors.white,
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromRGBO(199, 31, 55,1),
@@ -102,7 +135,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child:const ProfileImageUploadContainer()
+                      child: ProfileImageUploadContainer()
                   ),
             )
             )
@@ -201,20 +234,119 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   // ========================= PRINT FUNCTIONS =========================
 
-  void _printBasicInfo() {
-    print("----- BASIC INFO -----");
-    print("First Name: ${firstNameCtrl.text}");
-    print("Last Name: ${lastNameCtrl.text}");
-    print("Gender: $selectedGender");
-    print("Address: ${addressCtrl.text}");
-    print("Zip: ${zipCtrl.text}");
-    print("Email: ${emailCtrl.text}");
-    print("Phone: ${phoneCtrl.text}");
+  void _printBasicInfo() async {
+    final auth = Get.find<AuthenticationController>();
+
+    if (auth.userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User not logged in"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await ProfileService().updateInfo(
+        userId: auth.userId!,
+        firstName: firstNameCtrl.text.trim(),
+        lastName: lastNameCtrl.text.trim(),
+        gender: selectedGender ?? "",
+        address: addressCtrl.text.trim(),
+        zipCode: zipCtrl.text.trim(),
+        email: emailCtrl.text.trim(),
+      );
+
+      final bool isSuccess =
+          response['status'] == true || response['status'] == "success";
+
+      if (isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Profile updated successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message'] ?? "Update failed"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
-  void _printPasswordInfo() {
-    print("----- PASSWORD UPDATE -----");
-    print("Old Password: ${oldPasswordCtrl.text}");
-    print("New Password: ${newPasswordCtrl.text}");
+
+  void _printPasswordInfo() async {
+    final auth = Get.find<AuthenticationController>();
+
+    if (auth.userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("User not logged in"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (oldPasswordCtrl.text.isEmpty || newPasswordCtrl.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Please fill all password fields"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      final response = await ProfileService().updatepasswordfun(
+        user_id: auth.userId!,
+        old_password: oldPasswordCtrl.text.trim(),
+        new_password: newPasswordCtrl.text.trim(),
+      );
+
+      final bool isSuccess =
+          response['status'] == true || response['status'] == "success";
+
+      if (isSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Password updated successfully"),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Clear fields after success
+        oldPasswordCtrl.clear();
+        newPasswordCtrl.clear();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(response['message'] ?? "Password update failed"),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
+
 }

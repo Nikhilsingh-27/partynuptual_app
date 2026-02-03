@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/review.dart';
 import 'package:new_app/screens/widgets/vendordesc.dart';
 
 class BusinessDetailPage extends StatefulWidget {
   final String listingid;
-  const BusinessDetailPage({super.key, required this.listingid});
+  final String ownerid;
+  const BusinessDetailPage({super.key, required this.listingid,required this.ownerid});
 
   @override
   State<BusinessDetailPage> createState() => _BusinessDetailPageState();
@@ -269,6 +271,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
+                    ReviewToVendor(ownerId: widget.ownerid, listingId: widget.listingid),
                   ],
                 ),
               ),

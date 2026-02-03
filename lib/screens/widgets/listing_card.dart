@@ -9,6 +9,7 @@ Widget buildListingCard({
   required String description,
   required String phone,
   required String location,
+  required String ownerid
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -166,7 +167,7 @@ Widget buildListingCard({
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BusinessDetailPage(listingid: listingid,),
+                            builder: (_) => BusinessDetailPage(listingid: listingid,ownerid: ownerid,),
                           ),
                         );
                       },

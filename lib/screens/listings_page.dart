@@ -153,6 +153,7 @@ class _ListingsPageState extends State<ListingsPage> {
                             description: listing['about'] ?? '',
                             phone: listing['phone_number'] ?? '',
                             location: listing['office_address'] ?? '',
+                            ownerid: listing['owner_id']??''
                           );
                         },
                       ),
@@ -220,6 +221,7 @@ Widget _buildListingCard({
   required String description,
   required String phone,
   required String location,
+  required String ownerid
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -372,7 +374,8 @@ Widget _buildListingCard({
                           context,
                           MaterialPageRoute(
                             builder: (_) => BusinessDetailPage(
-                              listingid:listingid
+                              listingid:listingid,
+                              ownerid: ownerid,
                             ),
                           ),
                         );

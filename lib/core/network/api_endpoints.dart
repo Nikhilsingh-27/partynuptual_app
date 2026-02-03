@@ -17,4 +17,12 @@ class ApiEndpoints {
   static const String signup="/signup";
   static const String login="/login";
   static const String forgot="/forgot_password";
+
+  static const String updagteinfo="/update_info";
+  static const String updatepassword="/update_password";
+  static const String deleteaccount="/delete_account";
+  static const String updateimage="/update_image";
+
+  static const String addreview="/addreview";
+
 }

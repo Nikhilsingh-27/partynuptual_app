@@ -88,7 +88,6 @@ class AuthenticationService {
     }on DioException catch(e){
       throw Exception(e.response?.data??"Not found");
     }
-
     }
 }
 
