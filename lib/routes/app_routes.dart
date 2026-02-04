@@ -5,6 +5,7 @@ abstract class AppRoutes {
   static const gsigin ='/gsignin';
   static const gsigup ='/gsignup';
 
+  static const logout = '/logout';
   static const forgotpassword='/forgotpassword';
 
   static const home = '/home';

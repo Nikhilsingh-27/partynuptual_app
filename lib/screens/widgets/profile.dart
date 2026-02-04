@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/home_controller.dart';
+import 'package:new_app/controllers/profile_image_controller.dart';
+import 'package:new_app/routes/app_routes.dart';
 
 class ProfileDropdownTile extends StatefulWidget {
   
@@ -12,8 +15,42 @@ class ProfileDropdownTile extends StatefulWidget {
 
 class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     with SingleTickerProviderStateMixin {
+
+  Future<void> performLogout() async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+
+    // 🔥 CLEAR & DELETE CONTROLLERS
+    final auth = Get.find<AuthenticationController>();
+    auth.logout();
+    Get.find<ProfileImageController>().clear();
+
+
+    Get.delete<ProfileImageController>(force: true);
+    Get.delete<HomeController>(force: true);
+
+    // 🚀 Go to HOME cleanly
+    Get.offAllNamed(AppRoutes.home);
+
+    Get.snackbar(
+      "Logout",
+      "Successfully logged out",
+      snackPosition: SnackPosition.BOTTOM,
+      backgroundColor: Colors.black87,
+      colorText: Colors.white,
+    );
+  }
+
   bool isExpanded = false;
-  final auth = Get.find<AuthenticationController>();
+
 
   late final AnimationController _controller;
   late final Animation<double> _arrowRotation;
@@ -44,6 +81,7 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     required IconData icon,
     required String title,
     required String route,
+    VoidCallback? onTap,
   }) {
     
     return ListTile(
@@ -54,7 +92,7 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
         title,
         style: const TextStyle(fontSize: 14),
       ),
-      onTap: () {
+      onTap: onTap ?? () {
         Get.toNamed(route);
       },
     );
@@ -68,6 +106,7 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
   
   @override
   Widget build(BuildContext context) {
+    final auth = Get.find<AuthenticationController>();
     return Obx((){
       return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,10 +137,11 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
                   title: "My Profile",
                   route: "/myprofile",
                 ),
+                if(auth.role=='vendor')...[
                 _buildSubItem(
                   icon: Icons.inbox_outlined,
-                  title: "My Inbox",
-                  route: "/myinbox",
+                  title: "Add Listings",
+                  route: "/addlistings",
                 ),
                 _buildSubItem(
                   icon: Icons.inbox_outlined,
@@ -109,9 +149,15 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
                   route: "/mylisting",
                 ),
                 _buildSubItem(
+                icon: Icons.inbox_outlined,
+                title: "My Inquiries",
+                route: "/inquirie",
+                ),
+                ],
+                _buildSubItem(
                   icon: Icons.inbox_outlined,
-                  title: "Add Listings",
-                  route: "/addlistings",
+                  title: "My Inbox",
+                  route: "/myinbox",
                 ),
                 _buildSubItem(
                   icon: Icons.lightbulb_outline,
@@ -126,8 +172,15 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
                 _buildSubItem(
                   icon: Icons.logout,
                   title: "Logout",
-                  route: "/logout",
+                  route: "",
+                  onTap: () async {
+                    await performLogout();
+                  },
+
+
+
                 ),
+
               ],
             ),
           ),

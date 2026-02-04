@@ -18,6 +18,7 @@ class ApiEndpoints {
   static const String login="/login";
   static const String forgot="/forgot_password";
 
+  static const String getuser="get_user";
   static const String updagteinfo="/update_info";
   static const String updatepassword="/update_password";
   static const String deleteaccount="/delete_account";
@@ -25,4 +26,7 @@ class ApiEndpoints {
 
   static const String addreview="/addreview";
 
+  static const String getinquiry="/getInquiries";
+  static const String getmyidea="/getMyShareIdeas";
+  static const String sendinquiry="/addinquiry";
 }

@@ -14,6 +14,7 @@ class ListingsPage extends StatefulWidget {
 }
 
 class _ListingsPageState extends State<ListingsPage> {
+
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
     const String defaultImage =
@@ -148,7 +149,7 @@ class _ListingsPageState extends State<ListingsPage> {
                           return _buildListingCard(
                             context: context,
                             listingid: listing["listing_id"],
-                            image: fixImageUrl(listing['logo_image'] ?? ''),
+                            image: getLogoImageUrl(listing['logo_image'] ?? ''),
                             name: listing['company_name'] ?? '',
                             description: listing['about'] ?? '',
                             phone: listing['phone_number'] ?? '',
@@ -245,7 +246,7 @@ Widget _buildListingCard({
             ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
               child: Image.network(
-                "https://partynuptual.com/public/uploads/logo/$image",
+                image,
                 height: MediaQuery.of(context).size.width-16,
                 width: MediaQuery.of(context).size.width-16,
                 fit: BoxFit.contain,

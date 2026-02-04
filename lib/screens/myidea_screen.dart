@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
+import 'package:get/get.dart';
 class MyIdeaScreen extends StatefulWidget {
   const MyIdeaScreen({super.key});
 
@@ -8,6 +10,26 @@ class MyIdeaScreen extends StatefulWidget {
 }
 
 class _MyIdeaScreenState extends State<MyIdeaScreen> {
+  bool isloading=true;
+  String getLogoImageUrl(String? logoPath) {
+    const String baseUrl = "https://partynuptual.com/";
+    const String defaultImage =
+        "${baseUrl}public/front/assets/img/list-8.jpg";
+
+    if (logoPath == null || logoPath.trim().isEmpty) {
+      return defaultImage;
+    }
+
+
+    final String imageName = logoPath.split('/').last;
+
+    if (imageName.isEmpty) {
+      return defaultImage;
+    }
+
+    return "${baseUrl}/public/uploads/ideas/$imageName";
+  }
+
   final List<Map<String, String>> ideas = [
     {
       "theme": "Birthday",
@@ -31,6 +53,31 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
       "date": "15 Jan 2026",
     },
   ];
+  final AuthenticationController auth = Get.find<AuthenticationController>();
+  final List<dynamic> listmyideas = [];
+
+  Future<void> getmyideas() async {
+    try {
+      final response =
+      await ProfileService().getmyideafun(id: auth.userId ?? "");
+
+      if (response == null || response["data"] == null) return;
+
+      setState(() {
+        listmyideas.clear();
+        listmyideas.addAll(response["data"]);
+        isloading=false;
+      });
+    } catch (e) {
+      debugPrint("Error fetching inquiries: $e");
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    getmyideas();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,11 +85,11 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
       appBar: AppBar(
         title: const Text("My Shared Ideas"),
       ),
-      body: ListView.builder(
+      body: isloading?Center(child:CircularProgressIndicator()): ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: ideas.length,
+        itemCount: listmyideas.length,
         itemBuilder: (context, index) {
-          final idea = ideas[index];
+          final idea = listmyideas[index];
           return Card(
             color: Colors.white,
             margin: const EdgeInsets.only(bottom: 16),
@@ -63,7 +110,7 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                     ),
                   ),
                   Text(
-                    idea["theme"]!,
+                    idea["party_theme"]!,
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 8),
@@ -99,8 +146,8 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Image.asset(
-                    idea["image"] ?? "assets/default.png", // fallback if null
+                  Image.network(
+                    getLogoImageUrl(idea["image"]),  // fallback if null
                     height: 120,
                     width: double.infinity,
                     fit: BoxFit.cover,
@@ -115,7 +162,7 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                     ),
                   ),
                   Text(
-                    idea["date"]!,
+                    idea["date_added"]!,
                     style: const TextStyle(fontSize: 16),
                   ),
                   const SizedBox(height: 12),

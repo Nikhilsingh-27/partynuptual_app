@@ -1,11 +1,26 @@
+import 'dart:io';
+
+import 'package:dio/dio.dart' as dio;
+
 import 'package:get/get.dart';
-import 'package:dio/dio.dart';
 
 import '../../core/network/dio_client.dart';
 import '../../core/network/api_endpoints.dart';
 
 class ProfileService {
-  final Dio _dio = DioClient().dio;
+  final _dio = DioClient().dio;
+
+  Future<Map<String, dynamic>> getuserdetailsfun({required String id}) async {
+    try {
+      final response = await _dio.get(
+          "${ApiEndpoints.getuser}/$id"
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api error");
+    }
+  }
 
   Future<Map<String, dynamic>> updateInfo({
     required String userId,
@@ -15,6 +30,7 @@ class ProfileService {
     required String address,
     required String zipCode,
     required String email,
+    required String phone
   }) async {
     try {
       final response = await _dio.post(
@@ -27,14 +43,15 @@ class ProfileService {
           "address": address,
           "zip_code": zipCode,
           "email": email,
+          "phone": phone
         },
-        options: Options(
-          contentType: Headers.jsonContentType,
+        options: dio.Options(
+          contentType: dio.Headers.jsonContentType,
         ),
       );
 
       return response.data;
-    } on DioException catch (e) {
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
@@ -49,34 +66,12 @@ class ProfileService {
             "old_password": old_password,
             "new_password": new_password
           },
-          options: Options(
-              contentType: Headers.jsonContentType
+          options: dio.Options(
+              contentType: dio.Headers.jsonContentType
           )
       );
       return response.data;
-    } on DioException catch (e) {
-      throw Exception(e.response?.data ?? "Api Error");
-    }
-  }
-
-  Future<Map<String, dynamic>> updateimage({required String user_id,
-    required String profile_image}) async {
-    try {
-      print("oo");
-      print(user_id);
-      print(profile_image);
-      final response = await _dio.post(
-          ApiEndpoints.updateimage,
-          data: {
-            "user_id": user_id,
-            "profile_image": profile_image
-          },
-          options: Options(
-              contentType: Headers.jsonContentType
-          )
-      );
-      return response.data;
-    } on DioException catch (e) {
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "Api Error");
     }
   }
@@ -89,7 +84,7 @@ class ProfileService {
         data: {
           "user_id": id,
         },
-        options: Options(
+        options: dio.Options(
           headers: {
             "Content-Type": "application/json",
             "User-Agent":
@@ -101,10 +96,11 @@ class ProfileService {
 
       print(response.data);
       return response.data;
-    } on DioException catch (e) {
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "Api Error");
     }
   }
+
   Future<Map<String, dynamic>> addReviewFun({
     required String vendorId,
     required String listingId,
@@ -129,12 +125,117 @@ class ProfileService {
           "user_id": userId,
         },
       );
-      print(response.data);
+
       return response.data;
-    } on DioException catch (e) {
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "Failed to submit review");
     }
   }
 
-}
 
+  Future<Map<String, dynamic>> getinquiry({required String id}) async {
+    try {
+      final response = await _dio.get(
+          "${ApiEndpoints.getinquiry}/$id"
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> getmyideafun({required String id}) async {
+    try {
+      final response = await _dio.get(
+          "${ApiEndpoints.getmyidea}/$id"
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> sendinquiry({
+    required String name,
+    required String email,
+    required String phone,
+    required String message,
+    required String listing_id,
+    required String vendor_id,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.sendinquiry,
+        data: {
+          "name": name,
+          "email": email,
+          "phone": phone,
+          "message": message,
+          "listing_id": listing_id,
+          "vendor_id": vendor_id,
+        },
+      );
+      print(response.data);
+      // Dio returns response.data directly
+      return response.data;
+    } on dio.DioException catch (e) {
+      return {
+        "status": "error",
+        "message": e.response?.data?["message"] ??
+            e.message ??
+            "Something went wrong",
+      };
+    } catch (e) {
+      return {
+        "status": "error",
+        "message": e.toString(),
+      };
+    }
+  }
+
+  Future<Map<String, dynamic>> updateimage({
+    required String userId,
+    required File imageFile,
+  }) async {
+    try {
+      final fileName = imageFile.path.split('/').last;
+
+      final dio.FormData formData = dio.FormData();
+
+      // ✅ Add normal form field
+      formData.fields.add(
+        MapEntry('user_id', userId),
+      );
+
+      // ✅ Add file
+      formData.files.add(
+        MapEntry(
+          'profile_image',
+          await dio.MultipartFile.fromFile(
+            imageFile.path,
+            filename: fileName,
+          ),
+        ),
+      );
+
+      final response = await _dio.post(
+        ApiEndpoints.updateimage,
+        data: formData,
+        options: dio.Options(
+          headers: {
+            "Accept": "application/json",
+          },
+
+        ),
+      );
+
+      print('Response: ${response.data}');
+      return Map<String, dynamic>.from(response.data);
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api Error");
+    }
+  }
+
+}

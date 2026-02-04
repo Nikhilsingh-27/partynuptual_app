@@ -1,36 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
+import 'package:get/get.dart';
 
-class InquiriesScreen extends StatelessWidget {
-  InquiriesScreen({super.key});
 
-  // Dummy data for demonstration
-  final List<Map<String, String>> inquiries = [
-    {
-      "listing": "Mocktails & Cocktails",
-      "name": "John Doe",
-      "email": "john@example.com",
-      "phone": "1234567890",
-      "message": "I am interested in your services.",
-      "date": "2026-01-23"
-    },
-    {
-      "listing": "Lolita Restaurant",
-      "name": "Jane Smith",
-      "email": "jane@example.com",
-      "phone": "9876543210",
-      "message": "Can I book a table for 2?",
-      "date": "2026-01-22"
-    },
-    {
-      "listing": "Coffee Corner",
-      "name": "Mike Johnson",
-      "email": "mike@example.com",
-      "phone": "5555555555",
-      "message": "Do you offer online delivery?",
-      "date": "2026-01-21"
-    },
-  ];
+class InquiriesScreen extends StatefulWidget {
+  const InquiriesScreen({super.key});
 
+  @override
+  State<InquiriesScreen> createState() => _InquiriesScreenState();
+}
+
+class _InquiriesScreenState extends State<InquiriesScreen> {
+  final AuthenticationController auth = Get.find<AuthenticationController>();
+
+  bool isloading=true;
+  final List<dynamic> listinquiries = [];
+
+  Future<void> getinquiry() async {
+    try {
+      final response =
+      await ProfileService().getinquiry(id: auth.userId ?? "");
+
+      if (response == null || response["data"] == null) return;
+
+      setState(() {
+        listinquiries.clear();
+        listinquiries.addAll(response["data"]);
+        isloading=false;
+      });
+    } catch (e) {
+      debugPrint("Error fetching inquiries: $e");
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    getinquiry();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,18 +46,11 @@ class InquiriesScreen extends StatelessWidget {
         title: const Text('Inquiries'),
         backgroundColor: Colors.white,
       ),
-      body: inquiries.isEmpty
-          ? const Center(
-        child: Text(
-          "No inquiries found yet",
-          style: TextStyle(fontSize: 18, color: Colors.grey),
-        ),
-      )
-          : ListView.builder(
+      body: isloading?Center(child: CircularProgressIndicator(),): ListView.builder(
         padding: const EdgeInsets.all(12),
-        itemCount: inquiries.length,
+        itemCount: listinquiries.length,
         itemBuilder: (context, index) {
-          final inquiry = inquiries[index];
+          final inquiry = listinquiries[index];
           return Card(
             color: Colors.white,
             elevation: 4,
@@ -63,7 +64,7 @@ class InquiriesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    inquiry['listing'] ?? '',
+                    inquiry['listing_name'] ?? '',
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
@@ -100,7 +101,7 @@ class InquiriesScreen extends StatelessWidget {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Text(
-                      inquiry['date'] ?? '',
+                      inquiry['created_date'] ?? '',
                       style: const TextStyle(
                           fontSize: 12, color: Colors.grey),
                     ),

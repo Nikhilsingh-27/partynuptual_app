@@ -30,7 +30,36 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   String? selectedGender;
 
   final List<String> genderList = ["Male", "Female", "Other"];
+  Future<void> fetchuserdetails() async {
+    try {
+      final response =
+      await ProfileService().getuserdetailsfun(id: auth.userId ?? "");
 
+      if (response == null || response["data"] == null) return;
+
+      final Map<String, dynamic> data = response["data"];
+
+      setState(() {
+        firstNameCtrl.text = data["name"] ?? "";
+        lastNameCtrl.text = data["last_name"] ?? "";
+        addressCtrl.text = data["address"] ?? "";
+        zipCtrl.text = data["zip_code"] ?? "";
+        emailCtrl.text = data["email"] ?? "";
+        phoneCtrl.text = data["phone"] ?? "";
+        selectedGender = data["gender"]; // optional
+      });
+
+      debugPrint("User details fetched: $data");
+    } catch (e) {
+      debugPrint("Error fetching user details: $e");
+    }
+  }
+
+  @override
+  void initState(){
+    super.initState();
+    fetchuserdetails();
+  }
   @override
   Widget build(BuildContext context) {
     // print(auth.userId);
@@ -256,6 +285,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         address: addressCtrl.text.trim(),
         zipCode: zipCtrl.text.trim(),
         email: emailCtrl.text.trim(),
+        phone : phoneCtrl.text.trim(),
       );
 
       final bool isSuccess =

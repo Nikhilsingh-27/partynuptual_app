@@ -36,6 +36,12 @@ class AuthenticationController extends GetxController {
     }
   }
 
+  void logout() {
+    // reset observables
+    userData.value = null;
+    error.value = '';
+    isLoading.value = false;
+  }
   // getters for global access
   String? get userId => userData.value?['user_id']?.toString();
   String? get username => userData.value?['username'];

@@ -29,4 +29,10 @@ class HomeController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  void clear() {
+    isLoading.value = false;
+    homeData.value = null;
+    error.value = '';
+  }
 }

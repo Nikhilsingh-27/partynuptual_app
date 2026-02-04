@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
+import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/review.dart';
 import 'package:new_app/screens/widgets/vendordesc.dart';
-
+import 'package:get/get.dart';
 class BusinessDetailPage extends StatefulWidget {
   final String listingid;
   final String ownerid;
@@ -19,17 +21,10 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
   final TextEditingController phoneCtrl = TextEditingController();
   final TextEditingController commentCtrl = TextEditingController();
 
-  final String businessName = "New Bay Design";
-  final String location =
-      "2515 Santa Clara Ave Alameda, CA 94501 Serving Alameda Area";
-  final String phone = "5106314056";
+  final AuthenticationController auth = Get.find<AuthenticationController>();
 
   bool isloading=true;
-  final List<String> galleryImages = [
-    'assets/b.jpeg',
-    'assets/b.jpg',
-    'assets/b1.jpg',
-  ];
+
 
   final List<String> videoThumbs = [
     'https://www.pexels.com/download/video/35174752/',
@@ -256,7 +251,42 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () async {
+                                final response = await ProfileService().sendinquiry(
+                                  name: nameCtrl.text.trim(),
+                                  email: emailCtrl.text.trim(),
+                                  phone: phoneCtrl.text.trim(),
+                                  message: commentCtrl.text.trim(),
+                                  listing_id: widget.listingid,
+                                  vendor_id: widget.ownerid,
+                                );
+
+                                final bool isSuccess =
+                                    response["status"] == true || response["status"] == "success";
+
+                                if (isSuccess) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text("Inquiry sent successfully"),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+
+                                  // Optional: clear fields after success
+                                  nameCtrl.clear();
+                                  emailCtrl.clear();
+                                  phoneCtrl.clear();
+                                  commentCtrl.clear();
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(response["message"] ?? "Failed to send inquiry"),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              },
+
                               icon: const Icon(Icons.send),
                               label: const Text("Send Inquiry"),
                               style: ElevatedButton.styleFrom(
@@ -271,7 +301,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    ReviewToVendor(ownerId: widget.ownerid, listingId: widget.listingid),
+                    if(auth.role=='vendor'||auth.role=='guest')ReviewToVendor(ownerId: widget.ownerid, listingId: widget.listingid),
                   ],
                 ),
               ),

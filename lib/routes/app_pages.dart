@@ -27,7 +27,7 @@ import 'package:new_app/screens/widgets/map.dart';
 import 'package:new_app/screens/widgets/vendor_sign_in.dart';
 import 'package:new_app/screens/widgets/vendor_sign_up.dart';
 import './app_routes.dart';
-
+import './home_binding.dart';
 class AppPages {
   static const initial = AppRoutes.home;
 
@@ -59,8 +59,9 @@ class AppPages {
     GetPage(
       name: AppRoutes.home,
       page: () => HomePage(),
-      // binding: HomeBinding(),
+      binding: HomeBinding(),
     ),
+
 
     // BLOG
     GetPage(
@@ -147,6 +148,7 @@ class AppPages {
     GetPage(
       name:AppRoutes.blogcomplete,
       page:()=>BlogcompleteScreen()
-    )
+    ),
+
   ];
 }

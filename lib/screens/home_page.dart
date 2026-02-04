@@ -34,11 +34,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  final auth = Get.find<AuthenticationController>();
-  
+
+
   final partyurl="https://partynuptual.com/public";
 
-  final HomeController controller = Get.put(HomeController());
+
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -142,11 +142,28 @@ class _HomePageState extends State<HomePage> {
 
 
 
+  late AuthenticationController auth;
+  late HomeController controller;
+
   @override
   void initState() {
     super.initState();
+
+    // Ensure controllers exist
+    if (!Get.isRegistered<AuthenticationController>()) {
+      Get.put(AuthenticationController(), permanent: true);
+    }
+
+    if (!Get.isRegistered<HomeController>()) {
+      Get.put(HomeController());
+    }
+
+    auth = Get.find<AuthenticationController>();
+    controller = Get.find<HomeController>();
+
     _startAutoScroll();
   }
+
 
   @override
   void dispose() {
@@ -179,7 +196,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
 
     final homeCategories = categories.take(6).toList();
-    
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(100),
@@ -200,7 +217,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       endDrawer: Drawer(
-        
+
         child: Obx((){
           final role=auth.role??'';
 
@@ -262,14 +279,14 @@ class _HomePageState extends State<HomePage> {
                   Get.toNamed("/contactus");
                 }
             ),
-            ListTile(
-                leading: const Icon(Icons.help_outline),
-                title: const Text(
-                  "My inquiries", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/inquirie");
-                }
-            ),
+            // ListTile(
+            //     leading: const Icon(Icons.help_outline),
+            //     title: const Text(
+            //       "My inquiries", style: TextStyle(fontWeight: FontWeight.bold),),
+            //     onTap: () {
+            //       Get.toNamed("/inquirie");
+            //     }
+            // ),
             ListTile(
                 leading: const Icon(Icons.videocam),
                 title: const Text(
@@ -297,7 +314,7 @@ class _HomePageState extends State<HomePage> {
           ],
         );
         })
-      
+
       ),
       backgroundColor: Colors.white,
       body: Obx(() {
@@ -382,7 +399,7 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
               ),
-              
+
               if (role.contains('vendor') || role.contains('guest'))...[
                 const SizedBox(height: 30),
                 SearchWidget(),

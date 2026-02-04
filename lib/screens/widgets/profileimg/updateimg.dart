@@ -4,22 +4,23 @@ import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/profile_image_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 
-
 class UpdateImageButton extends StatelessWidget {
   UpdateImageButton({super.key});
 
-  final ProfileImageController imageController = Get.find<ProfileImageController>();
-  final AuthenticationController auth = Get.find<AuthenticationController>();
+  final ProfileImageController imageController =
+  Get.find<ProfileImageController>();
+  final AuthenticationController auth =
+  Get.find<AuthenticationController>();
 
   @override
   Widget build(BuildContext context) {
-    print(auth.userId);
     return SizedBox(
       height: 45,
       width: 160,
       child: ElevatedButton(
         onPressed: () async {
-          if (auth.userId == null || imageController.base64Image.isEmpty) {
+          if (auth.userId == null ||
+              imageController.selectedImage.value == null) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("Please select image first"),
@@ -31,18 +32,21 @@ class UpdateImageButton extends StatelessWidget {
 
           try {
             final response = await ProfileService().updateimage(
-              user_id: auth.userId!,
-              profile_image: imageController.base64Image.value,
+              userId: auth.userId!,
+              imageFile: imageController.selectedImage.value!,
             );
-            print(response);
+
             final isSuccess =
-                response['status'] == true || response['status'] == "success";
+                response['status'] == true ||
+                    response['status'] == "success";
 
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(isSuccess
-                    ? "Profile image updated successfully"
-                    : response['message'] ?? "Update failed"),
+                content: Text(
+                  isSuccess
+                      ? "Profile image updated successfully"
+                      : response['message'] ?? "Update failed",
+                ),
                 backgroundColor:
                 isSuccess ? Colors.green : Colors.red,
               ),

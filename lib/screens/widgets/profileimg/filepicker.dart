@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/profile_image_controller.dart';
-import 'dart:convert';
-import 'dart:io';
 
-Future<String> imageFileToBase64(File imageFile) async {
-  final bytes = await imageFile.readAsBytes();
-  return base64Encode(bytes);
-}
 
 class FilePickerBox extends StatelessWidget {
   FilePickerBox({super.key});

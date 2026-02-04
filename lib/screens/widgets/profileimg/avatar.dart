@@ -23,6 +23,7 @@ class ProfileAvatar extends StatelessWidget {
             fit: BoxFit.cover,
           )
               : null,
+
         ),
         child: controller.selectedImage.value == null
             ? const Icon(Icons.person, size: 70, color: Color(0xFFECEFF1))
