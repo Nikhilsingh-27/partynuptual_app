@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:get/get.dart';
+import 'package:new_app/data/services/profile_service.dart';
 Widget buildPartyCard({
+  required String id,
   required String image,
   required String title,
   required String location,
@@ -9,6 +12,88 @@ Widget buildPartyCard({
   required int likes,
   required int dislikes,
 }) {
+  void onLikePressed(String ideaId) async {
+    final AuthenticationController auth =
+    Get.find<AuthenticationController>();
+
+    // ❌ User not logged in
+    if (auth.userId == null || auth.userId!.isEmpty) {
+      Get.toNamed('/vsignin');
+      return;
+    }
+
+    // ✅ User logged in → call API
+    try {
+      final response = await ProfileService().likedislikefun(
+        user_id: auth.userId!,
+        idea_id: ideaId,
+        action: "like",
+      );
+
+      if (response['status'] == true ||
+          response['status'] == "success") {
+        Get.snackbar(
+          "Success",
+          "Liked successfully",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          "Error",
+          response['message'] ?? "Something went wrong",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+  void onDislikePressed(String ideaId) async {
+    final AuthenticationController auth =
+    Get.find<AuthenticationController>();
+
+    // ❌ User not logged in
+    if (auth.userId == null || auth.userId!.isEmpty) {
+      Get.toNamed('/vsignin');
+      return;
+    }
+
+    // ✅ User logged in → call API
+    try {
+      final response = await ProfileService().likedislikefun(
+        user_id: auth.userId!,
+        idea_id: ideaId,
+        action: "dislike",
+      );
+
+      if (response['status'] == true ||
+          response['status'] == "success") {
+        Get.snackbar(
+          "Success",
+          "Dislike successfully",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          "Error",
+          response['message'] ?? "Something went wrong",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+
+  final AuthenticationController auth = Get.find<AuthenticationController>();
   return Container(
     decoration: BoxDecoration(
       color: Colors.white,
@@ -97,8 +182,17 @@ Widget buildPartyCard({
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.calendar_today,
-                            size: 14, color: Colors.grey),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.thumb_up_outlined,
+                            size: 15,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            onLikePressed(id);
+                          },
+                        ),
+
                         const SizedBox(width: 4),
                         Text(
                           date,
@@ -111,8 +205,16 @@ Widget buildPartyCard({
                     ),
                     Row(
                       children: [
-                        const Icon(Icons.thumb_up_outlined,
-                            size: 15, color: Colors.grey),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.thumb_up_outlined,
+                            size: 15,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            onLikePressed(id);
+                          },
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           likes.toString(),
@@ -120,8 +222,16 @@ Widget buildPartyCard({
                               fontSize: 12, color: Colors.grey[600]),
                         ),
                         const SizedBox(width: 10),
-                        const Icon(Icons.thumb_down_outlined,
-                            size: 15, color: Colors.grey),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.thumb_down_outlined,
+                            size: 15,
+                            color: Colors.grey,
+                          ),
+                          onPressed: () {
+                            onDislikePressed(id);
+                          },
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           dislikes.toString(),

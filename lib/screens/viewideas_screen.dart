@@ -11,44 +11,6 @@ class ViewIdeasScreen extends StatefulWidget {
 }
 
 class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
-  final List<Map<String, dynamic>> cardList = [
-    {
-      "title": "Birthday",
-      "location": "Kansas",
-      "description": "My Birthday cake",
-      "image": "assets/b.jpg",
-      "date": "21 Jan 2026",
-      "likes": 0,
-      "dislikes": 0,
-    },
-    {
-      "title": "Birthday",
-      "location": "Grand Hall",
-      "description": "Fun birthday theme decoration",
-      "image": "assets/maria.jpg",
-      "date": "20 Jan 2026",
-      "likes": 1,
-      "dislikes": 0,
-    },
-    {
-      "title": "Birthday",
-      "location": "City Banquet",
-      "description": "Surprise birthday party setup",
-      "image": "assets/lela.jpg",
-      "date": "18 Jan 2026",
-      "likes": 5,
-      "dislikes": 1,
-    },
-    {
-      "title": "Birthday",
-      "location": "City Banquet",
-      "description": "Surprise birthday party setup",
-      "image": "assets/p2.jpg",
-      "date": "18 Jan 2026",
-      "likes": 5,
-      "dislikes": 1,
-    },
-  ];
 
   final List<dynamic> listingList = []; // Store fetched listings
   int currentPage = 1;
@@ -138,6 +100,7 @@ class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
                         itemBuilder: (context, index) {
                           final card = listingList[index];
                           return buildPartyCard(
+                            id: card["id"],
                             image: card["image"],
                             title: card["party_theme"],
                             location: card["venue"],

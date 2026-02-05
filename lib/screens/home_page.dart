@@ -145,6 +145,14 @@ class _HomePageState extends State<HomePage> {
   late AuthenticationController auth;
   late HomeController controller;
 
+
+  void _refreshHomePage() {
+
+
+    // 🔥 If API data must refresh
+    controller.fetchHomeData(); // or whatever your API method is
+  }
+
   @override
   void initState() {
     super.initState();
@@ -198,6 +206,11 @@ class _HomePageState extends State<HomePage> {
     final homeCategories = categories.take(6).toList();
 
     return Scaffold(
+        onEndDrawerChanged: (isOpened) {
+          if (!isOpened) {
+            _refreshHomePage();
+          }
+        },
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(100),
         child: AppBar(

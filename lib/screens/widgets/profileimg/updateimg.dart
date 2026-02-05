@@ -51,6 +51,18 @@ class UpdateImageButton extends StatelessWidget {
                 isSuccess ? Colors.green : Colors.red,
               ),
             );
+            if (isSuccess) {
+              // If backend returned image url, update controller so avatar refreshes
+              try {
+                final String? imageUrl = response['image']?.toString();
+                if (imageUrl != null && imageUrl.isNotEmpty) {
+                  imageController.remoteImageUrl.value = imageUrl;
+                }
+              } catch (_) {}
+
+              // clear local selection so avatar shows remote image
+              imageController.clear();
+            }
           } catch (e) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

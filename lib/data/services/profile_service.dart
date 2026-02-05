@@ -78,26 +78,39 @@ class ProfileService {
 
   Future<Map<String, dynamic>> deleteAccountfun({required String id}) async {
     try {
-      print(id);
+      print('Deleting account for user: $id');
+
+      // ✅ CHANGE: Call YOUR backend instead of partynuptual directly
+      // Your backend then proxies the request, bypassing the firewall
       final response = await _dio.post(
-        ApiEndpoints.deleteaccount,
+        "https://partynuptual.com/api/delete_account",
+        // Use your own backend endpoint
         data: {
           "user_id": id,
         },
         options: dio.Options(
-          headers: {
-            "Content-Type": "application/json",
-            "User-Agent":
-            "Mozilla/5.0 (Linux; Android 13; Mobile) AppleWebKit/537.36 Chrome/120.0",
-            "Accept": "application/json",
-          },
+          contentType: dio.Headers.jsonContentType,
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
         ),
       );
 
-      print(response.data);
-      return response.data;
+      print('Delete response: ${response.data}');
+
+      // ✅ Validate response
+      if (response.data is! Map) {
+        throw Exception('Invalid response format');
+      }
+
+      return Map<String, dynamic>.from(response.data);
     } on dio.DioException catch (e) {
-      throw Exception(e.response?.data ?? "Api Error");
+      print('DioException: ${e.message}');
+      print('Status code: ${e.response?.statusCode}');
+      print('Response error: ${e.response?.data}');
+      throw Exception(e.response?.data?['message'] ?? e.message ?? "Api Error");
+    } catch (e) {
+      print('Error: $e');
+      throw Exception(e.toString());
     }
   }
 
@@ -200,7 +213,15 @@ class ProfileService {
     required File imageFile,
   }) async {
     try {
-      final fileName = imageFile.path.split('/').last;
+      // ✅ Validate file exists
+      if (!imageFile.existsSync()) {
+        throw Exception('Image file not found');
+      }
+
+      final fileName = imageFile.path
+          .split('/')
+          .last;
+      print('Uploading image: $fileName for user: $userId');
 
       final dio.FormData formData = dio.FormData();
 
@@ -227,15 +248,199 @@ class ProfileService {
           headers: {
             "Accept": "application/json",
           },
-
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
         ),
       );
 
       print('Response: ${response.data}');
+
+      // ✅ Validate response
+      if (response.data is! Map) {
+        throw Exception('Invalid response format');
+      }
+
       return Map<String, dynamic>.from(response.data);
     } on dio.DioException catch (e) {
-      throw Exception(e.response?.data ?? "Api Error");
+      print('DioException: ${e.message}');
+      print('Response error: ${e.response?.data}');
+      throw Exception(e.response?.data?['message'] ?? e.message ?? "Api Error");
+    } catch (e) {
+      print('Error: $e');
+      throw Exception(e.toString());
     }
   }
 
+  Future<Map<String, dynamic>> likedislikefun({
+    required String user_id,
+    required String idea_id,
+    required String action,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.likedislike,
+        data: {
+          "user_id": user_id,
+          "idea_id": idea_id,
+          "action": action,
+        },
+        options: dio.Options(
+          contentType: dio.Headers.jsonContentType,
+        ),
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> submitideafun({
+    required String party_theme,
+    required String venue,
+    required String description,
+    required String user_id,
+    required File image,
+  }) async {
+    try {
+      final dio.FormData formData = dio.FormData();
+
+      formData.fields.addAll([
+        MapEntry("party_theme", party_theme),
+        MapEntry("venue", venue),
+        MapEntry("description", description),
+        MapEntry("user_id", user_id),
+      ]);
+
+      formData.files.add(
+        MapEntry(
+          "main_image",
+          await dio.MultipartFile.fromFile(
+            image.path,
+            filename: image.path
+                .split('/')
+                .last,
+          ),
+        ),
+      );
+
+      final response = await _dio.post(
+        ApiEndpoints.submitIdea,
+        data: formData,
+        options: dio.Options(
+          contentType: dio.Headers.multipartFormDataContentType,
+        ),
+      );
+
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> getsingleidea({
+    required String idea_id,
+    required String user_id,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.getSingleIdea,
+        data: {
+          "idea_id": idea_id,
+          "user_id": user_id,
+        },
+        options: dio.Options(
+          contentType: dio.Headers.jsonContentType,
+        ),
+      );
+
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> editmyidea({
+    required String party_theme,
+    required String venue,
+    required String description,
+    required String user_id,
+    File? image,                 // 👈 optional for edit
+    required String idea_id,
+  }) async {
+    try {
+      final dio.FormData formData = dio.FormData();
+
+      // 🔹 Text fields
+      formData.fields.addAll([
+        MapEntry("party_theme", party_theme),
+        MapEntry("venue", venue),
+        MapEntry("description", description),
+        MapEntry("user_id", user_id),
+        MapEntry("idea_id", idea_id),
+      ]);
+
+
+      if (image != null) {
+        formData.files.add(
+          MapEntry(
+            "main_image",
+            await dio.MultipartFile.fromFile(
+              image.path,
+              filename: image.path.split('/').last,
+            ),
+          ),
+        );
+      }
+
+      final response = await _dio.post(
+        ApiEndpoints.editIdea, // 🔥 your edit API endpoint
+        data: formData,
+        options: dio.Options(
+          contentType: dio.Headers.multipartFormDataContentType,
+        ),
+      );
+
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String,dynamic>>deleteideafun({
+    required String idea_id,
+    required String user_id,
+})async{
+
+      try{
+        final response=await _dio.post(
+          ApiEndpoints.deleteIdea,
+          data: {
+            "idea_id":idea_id,
+            "user_id":user_id,
+          },
+          options: dio.Options(
+            contentType: dio.Headers.jsonContentType,
+          ),
+        );
+        print(response.data);
+        return response.data;
+      }on dio.DioException catch(e){
+        throw Exception(e.response?.data ?? "API Error");
+      }
+  }
+
+  Future<Map<String, dynamic>> getpartythemesfun() async {
+    try{
+      final response = await _dio.get(
+        ApiEndpoints.getpartythemes,
+      );
+      print(response.data);
+      return response.data;
+    }on dio.DioException catch(e){
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }

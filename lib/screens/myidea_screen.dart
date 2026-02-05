@@ -10,6 +10,63 @@ class MyIdeaScreen extends StatefulWidget {
 }
 
 class _MyIdeaScreenState extends State<MyIdeaScreen> {
+
+  Future<void> _deleteIdea(String ideaId, int index) async {
+    try {
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      final response = await ProfileService().deleteideafun(
+        idea_id: ideaId,
+        user_id: auth.userId ?? "",
+      );
+
+      Get.back(); // close loader
+
+      if (response['status'] == true ||
+          response['status'] == "success") {
+        setState(() {
+          listmyideas.removeAt(index);
+        });
+
+        Get.snackbar(
+          "Success",
+          "Idea deleted successfully 🗑️",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      } else {
+        Get.snackbar(
+          "Error",
+          response['message'] ?? "Failed to delete idea",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.back();
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
+  }
+  void _confirmDelete(String ideaId, int index) {
+    Get.defaultDialog(
+      title: "Delete Idea",
+      middleText: "Are you sure you want to delete this idea?",
+      textConfirm: "Delete",
+      textCancel: "Cancel",
+      confirmTextColor: Colors.white,
+      buttonColor: const Color.fromRGBO(199, 21, 55, 1),
+      onConfirm: () {
+        Get.back();
+        _deleteIdea(ideaId, index);
+      },
+    );
+  }
+
   bool isloading=true;
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
@@ -169,7 +226,12 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                   Row(
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Get.toNamed(
+                            "/addmyideas",
+                            arguments: {"idea_id": idea["id"]},
+                          );
+                        },
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                           const Color.fromRGBO(199, 21, 55, 1),
@@ -182,10 +244,11 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                       ),
                       const SizedBox(width: 12),
                       ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          _confirmDelete(idea["id"].toString(), index);
+                        },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                          const Color.fromRGBO(199, 21, 55, 1),
+                          backgroundColor: const Color.fromRGBO(199, 21, 55, 1),
                           foregroundColor: Colors.white,
                         ),
                         child: const Text(
@@ -193,6 +256,7 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
                           style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
+
                     ],
                   ),
                 ],

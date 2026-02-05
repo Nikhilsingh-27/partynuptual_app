@@ -29,4 +29,12 @@ class ApiEndpoints {
   static const String getinquiry="/getInquiries";
   static const String getmyidea="/getMyShareIdeas";
   static const String sendinquiry="/addinquiry";
+
+
+  static const String likedislike="/like_dislike";
+  static const String getpartythemes="/get_party_themes";
+  static const String deleteIdea="/deleteIdea";
+  static const String submitIdea="/submitIdea";
+  static const String getSingleIdea="/getSingleIdea";
+  static const String editIdea="/editIdea";
 }

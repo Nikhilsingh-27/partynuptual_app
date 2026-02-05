@@ -8,7 +8,8 @@ import './updateimg.dart';
 
 
 class ProfileImageUploadContainer extends StatelessWidget {
-  ProfileImageUploadContainer({super.key});
+  String imgurl="";
+  ProfileImageUploadContainer({super.key,required String imgurl});
 
   final AuthenticationController auth = Get.find<AuthenticationController>();
 
@@ -22,7 +23,7 @@ class ProfileImageUploadContainer extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          ProfileAvatar(),
+          ProfileAvatar(imgurl: imgurl),
           const SizedBox(height: 20),
           FilePickerBox(),
           const SizedBox(height: 24),
@@ -32,3 +33,5 @@ class ProfileImageUploadContainer extends StatelessWidget {
     );
   }
 }
+
+

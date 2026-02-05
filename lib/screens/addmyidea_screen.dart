@@ -1,21 +1,106 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
 
 class AddMyIdeaScreen extends StatefulWidget {
   const AddMyIdeaScreen({super.key});
+
 
   @override
   State<AddMyIdeaScreen> createState() => _AddMyIdeaScreenState();
 }
 
 class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
+  bool isloading=true;
+  List<Map<String, dynamic>> partyThemes = [];
+  String? selectedTheme;
+  bool isThemeLoading = false;
+
+  Future<void> _loadPartyThemes() async {
+    try {
+      setState(() => isThemeLoading = true);
+
+      final response = await ProfileService().getpartythemesfun();
+
+      if (response["status"] == "success") {
+        partyThemes = List<Map<String, dynamic>>.from(response["data"]);
+
+        // EDIT MODE: keep already selected theme
+        if (selectedTheme != null &&
+            partyThemes.any((e) => e["id"] == selectedTheme)) {
+          // keep it
+        } else {
+          selectedTheme = null;
+        }
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to load party themes");
+    } finally {
+      setState(()
+      {
+        isThemeLoading = false;
+        isloading = false;
+      }
+      );
+    }
+  }
+
+  late String ideaId;
+
   final TextEditingController _themeCtrl = TextEditingController();
   final TextEditingController _venueCtrl = TextEditingController();
   final TextEditingController _descCtrl = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   File? selectedImage;
+
+  String? existingImageUrl;
+  Future<void> _loadIdeaDetails() async {
+    final auth = Get.find<AuthenticationController>();
+
+    try {
+      final response = await ProfileService().getsingleidea(
+        idea_id: ideaId,
+        user_id: auth.userId!,
+      );
+
+      final idea = response["data"];
+
+      selectedTheme  = idea["party_theme"] ?? "";
+      _venueCtrl.text = idea["venue"] ?? "";
+      _descCtrl.text = idea["description"] ?? "";
+
+      setState(() {
+        existingImageUrl =
+        "https://partynuptual.com/public/uploads/ideas/${idea["image"]}";
+      });
+    } catch (e) {
+      Get.snackbar("Error", e.toString());
+    }
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments;
+
+    ideaId = args != null && args["idea_id"] != null
+        ? args["idea_id"].toString()
+        : "";
+
+    _loadPartyThemes(); // 👈 always load dropdown data
+
+    if (ideaId.isNotEmpty) {
+      _loadIdeaDetails(); // 👈 edit mode
+    }
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +128,45 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
         ),
       ),
 
-      body: SingleChildScrollView(
+      body:isloading?Center(child:CircularProgressIndicator()): SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
 
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _label("Party Theme"),
-            _textField(controller: _themeCtrl, hint: "Party Theme"),
+            isThemeLoading
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<String>(
+              value: selectedTheme,
+              hint: const Text("Select Party Theme"),
+              items: partyThemes
+                  .where((e) => e["id"] != "")
+                  .map(
+                    (theme) => DropdownMenuItem<String>(
+                  value: theme["id"],
+                  child: Text(theme["name"]),
+                ),
+              )
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  selectedTheme = value;
+                });
+              },
+              decoration: InputDecoration(
+                contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: const BorderSide(color: Colors.black),
+                ),
+              ),
+            ),
 
             const SizedBox(height: 16),
 
@@ -81,10 +197,15 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
                     ),
                   ),
                   onPressed: _submitData,
-                  child: const Text(
-                    "Submit Idea",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,color: Colors.white),
+                  child: Text(
+                    ideaId.isEmpty ? "Submit Idea" : "Update Idea",
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
+
                 ),
               ),
             ),
@@ -118,12 +239,15 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                selectedImage == null
-                    ? "No file chosen"
-                    : selectedImage!.path.split('/').last,
+                selectedImage != null
+                    ? selectedImage!.path.split('/').last
+                    : existingImageUrl != null
+                    ? existingImageUrl!.split('/').last
+                    : "No file chosen",
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+
           ],
         ),
       ),
@@ -145,14 +269,103 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
   }
 
   // ================= SUBMIT =================
-  void _submitData() {
-    print("========== PARTY IDEA SUBMITTED ==========");
-    print("Party Theme: ${_themeCtrl.text}");
-    print("Venue: ${_venueCtrl.text}");
-    print("Description: ${_descCtrl.text}");
-    print("Image Path: ${selectedImage?.path ?? "No Image Selected"}");
-    print("==========================================");
+  Future<void> _submitData() async {
+    final AuthenticationController auth =
+    Get.find<AuthenticationController>();
+
+    if (auth.userId == null || auth.userId!.isEmpty) {
+      Get.toNamed('/vsignin');
+      return;
+    }
+
+    if (selectedTheme == null  ||
+        _venueCtrl.text.isEmpty ||
+        _descCtrl.text.isEmpty) {
+      Get.snackbar(
+        "Error",
+        "All fields are required",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    if (selectedImage == null && existingImageUrl == null) {
+      Get.snackbar(
+        "Error",
+        "Please select an image",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return;
+    }
+
+    try {
+      Get.snackbar(
+        "Please wait",
+        ideaId.isEmpty ? "Submitting your idea..." : "Updating your idea...",
+        snackPosition: SnackPosition.BOTTOM,
+      );
+
+      late Map<String, dynamic> response;
+
+      // 🆕 ADD MODE
+      if (ideaId.isEmpty) {
+        response = await ProfileService().submitideafun(
+          party_theme: selectedTheme!,
+          venue: _venueCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+          user_id: auth.userId!,
+          image: selectedImage!, // must exist in add
+        );
+      }
+      // ✏️ EDIT MODE
+      else {
+        response = await ProfileService().editmyidea(
+          party_theme: selectedTheme!,
+          venue: _venueCtrl.text.trim(),
+          description: _descCtrl.text.trim(),
+          user_id: auth.userId!,
+          idea_id: ideaId,
+          image: selectedImage, // nullable ✔
+        );
+      }
+
+      if (response['status'] == true ||
+          response['status'] == "success") {
+        Get.snackbar(
+          "Success",
+          ideaId.isEmpty
+              ? "Party idea submitted successfully 🎉"
+              : "Party idea updated successfully ✨",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+
+        // Clear only in ADD mode
+        if (ideaId.isEmpty) {
+          _themeCtrl.clear();
+          _venueCtrl.clear();
+          _descCtrl.clear();
+          setState(() {
+            selectedImage = null;
+          });
+        } else {
+          Get.back(); // go back after edit
+        }
+      } else {
+        Get.snackbar(
+          "Error",
+          response['message'] ?? "Something went wrong",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        e.toString(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
+    }
   }
+
 
   // ================= UI HELPERS =================
   Widget _label(String text) {

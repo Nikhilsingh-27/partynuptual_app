@@ -3,6 +3,7 @@ import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/profileimg/imgupload.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/profile_image_controller.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -15,7 +16,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   final AuthenticationController auth = Get.find<AuthenticationController>();
 
+  String getLogoImageUrl(String? logoPath) {
+    const String baseUrl = "https://partynuptual.com/";
+    const String defaultImage =
+        "${baseUrl}public/front/assets/img/list-8.jpg";
 
+    if (logoPath == null || logoPath.trim().isEmpty) {
+      return defaultImage;
+    }
+
+
+    final String imageName = logoPath.split('/').last;
+
+    if (imageName.isEmpty) {
+      return defaultImage;
+    }
+
+    return "${baseUrl}/public/uploads/customers/$imageName";
+  }
+  String? imgurl="";
   // Controllers
   final TextEditingController firstNameCtrl = TextEditingController();
   final TextEditingController lastNameCtrl = TextEditingController();
@@ -46,8 +65,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         zipCtrl.text = data["zip_code"] ?? "";
         emailCtrl.text = data["email"] ?? "";
         phoneCtrl.text = data["phone"] ?? "";
-        selectedGender = data["gender"]; // optional
+        selectedGender = data["gender"];
+        imgurl=getLogoImageUrl(data["image"]);
+        // optional
       });
+
+      // If `ProfileImageController` is registered, update its `remoteImageUrl`
+      try {
+        if (Get.isRegistered<ProfileImageController>()) {
+          Get.find<ProfileImageController>().remoteImageUrl.value = imgurl ?? "";
+        }
+      } catch (_) {}
 
       debugPrint("User details fetched: $data");
     } catch (e) {
@@ -164,7 +192,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                   child: Padding(
                       padding: const EdgeInsets.all(16),
-                      child: ProfileImageUploadContainer()
+                      child: ProfileImageUploadContainer(imgurl: imgurl??"")
                   ),
             )
             )

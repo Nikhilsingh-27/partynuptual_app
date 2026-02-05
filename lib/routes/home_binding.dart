@@ -6,7 +6,7 @@ import 'package:new_app/controllers/profile_image_controller.dart';
 class HomeBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<HomeController>(() => HomeController());
+    Get.lazyPut<HomeController>(() => HomeController(),fenix: true,);
     Get.lazyPut<AuthenticationController>(() => AuthenticationController());
     Get.lazyPut<ProfileImageController>(() => ProfileImageController());
   }
