@@ -1,9 +1,106 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/home_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/editlisting_screen.dart';
 class BusinessListingCard extends StatelessWidget {
-  final Map<String, String> item;
+  final VoidCallback onDeleteSuccess;
+  final Map<String, dynamic> item;
 
-  const BusinessListingCard({super.key, required this.item});
+  const BusinessListingCard({super.key, required this.item,required this.onDeleteSuccess,});
+  String getLogoImageUrl(String? logoPath) {
+    const String baseUrl = "https://partynuptual.com/";
+    const String defaultImage =
+        "${baseUrl}public/front/assets/img/list-8.jpg";
+
+    if (logoPath == null || logoPath.trim().isEmpty) {
+      return defaultImage;
+    }
+
+
+    final String imageName = logoPath.split('/').last;
+
+    if (imageName.isEmpty) {
+      return defaultImage;
+    }
+
+    return "${baseUrl}/public/uploads/logo/$imageName";
+  }
+
+
+  void _showDeleteDialog(BuildContext context, String listingId) {
+    TextEditingController deleteController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Type DELETE to permanently remove this listing.",
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: deleteController,
+                decoration: const InputDecoration(
+                  hintText: "Type DELETE here",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              onPressed: () async {
+                if (deleteController.text.trim() == "DELETE") {
+                  Navigator.pop(context);
+
+                  try {
+                    final response =
+                    await ProfileService().deletelistingfun(id: listingId);
+
+                    debugPrint("Delete Response: $response");
+                    //final controller = Get.find<HomeController>();
+                    onDeleteSuccess();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Listing deleted successfully"),
+                      ),
+                    );
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text("Error: $e"),
+                      ),
+                    );
+                  }
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text("Please type DELETE correctly"),
+                    ),
+                  );
+                }
+              },
+              child: const Text("Submit"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +125,7 @@ class BusinessListingCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              item["banner_img"]!,
+              getLogoImageUrl(item["logo_image"]!),
               height: 160,
               width: 120,
               fit: BoxFit.cover,
@@ -53,7 +150,7 @@ class BusinessListingCard extends StatelessWidget {
                 const SizedBox(height: 8),
 
                 Text(
-                  item["business_tag_line"]!,
+                  item["tag_line"]!,
                   style: const TextStyle(
                     fontSize: 14,
                     height: 1.4,
@@ -82,19 +179,17 @@ class BusinessListingCard extends StatelessWidget {
                       bgColor: const Color(0xFFE9F2FF),
                       color: const Color(0xFF2563EB),
                       onTap: () {
-                        debugPrint(
-                            "Edit clicked: ${item["company_name"]}");
-                      },
+                        Get.to(EditListingScreen(data: item));
+                      }
                     ),
                     _actionButton(
                       icon: Icons.delete,
                       text: "Delete",
                       bgColor: const Color(0xFFFFE5E5),
                       color: Colors.red,
-                      onTap: () {
-                        debugPrint(
-                            "Deleted: ${item["company_name"]}");
-                      },
+                        onTap: () {
+                          _showDeleteDialog(context, item["listing_id"]);
+                        }
                     ),
                   ],
                 ),

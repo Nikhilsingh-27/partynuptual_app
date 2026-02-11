@@ -37,4 +37,10 @@ class ApiEndpoints {
   static const String submitIdea="/submitIdea";
   static const String getSingleIdea="/getSingleIdea";
   static const String editIdea="/editIdea";
+
+
+  static const String addListing="/addListing";
+  static const String getmylistings="/getMyListings";
+  static const String deletelisting="/delete_listing";
+
 }

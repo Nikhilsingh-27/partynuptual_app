@@ -10,6 +10,8 @@ import '../../core/network/api_endpoints.dart';
 class ProfileService {
   final _dio = DioClient().dio;
 
+
+
   Future<Map<String, dynamic>> getuserdetailsfun({required String id}) async {
     try {
       final response = await _dio.get(
@@ -443,4 +445,84 @@ class ProfileService {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
+
+
+  Future<Map<String,dynamic>>addlistingfun(
+      {
+        required String userId,
+        required String categoryId,
+        required String companyName,
+        required String email,
+        required String phoneNumber,
+        required String officeAddress,
+        required String tagLine,
+        required String countryId,
+        required String state,
+        required String aboutCompany,
+        required String image,
+        required String latitude,      // ✅ ADD THIS
+        required String longitude,
+      }
+      )async{
+
+    try{
+      print(image);
+      final response = await _dio.post(
+        ApiEndpoints.addListing,
+        data:{
+          "user_id":userId,
+          "category_id":categoryId,
+          "company_name":companyName,
+          "email":email,
+          "phone_number":phoneNumber,
+          "office_address":officeAddress,
+          "tag_line":tagLine,
+          "country_id":countryId,
+          "state":state,
+          "about_company":aboutCompany,
+          "image":image,
+          "latitude":latitude,
+          "longitude":longitude
+        },
+        options: dio.Options(
+          contentType: dio.Headers.jsonContentType,
+        ),
+
+      );
+      return response.data;
+    }on dio.DioException catch(e){
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+
+  Future<Map<String, dynamic>> getmylistingfun({required String id}) async {
+    try {
+      final response = await _dio.get(
+          "${ApiEndpoints.getmylistings}/$id"
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api error");
+    }
+  }
+
+  Future<Map<String,dynamic>>deletelistingfun({required String id})async{
+    try{
+      final response = await _dio.get(
+        "${ApiEndpoints.deletelisting}/$id"
+      );
+      return response.data;
+    }on dio.DioException catch(e){
+      throw Exception(e.response?.data??"Api error");
+    }
+  }
+
+
+
+
 }
+
+
+

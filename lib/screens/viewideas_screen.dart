@@ -99,7 +99,7 @@ class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
                         itemCount: listingList.length,
                         itemBuilder: (context, index) {
                           final card = listingList[index];
-                          return buildPartyCard(
+                          return PartyCard(
                             id: card["id"],
                             image: card["image"],
                             title: card["party_theme"],
