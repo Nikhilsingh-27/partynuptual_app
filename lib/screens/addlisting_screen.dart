@@ -419,6 +419,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
                       try {
                         final response = await ProfileService().addlistingfun(
+
                           userId: auth.userId.toString(),
                           categoryId: selectedCategoryId!,
                           companyName: companyNameCtrl.text.trim(),
@@ -434,7 +435,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
                           longitude: mapCenter.longitude.toString(),
                         );
                         Map<String, dynamic> data = {
-                          // "userId": auth.userId.toString(),
+                          "listing_id":response["listing_id"]??"",
                           "category": selectedCategoryId!,
                           "company_name": companyNameCtrl.text.trim(),
                           "email": emailCtrl.text.trim(),

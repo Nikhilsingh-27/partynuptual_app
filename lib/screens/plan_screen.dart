@@ -1,91 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_paypal/flutter_paypal.dart';
+import 'package:get/get.dart';
+import 'package:new_app/data/services/profile_service.dart';
 
-class PricingScreen extends StatelessWidget {
-  PricingScreen({super.key});
+class PricingScreen extends StatefulWidget {
+  const PricingScreen({super.key});
 
-  final List<Map<String, dynamic>> plans = [
-    {
-      "duration": "Month",
-      "price": "\$9.99",
-      "oldPrice": null,
-      "discount": null,
-    },
-    {
-      "duration": "3 Months",
-      "price": "\$28.47",
-      "oldPrice": "\$29.97",
-      "discount": "5% off",
-    },
-    {
-      "duration": "6 Months",
-      "price": "\$53.94",
-      "oldPrice": "\$59.94",
-      "discount": "10% off",
-    },
-    {
-      "duration": "12 Months",
-      "price": "\$95.6",
-      "oldPrice": "\$119.88",
-      "discount": "20% off",
-    },
-  ];
+  @override
+  State<PricingScreen> createState() => _PricingScreenState();
+}
 
-  final List<String> features = [
-    "Unlimited Customer’s",
-    "Unlimited Direct Booking’s",
-    "Unlimited Photograph’s",
-    "Social media Links",
-    "Business Promotions",
-    "Video Links",
-    "Business Branding",
-    "No Contract or Obligation",
-    "No Yearly Fess",
-    "No Hidden Charges",
-    "Email Contact Form",
-    "Admin Panel",
-  ];
+class _PricingScreenState extends State<PricingScreen> {
+  final List planslisting = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchPlans();
+  }
+
+  Future<void> fetchPlans() async {
+    try {
+      final response = await ProfileService().getplanfun();
+
+      setState(() {
+        planslisting.clear();
+        planslisting.addAll(response["data"]);
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      print("Error fetching plans: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Choose Your Plan"),),
+      appBar: AppBar(title: const Text("Choose Your Plan")),
       backgroundColor: Colors.white,
       body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SingleChildScrollView(
-              child: Column(
-                children: plans.map((plan) {
-                  return PricingCard(
-                    plan: plan,
-                    features: features,
-                  );
-                }).toList(),
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : planslisting.isEmpty
+            ? const Center(child: Text("No Plans Available"))
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: planslisting.map((plan) {
+                    return PricingCard(plan: plan);
+                  }).toList(),
+                ),
               ),
-            ),
-
-
-          )
-      )
+      ),
     );
   }
 }
 
 class PricingCard extends StatelessWidget {
   final Map<String, dynamic> plan;
-  final List<String> features;
 
-  const PricingCard({
-    super.key,
-    required this.plan,
-    required this.features,
-  });
+  const PricingCard({super.key, required this.plan});
 
   @override
   Widget build(BuildContext context) {
+    final discount = plan["discount"];
+    final features = List<String>.from(plan["features"] ?? []);
+
     return Center(
-      child:Container(
-        width: 300,
+      child: Container(
+        width: 320,
         margin: const EdgeInsets.only(bottom: 20),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -94,24 +81,24 @@ class PricingCard extends StatelessWidget {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-
           children: [
-            /// TITLE
-            const Text(
-              "PARTY NUPTUAL\nNETWORK",
+            /// PLAN NAME
+            Text(
+              plan["name"] ?? "",
               textAlign: TextAlign.center,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
                 height: 1.4,
               ),
             ),
+
             const SizedBox(height: 12),
 
-            /// PRICE
-            if (plan["oldPrice"] != null)
+            /// OLD PRICE (if discount exists)
+            if (discount != null)
               Text(
-                plan["oldPrice"],
+                "\$${discount["original"]}",
                 style: const TextStyle(
                   color: Colors.red,
                   decoration: TextDecoration.lineThrough,
@@ -119,30 +106,32 @@ class PricingCard extends StatelessWidget {
                 ),
               ),
 
+            /// CURRENT PRICE + DURATION
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  plan["price"],
+                  "\$${plan["price"]}",
                   style: const TextStyle(
                     color: Colors.green,
-                    fontSize: 20,
+                    fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  "/ ${plan["duration"]}",
+                  "/ ${plan["duration"]} (Promo)",
                   style: const TextStyle(fontSize: 14),
                 ),
               ],
             ),
 
-            if (plan["discount"] != null)
+            /// DISCOUNT PERCENT
+            if (discount != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: Text(
-                  "(${plan["discount"]})",
+                  "(${discount["percent"]}% off)",
                   style: const TextStyle(fontSize: 13),
                 ),
               ),
@@ -152,25 +141,116 @@ class PricingCard extends StatelessWidget {
             /// FEATURES
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: features.map((f) {
+              children: features.map((feature) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Text(
-                    f,
-                    style: const TextStyle(fontSize: 14),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Icon(Icons.check, size: 16),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          feature,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }).toList(),
             ),
 
-
+            const SizedBox(height: 20),
 
             /// PAY BUTTON
             SizedBox(
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => UsePaypal(
+                        sandboxMode: true, // change to false for live
+                        clientId: "YOUR_CLIENT_ID",
+                        secretKey: "YOUR_SECRET_KEY",
+
+                        returnURL: "https://samplesite.com/return",
+                        cancelURL: "https://samplesite.com/cancel",
+
+                        transactions: [
+                          {
+                            "amount": {
+                              "total": plan["price"].toString(),
+                              "currency": "USD",
+                              "details": {
+                                "subtotal": plan["price"].toString(),
+                                "shipping": '0',
+                                "shipping_discount": 0,
+                              },
+                            },
+                            "description": plan["name"],
+                            "item_list": {
+                              "items": [
+                                {
+                                  "name": plan["name"],
+                                  "quantity": 1,
+                                  "price": plan["price"].toString(),
+                                  "currency": "USD",
+                                },
+                              ],
+                            },
+                          },
+                        ],
+
+                        note: "Thank you for purchasing ${plan["name"]}",
+
+                        onSuccess: (Map params) async {
+                          print("onSuccess: $params");
+
+                          try {
+                            final response = await ProfileService()
+                                .verifyAndActivatePlan(
+                                  planId: plan["id"].toString(),
+                                  paymentId: params["paymentId"] ?? "",
+                                );
+
+                            Navigator.pop(context);
+
+                            if (response["success"] == true) {
+                              Get.snackbar(
+                                "Success",
+                                "Plan Activated Successfully",
+                              );
+                            } else {
+                              Get.snackbar(
+                                "Error",
+                                "Payment verification failed",
+                              );
+                            }
+                          } catch (e) {
+                            Navigator.pop(context);
+                            Get.snackbar("Error", "Server Error");
+                          }
+                        },
+
+                        onError: (error) {
+                          print("onError: $error");
+                          Navigator.pop(context);
+                          Get.snackbar("Error", "Payment Failed");
+                        },
+
+                        onCancel: (params) {
+                          print('cancelled: $params');
+                          Navigator.pop(context);
+                          Get.snackbar("Cancelled", "Payment Cancelled");
+                        },
+                      ),
+                    ),
+                  );
+                },
+
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black87,
                   shape: RoundedRectangleBorder(
@@ -180,10 +260,7 @@ class PricingCard extends StatelessWidget {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      "Pay Now",
-                      style: TextStyle(fontSize: 16),
-                    ),
+                    Text("Pay Now", style: TextStyle(fontSize: 16)),
                     SizedBox(width: 8),
                     Icon(Icons.arrow_forward),
                   ],
@@ -192,8 +269,7 @@ class PricingCard extends StatelessWidget {
             ),
           ],
         ),
-      )
+      ),
     );
-
   }
 }

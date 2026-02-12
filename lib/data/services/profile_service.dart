@@ -2,21 +2,15 @@ import 'dart:io';
 
 import 'package:dio/dio.dart' as dio;
 
-import 'package:get/get.dart';
-
-import '../../core/network/dio_client.dart';
 import '../../core/network/api_endpoints.dart';
+import '../../core/network/dio_client.dart';
 
 class ProfileService {
   final _dio = DioClient().dio;
 
-
-
   Future<Map<String, dynamic>> getuserdetailsfun({required String id}) async {
     try {
-      final response = await _dio.get(
-          "${ApiEndpoints.getuser}/$id"
-      );
+      final response = await _dio.get("${ApiEndpoints.getuser}/$id");
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
@@ -32,7 +26,7 @@ class ProfileService {
     required String address,
     required String zipCode,
     required String email,
-    required String phone
+    required String phone,
   }) async {
     try {
       final response = await _dio.post(
@@ -45,11 +39,9 @@ class ProfileService {
           "address": address,
           "zip_code": zipCode,
           "email": email,
-          "phone": phone
+          "phone": phone,
         },
-        options: dio.Options(
-          contentType: dio.Headers.jsonContentType,
-        ),
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
 
       return response.data;
@@ -58,19 +50,20 @@ class ProfileService {
     }
   }
 
-  Future<Map<String, dynamic>> updatepasswordfun({required String user_id,
-    required String old_password, required String new_password}) async {
+  Future<Map<String, dynamic>> updatepasswordfun({
+    required String user_id,
+    required String old_password,
+    required String new_password,
+  }) async {
     try {
       final response = await _dio.post(
-          ApiEndpoints.updatepassword,
-          data: {
-            "user_id": user_id,
-            "old_password": old_password,
-            "new_password": new_password
-          },
-          options: dio.Options(
-              contentType: dio.Headers.jsonContentType
-          )
+        ApiEndpoints.updatepassword,
+        data: {
+          "user_id": user_id,
+          "old_password": old_password,
+          "new_password": new_password,
+        },
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
       return response.data;
     } on dio.DioException catch (e) {
@@ -87,9 +80,7 @@ class ProfileService {
       final response = await _dio.post(
         "https://partynuptual.com/api/delete_account",
         // Use your own backend endpoint
-        data: {
-          "user_id": id,
-        },
+        data: {"user_id": id},
         options: dio.Options(
           contentType: dio.Headers.jsonContentType,
           receiveTimeout: const Duration(seconds: 30),
@@ -147,12 +138,9 @@ class ProfileService {
     }
   }
 
-
   Future<Map<String, dynamic>> getinquiry({required String id}) async {
     try {
-      final response = await _dio.get(
-          "${ApiEndpoints.getinquiry}/$id"
-      );
+      final response = await _dio.get("${ApiEndpoints.getinquiry}/$id");
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
@@ -162,9 +150,7 @@ class ProfileService {
 
   Future<Map<String, dynamic>> getmyideafun({required String id}) async {
     try {
-      final response = await _dio.get(
-          "${ApiEndpoints.getmyidea}/$id"
-      );
+      final response = await _dio.get("${ApiEndpoints.getmyidea}/$id");
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
@@ -198,15 +184,11 @@ class ProfileService {
     } on dio.DioException catch (e) {
       return {
         "status": "error",
-        "message": e.response?.data?["message"] ??
-            e.message ??
-            "Something went wrong",
+        "message":
+            e.response?.data?["message"] ?? e.message ?? "Something went wrong",
       };
     } catch (e) {
-      return {
-        "status": "error",
-        "message": e.toString(),
-      };
+      return {"status": "error", "message": e.toString()};
     }
   }
 
@@ -220,26 +202,19 @@ class ProfileService {
         throw Exception('Image file not found');
       }
 
-      final fileName = imageFile.path
-          .split('/')
-          .last;
+      final fileName = imageFile.path.split('/').last;
       print('Uploading image: $fileName for user: $userId');
 
       final dio.FormData formData = dio.FormData();
 
       // ✅ Add normal form field
-      formData.fields.add(
-        MapEntry('user_id', userId),
-      );
+      formData.fields.add(MapEntry('user_id', userId));
 
       // ✅ Add file
       formData.files.add(
         MapEntry(
           'profile_image',
-          await dio.MultipartFile.fromFile(
-            imageFile.path,
-            filename: fileName,
-          ),
+          await dio.MultipartFile.fromFile(imageFile.path, filename: fileName),
         ),
       );
 
@@ -247,9 +222,7 @@ class ProfileService {
         ApiEndpoints.updateimage,
         data: formData,
         options: dio.Options(
-          headers: {
-            "Accept": "application/json",
-          },
+          headers: {"Accept": "application/json"},
           receiveTimeout: const Duration(seconds: 30),
           sendTimeout: const Duration(seconds: 30),
         ),
@@ -281,14 +254,8 @@ class ProfileService {
     try {
       final response = await _dio.post(
         ApiEndpoints.likedislike,
-        data: {
-          "user_id": user_id,
-          "idea_id": idea_id,
-          "action": action,
-        },
-        options: dio.Options(
-          contentType: dio.Headers.jsonContentType,
-        ),
+        data: {"user_id": user_id, "idea_id": idea_id, "action": action},
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
       print(response.data);
       return response.data;
@@ -319,9 +286,7 @@ class ProfileService {
           "main_image",
           await dio.MultipartFile.fromFile(
             image.path,
-            filename: image.path
-                .split('/')
-                .last,
+            filename: image.path.split('/').last,
           ),
         ),
       );
@@ -347,13 +312,8 @@ class ProfileService {
     try {
       final response = await _dio.post(
         ApiEndpoints.getSingleIdea,
-        data: {
-          "idea_id": idea_id,
-          "user_id": user_id,
-        },
-        options: dio.Options(
-          contentType: dio.Headers.jsonContentType,
-        ),
+        data: {"idea_id": idea_id, "user_id": user_id},
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
 
       print(response.data);
@@ -368,7 +328,7 @@ class ProfileService {
     required String venue,
     required String description,
     required String user_id,
-    File? image,                 // 👈 optional for edit
+    File? image, // 👈 optional for edit
     required String idea_id,
   }) async {
     try {
@@ -382,7 +342,6 @@ class ProfileService {
         MapEntry("user_id", user_id),
         MapEntry("idea_id", idea_id),
       ]);
-
 
       if (image != null) {
         formData.files.add(
@@ -411,96 +370,78 @@ class ProfileService {
     }
   }
 
-  Future<Map<String,dynamic>>deleteideafun({
+  Future<Map<String, dynamic>> deleteideafun({
     required String idea_id,
     required String user_id,
-})async{
-
-      try{
-        final response=await _dio.post(
-          ApiEndpoints.deleteIdea,
-          data: {
-            "idea_id":idea_id,
-            "user_id":user_id,
-          },
-          options: dio.Options(
-            contentType: dio.Headers.jsonContentType,
-          ),
-        );
-        print(response.data);
-        return response.data;
-      }on dio.DioException catch(e){
-        throw Exception(e.response?.data ?? "API Error");
-      }
-  }
-
-  Future<Map<String, dynamic>> getpartythemesfun() async {
-    try{
-      final response = await _dio.get(
-        ApiEndpoints.getpartythemes,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.deleteIdea,
+        data: {"idea_id": idea_id, "user_id": user_id},
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
       print(response.data);
       return response.data;
-    }on dio.DioException catch(e){
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
 
+  Future<Map<String, dynamic>> getpartythemesfun() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.getpartythemes);
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 
-  Future<Map<String,dynamic>>addlistingfun(
-      {
-        required String userId,
-        required String categoryId,
-        required String companyName,
-        required String email,
-        required String phoneNumber,
-        required String officeAddress,
-        required String tagLine,
-        required String countryId,
-        required String state,
-        required String aboutCompany,
-        required String image,
-        required String latitude,      // ✅ ADD THIS
-        required String longitude,
-      }
-      )async{
-
-    try{
+  Future<Map<String, dynamic>> addlistingfun({
+    required String userId,
+    required String categoryId,
+    required String companyName,
+    required String email,
+    required String phoneNumber,
+    required String officeAddress,
+    required String tagLine,
+    required String countryId,
+    required String state,
+    required String aboutCompany,
+    required String image,
+    required String latitude, // ✅ ADD THIS
+    required String longitude,
+  }) async {
+    try {
       print(image);
       final response = await _dio.post(
         ApiEndpoints.addListing,
-        data:{
-          "user_id":userId,
-          "category_id":categoryId,
-          "company_name":companyName,
-          "email":email,
-          "phone_number":phoneNumber,
-          "office_address":officeAddress,
-          "tag_line":tagLine,
-          "country_id":countryId,
-          "state":state,
-          "about_company":aboutCompany,
-          "image":image,
-          "latitude":latitude,
-          "longitude":longitude
+        data: {
+          "user_id": userId,
+          "category_id": categoryId,
+          "company_name": companyName,
+          "email": email,
+          "phone_number": phoneNumber,
+          "office_address": officeAddress,
+          "tag_line": tagLine,
+          "country_id": countryId,
+          "state": state,
+          "about_company": aboutCompany,
+          "image": image,
+          "latitude": latitude,
+          "longitude": longitude,
         },
-        options: dio.Options(
-          contentType: dio.Headers.jsonContentType,
-        ),
-
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
       return response.data;
-    }on dio.DioException catch(e){
+    } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
 
-
   Future<Map<String, dynamic>> getmylistingfun({required String id}) async {
     try {
-      final response = await _dio.get(
-          "${ApiEndpoints.getmylistings}/$id"
-      );
+      final response = await _dio.get("${ApiEndpoints.getmylistings}/$id");
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
@@ -508,21 +449,75 @@ class ProfileService {
     }
   }
 
-  Future<Map<String,dynamic>>deletelistingfun({required String id})async{
-    try{
-      final response = await _dio.get(
-        "${ApiEndpoints.deletelisting}/$id"
-      );
+  Future<Map<String, dynamic>> deletelistingfun({required String id}) async {
+    try {
+      final response = await _dio.get("${ApiEndpoints.deletelisting}/$id");
       return response.data;
-    }on dio.DioException catch(e){
-      throw Exception(e.response?.data??"Api error");
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "Api error");
     }
   }
 
+  Future<Map<String, dynamic>> updateListing(Map<String, dynamic> body) async {
+    try {
+      final response = await _dio.post(
+        "${ApiEndpoints.updateListing}/${body["listing_id"]}",
+        data: body,
+      );
 
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 
+  Future<Map<String, dynamic>> uploadGalleryfun({
+    required String owner_id,
+    required String listing_id,
+    required String image,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.uploadGallery,
+        data: {"owner_id": owner_id, "listing_id": listing_id, "image": image},
+      );
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 
+  Future<Map<String, dynamic>> removegalleryimagefun({
+    required String image_id,
+    required String listing_id,
+  }) async {
+    try {
+      final response = await _dio.get(
+        "${ApiEndpoints.removegalleryimage}/$image_id/$listing_id",
+      );
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> getplanfun() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.getPlans);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> verifyAndActivatePlan({
+    required String planId,
+    required String paymentId,
+  }) async {
+    try {
+      return {};
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }
-
-
-

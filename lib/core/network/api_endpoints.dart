@@ -42,5 +42,10 @@ class ApiEndpoints {
   static const String addListing="/addListing";
   static const String getmylistings="/getMyListings";
   static const String deletelisting="/delete_listing";
+  static const String updateListing="/updateListing";
+
+  static const String uploadGallery="/uploadGallery";
+  static const String removegalleryimage="/remove_gallery_image";
+  static const String getPlans="/getPlans";
 
 }
