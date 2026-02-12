@@ -1,50 +1,34 @@
-
-
+import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
-import 'package:new_app/screens/blogs_screen.dart';
 import 'package:new_app/screens/widgets/autoscrollforideas.dart';
-import 'package:new_app/screens/widgets/profile.dart';
 import 'package:new_app/screens/widgets/autoscrollrecentlyadded.dart';
+import 'package:new_app/screens/widgets/block_card.dart';
+import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/category_card.dart';
+import 'package:new_app/screens/widgets/profile.dart';
 import 'package:new_app/screens/widgets/searchwidget.dart';
-import 'package:new_app/screens/widgets/vendor_sign_in.dart';
-
 import 'package:new_app/screens/widgets/signin.dart';
 import 'package:new_app/screens/widgets/signup.dart';
-import 'dart:async';
-import 'listings_page.dart';
-import 'business_detail_page.dart';
-import 'package:new_app/screens/about_screen.dart';
-import 'package:new_app/screens/widgets/block_card.dart';
-import 'package:new_app/screens/widgets/party_card.dart';
-import 'package:new_app/screens/widgets/listing_card.dart';
-import 'package:new_app/screens/widgets/bottom.dart';
-import 'package:get/get.dart';
-import 'package:new_app/screens/widgets/category_card.dart';
+
 import '../../controllers/home_controller.dart';
+import 'listings_page.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({super.key});
-
 
   @override
   State<HomePage> createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-
-
-
-  final partyurl="https://partynuptual.com/public";
-
-
+  final partyurl = "https://partynuptual.com/public";
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
   Timer? _timer;
-
-
 
   final List<Map<String, dynamic>> categories = [
     {'name': 'Art Work', 'icon': Icons.brush},
@@ -139,16 +123,10 @@ class _HomePageState extends State<HomePage> {
     'Icons.church': Icons.church,
   };
 
-
-
-
   late AuthenticationController auth;
   late HomeController controller;
 
-
   void _refreshHomePage() {
-
-
     // 🔥 If API data must refresh
     controller.fetchHomeData(); // or whatever your API method is
   }
@@ -172,7 +150,6 @@ class _HomePageState extends State<HomePage> {
     _startAutoScroll();
   }
 
-
   @override
   void dispose() {
     _timer?.cancel();
@@ -180,37 +157,36 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-    void _startAutoScroll() {
-      _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
-        final banners = controller.homeData.value?.data["data"]["banners"];
+  void _startAutoScroll() {
+    _timer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      final banners = controller.homeData.value?.data["data"]["banners"];
 
-        if (banners == null || banners.isEmpty) return;
+      if (banners == null || banners.isEmpty) return;
 
-        final int length = banners.length; // ✅ int guaranteed
+      final int length = banners.length; // ✅ int guaranteed
 
-        _currentPage = (_currentPage + 1) % length;
+      _currentPage = (_currentPage + 1) % length;
 
-        if (_pageController.hasClients) {
-          _pageController.animateToPage(
-            _currentPage,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeInOut,
-          );
-        }
-      });
-    }
+      if (_pageController.hasClients) {
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     final homeCategories = categories.take(6).toList();
 
     return Scaffold(
-        onEndDrawerChanged: (isOpened) {
-          if (!isOpened) {
-            _refreshHomePage();
-          }
-        },
+      onEndDrawerChanged: (isOpened) {
+        if (!isOpened) {
+          _refreshHomePage();
+        }
+      },
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(100),
         child: AppBar(
@@ -230,108 +206,119 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       endDrawer: Drawer(
-
-        child: Obx((){
-          final role=auth.role??'';
+        child: Obx(() {
+          final role = auth.role ?? '';
 
           return ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            SizedBox(
-              height: 100,
-              child: const DrawerHeader(
-                decoration: BoxDecoration(color: Colors.blue),
-                child: Text(
-                  "Menu",
-                  style: TextStyle(color: Colors.white,
+            padding: EdgeInsets.zero,
+            children: [
+              SizedBox(
+                height: 100,
+                child: const DrawerHeader(
+                  decoration: BoxDecoration(color: Colors.blue),
+                  child: Text(
+                    "Menu",
+                    style: TextStyle(
+                      color: Colors.white,
 
                       fontSize: 20,
-                      fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
-            ),
-            if (role.contains('vendor') || role.contains('guest'))ProfileDropdownTile(),
-            ListTile(
+              if (role.contains('vendor') || role.contains('guest'))
+                ProfileDropdownTile(),
+              ListTile(
                 leading: const Icon(Icons.home),
                 title: const Text(
-                  "Home", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/home");
-                }
-            ),
-
-            ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: const Text(
-                  "About", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/about");
-                }
-            ),
-            ListTile(
-                leading: const Icon(Icons.article),
-                title: const Text(
-                  "Blogs", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/blogs");
-                }
-            ),
-            ListTile(
-                leading: const Icon(Icons.apps),
-                title: const Text(
-                  "Top Categories", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/topcategory");
-                }
-            ),
-            ListTile(
-                leading: const Icon(Icons.mail),
-                title: const Text(
-                  "Contact Us", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/contactus");
-                }
-            ),
-            // ListTile(
-            //     leading: const Icon(Icons.help_outline),
-            //     title: const Text(
-            //       "My inquiries", style: TextStyle(fontWeight: FontWeight.bold),),
-            //     onTap: () {
-            //       Get.toNamed("/inquirie");
-            //     }
-            // ),
-            ListTile(
-                leading: const Icon(Icons.videocam),
-                title: const Text(
-                  "Our Videos", style: TextStyle(fontWeight: FontWeight.bold),),
-                onTap: () {
-                  Get.toNamed("/ourvideo");
-                }
-
-            ),
-            if (role=='') ...[
-              SignInDropdown(),
-              SignUpDropdown(),
-              ListTile(
-                leading: const Icon(Icons.lock_outline),
-                title: const Text(
-                  "Forgot Password",
+                  "Home",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 onTap: () {
-                  Get.toNamed("/forgotpassword");
+                  Get.toNamed("/home");
                 },
               ),
-            ]
 
-          ],
-        );
-        })
-
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: const Text(
+                  "About",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/about");
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.article),
+                title: const Text(
+                  "Blogs",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/blogs");
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.apps),
+                title: const Text(
+                  "Top Categories",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/topcategory");
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.mail),
+                title: const Text(
+                  "Contact Us",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/contactus");
+                },
+              ),
+              // ListTile(
+              //     leading: const Icon(Icons.help_outline),
+              //     title: const Text(
+              //       "My inquiries", style: TextStyle(fontWeight: FontWeight.bold),),
+              //     onTap: () {
+              //       Get.toNamed("/inquirie");
+              //     }
+              // ),
+              ListTile(
+                leading: const Icon(Icons.videocam),
+                title: const Text(
+                  "Our Videos",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                onTap: () {
+                  Get.toNamed("/ourvideo");
+                },
+              ),
+              if (role == '') ...[
+                SignInDropdown(),
+                SignUpDropdown(),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline),
+                  title: const Text(
+                    "Forgot Password",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  onTap: () {
+                    Get.toNamed("/forgotpassword");
+                  },
+                ),
+              ],
+            ],
+          );
+        }),
       ),
       backgroundColor: Colors.white,
       body: Obx(() {
-        String role=auth.role??'';
+        String role = auth.role ?? '';
         print(role);
         if (controller.isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -347,10 +334,10 @@ class _HomePageState extends State<HomePage> {
 
         final data = controller.homeData.value!.data;
 
-        final banners=data["data"]["banners"];
-        final listings=data["data"]["listings"];
-        final blogs=data["data"]["blogs"];
-        final topcategory=data["data"]["categories"];
+        final banners = data["data"]["banners"];
+        final listings = data["data"]["listings"];
+        final blogs = data["data"]["blogs"];
+        final topcategory = data["data"]["categories"];
         // print(topcategory);
         return SingleChildScrollView(
           child: Column(
@@ -381,7 +368,6 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         );
-
                       },
                     ),
 
@@ -394,18 +380,17 @@ class _HomePageState extends State<HomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: List.generate(
                           banners.length,
-                              (index) =>
-                              Container(
-                                margin: const EdgeInsets.symmetric(horizontal: 4),
-                                width: 8,
-                                height: 8,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: _currentPage == index
-                                      ? Colors.white
-                                      : Colors.white.withOpacity(0.5),
-                                ),
-                              ),
+                          (index) => Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 4),
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: _currentPage == index
+                                  ? Colors.white
+                                  : Colors.white.withOpacity(0.5),
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -413,11 +398,11 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
 
-              if (role.contains('vendor') || role.contains('guest'))...[
+              if (role.contains('vendor') || role.contains('guest')) ...[
                 const SizedBox(height: 30),
                 SearchWidget(),
               ],
-              SizedBox(height: 40,),
+              SizedBox(height: 40),
               // Connect With Your Community Vendors Section
               Center(
                 child: Column(
@@ -428,31 +413,31 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Connect With Your Community ',
                           style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.grey[900],
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF2b2b2b),
                           ),
                         ),
                         const Text(
-                          'VENDOR',
+                          'Vendors.',
                           style: TextStyle(
-                            fontSize: 17,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
+                            fontSize: 24,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFFe23744),
                           ),
                         ),
                         const SizedBox(width: 8),
                         const Icon(
-                            Icons.auto_awesome, color: Colors.red, size: 18),
+                          Icons.auto_awesome,
+                          color: Colors.red,
+                          size: 18,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Our Top Categories',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -461,37 +446,38 @@ class _HomePageState extends State<HomePage> {
 
               // Categories Grid
               Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: GridView.builder(
-                    shrinkWrap: true, // ⭐ REQUIRED
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: homeCategories.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemBuilder: (context, index) {
-                      final category = topcategory[index];
-                      // print(category['app_icon']);
-                      return CategoryCard(
-                        icon: iconMap[category['app_icon']] ?? Icons.help_outline,
-                        name: category['category_name'],
-                        categoryId: int.parse(category['category_id']),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ListingsPage(
-                                categoryId: int.parse(category['category_id']), // ✅ pass id
-                              ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: GridView.builder(
+                  shrinkWrap: true, // ⭐ REQUIRED
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: homeCategories.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemBuilder: (context, index) {
+                    final category = topcategory[index];
+                    // print(category['app_icon']);
+                    return CategoryCard(
+                      icon: iconMap[category['app_icon']] ?? Icons.help_outline,
+                      name: category['category_name'],
+                      categoryId: int.parse(category['category_id']),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ListingsPage(
+                              categoryId: int.parse(
+                                category['category_id'],
+                              ), // ✅ pass id
                             ),
-                          );
-                        },
-                      );
-                    },
-                  )
-
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
               const SizedBox(height: 20),
 
@@ -543,16 +529,16 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 8),
                         const Icon(
-                            Icons.auto_awesome, color: Colors.red, size: 20),
+                          Icons.auto_awesome,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       'Explore Hot & Popular Business Listings.',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
                 ),
@@ -588,7 +574,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 8),
                         const Icon(
-                            Icons.auto_awesome, color: Colors.red, size: 20),
+                          Icons.auto_awesome,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                       ],
                     ),
                   ],
@@ -646,7 +635,10 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(width: 8),
                         const Icon(
-                            Icons.auto_awesome, color: Colors.red, size: 20),
+                          Icons.auto_awesome,
+                          color: Colors.red,
+                          size: 20,
+                        ),
                       ],
                     ),
                   ],
@@ -663,11 +655,10 @@ class _HomePageState extends State<HomePage> {
                       child: buildBlogCard(
                         image: "$partyurl/uploads/blogs/${blogs[0]['image']}",
                         title: "${blogs[0]['heading']}",
-                        description:
-                        "${blogs[0]['description']}",
+                        description: "${blogs[0]['description']}",
                         date: "${blogs[0]['back_date']}",
                         tag: "${blogs[0]['category']}",
-                        author:"${blogs[0]['author']}"
+                        author: "${blogs[0]['author']}",
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -675,11 +666,10 @@ class _HomePageState extends State<HomePage> {
                       child: buildBlogCard(
                         image: "$partyurl/uploads/blogs/${blogs[1]['image']}",
                         title: "${blogs[1]['heading']}",
-                        description:
-                        "${blogs[1]['description']}",
+                        description: "${blogs[1]['description']}",
                         date: "${blogs[1]['back_date']}",
                         tag: "${blogs[1]['category']}",
-                        author:"${blogs[1]['author']}"
+                        author: "${blogs[1]['author']}",
                       ),
                     ),
                   ],
@@ -712,7 +702,7 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         );
-      })
+      }),
     );
   }
 }

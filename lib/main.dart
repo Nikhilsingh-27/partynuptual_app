@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:new_app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import './controllers/authentication_controller.dart';
-
-
 
 void main() {
   Get.put(AuthenticationController());
@@ -19,7 +18,8 @@ class MyApp extends StatelessWidget {
   void openWhatsApp() async {
     //String phone = '+911234567890'; // Replace with your WhatsApp number
     //String message = Uri.encodeComponent("Hello, I want to chat with you!");
-    String url = 'https://api.whatsapp.com/send/?text=Party+Nuptual+%E2%80%93+Book+Wedding%2C+Event+%26+Party+Services+Online+https%3A%2F%2Fpartynuptual.com%2F&type=custom_url&app_absent=0';
+    String url =
+        'https://api.whatsapp.com/send/?text=Party+Nuptual+%E2%80%93+Book+Wedding%2C+Event+%26+Party+Services+Online+https%3A%2F%2Fpartynuptual.com%2F&type=custom_url&app_absent=0';
 
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
       title: 'Vendor App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        fontFamily: 'Jost',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,
       ),

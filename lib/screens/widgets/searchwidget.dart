@@ -20,7 +20,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   String? selectedCategoryId; // ✅ store country_id
   String? selectedState;
   String? selectedStateId;
-  
+
   List stateList = [];
   bool isStateLoading = false;
 
@@ -150,7 +150,7 @@ class _SearchWidgetState extends State<SearchWidget> {
               height: 40,
               width: 40,
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: const Color(0xFFC71F37),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: IconButton(
@@ -201,7 +201,10 @@ class _SearchWidgetState extends State<SearchWidget> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          hint: Text(hint, style: const TextStyle(fontSize: 12)),
+          hint: Text(
+            hint,
+            style: const TextStyle(fontSize: 12, color: Colors.black),
+          ),
           value: value,
           isExpanded: true,
           style: const TextStyle(fontSize: 12, color: Colors.black),
