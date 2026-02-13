@@ -168,7 +168,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
   }
 
 
-
+  bool isloading=false;
 
   @override
   Widget build(BuildContext context) {
@@ -196,282 +196,299 @@ class _AddListingScreenState extends State<AddListingScreen> {
         final List allcategory = homeData.data["data"]["categories_all"] as List;
 
 
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Listing Category
-              const Text("Listing Category"),
-              const SizedBox(height: 8),
-              _buildDropdown<String>(
-                hint: 'Category',
-                value: selectedCategoryId,
-                items: allcategory.map<DropdownMenuItem<String>>((category) {
-                  return DropdownMenuItem<String>(
-                    value: category['category_id'].toString(), // ✅ ID
-                    child: Text(
-                      category['category_name'], // ✅ Name
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategoryId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Company Name
-              const Text("Company Name / Freelancer"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: companyNameCtrl,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Company Name / Freelancer",
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Email
-              const Text("Email"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: emailCtrl,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Email",
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Phone
-              const Text("Phone"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: phoneCtrl,
-                keyboardType: TextInputType.phone,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Phone",
-                ),
-              ),
-              const SizedBox(height: 16),
-
-              // Banner Image
-              const Text("Banner Image"),
-              const SizedBox(height: 8),
-              Row(
+        return Stack(
+          children: [
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ElevatedButton(
-                    onPressed: pickBannerImage,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                    child: const Text("Choose file"),
+                  // Listing Category
+                  const Text("Listing Category"),
+                  const SizedBox(height: 8),
+                  _buildDropdown<String>(
+                    hint: 'Category',
+                    value: selectedCategoryId,
+                    items: allcategory.map<DropdownMenuItem<String>>((category) {
+                      return DropdownMenuItem<String>(
+                        value: category['category_id'].toString(), // ✅ ID
+                        child: Text(
+                          category['category_name'], // ✅ Name
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCategoryId = value;
+                      });
+                    },
                   ),
-                  const SizedBox(width: 8),
-                  Text(bannerImage?.name ?? "No file chosen"),
+                  const SizedBox(height: 16),
+
+                  // Company Name
+                  const Text("Company Name / Freelancer"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: companyNameCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Company Name / Freelancer",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Email
+                  const Text("Email"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: emailCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Email",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Phone
+                  const Text("Phone"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Phone",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Banner Image
+                  const Text("Banner Image"),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: pickBannerImage,
+                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                        child: const Text("Choose file"),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(bannerImage?.name ?? "No file chosen"),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Registered Office Address
+                  const Text("Registered Office Address"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: addressCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Registered Office Address",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text("Business Tag Line"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: tagLineCtrl,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Business Tag Line",
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Google Map
+                  SizedBox(
+                    height: 200,
+                    child: GoogleMap(
+                      initialCameraPosition: CameraPosition(target: mapCenter, zoom: 14),
+                      onMapCreated: (controller) => mapController = controller,
+                      onCameraMove: (position) => mapCenter = position.target,
+                      markers: markers,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: getCurrentLocation,
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    child: const Text("Get Address On Map"),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Country
+                  _buildDropdown<String>(
+                    hint: 'Country',
+                    value: selectedCountryId,
+                    items: countries.map<DropdownMenuItem<String>>((country) {
+                      return DropdownMenuItem<String>(
+                        value: country['country_id'].toString(), // ✅ ID
+                        child: Text(
+                          country['name'], // ✅ Name
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() {
+                        selectedCountryId = value;
+                        selectedState = null; // reset state when country changes
+                        stateList.clear();
+                      });
+
+                      fetchStates(int.parse(value));
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // State
+                  const Text("Select State"),
+                  const SizedBox(height: 8),
+                  _buildDropdown<String>(
+                    hint: isStateLoading
+                        ? 'Loading...'
+                        : selectedCountryId == null
+                        ? 'State'
+                        : 'State',
+                    value: stateList.isEmpty ? null : selectedStateId,
+                    items: stateList.map<DropdownMenuItem<String>>((state) {
+                      return DropdownMenuItem<String>(
+                        value: state['state_id'].toString(),
+                        child: Text(
+                          state['name'],
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
+                    onChanged:
+                    (selectedCountryId == null ||
+                        isStateLoading ||
+                        stateList.isEmpty)
+                        ? null
+                        : (String? value) {
+                      setState(() {
+                        selectedStateId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Business Tag Line
+
+
+                  // About Company
+                  const Text("About Your Company"),
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: descriptionCtrl,
+                    maxLines: 5,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: "Description",
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Save & Next
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        final selectedstate = stateList.firstWhere(
+                              (c) => c['state_id'].toString() == selectedStateId,
+                          orElse: () => null,
+                        );
+                        if (selectedCategoryId == null ||
+                            selectedCountryId == null ||
+                            selectedStateId == null ||
+                            bannerImage == null) {
+                          Get.snackbar("Error", "Please fill all required fields");
+                          return;
+                        }
+
+                        // 🔹 Convert image to base64
+                        final String? base64Image = await convertImageToBase64(bannerImage);
+
+                        if (base64Image == null) {
+                          Get.snackbar("Error", "Image conversion failed");
+                          return;
+                        }
+
+                        try {
+                          setState(() {
+                            isloading=true;
+                          });
+                          final response = await ProfileService().addlistingfun(
+                            userId: auth.userId.toString(),
+                            categoryId: selectedCategoryId!,
+                            companyName: companyNameCtrl.text.trim(),
+                            email: emailCtrl.text.trim(),
+                            phoneNumber: phoneCtrl.text.trim(),
+                            officeAddress: addressCtrl.text.trim(),
+                            tagLine: tagLineCtrl.text.trim(),
+                            countryId: selectedCountryId!,
+                            state: selectedstate["state_id"]??"",
+                            aboutCompany: descriptionCtrl.text.trim(),
+                            image: base64Image,
+                            latitude: mapCenter.latitude.toString(),
+                            longitude: mapCenter.longitude.toString(),
+                          );
+
+                          setState(() {
+                            isloading=false;
+                          });
+                          Map<String, dynamic> data = {
+                            "listing_id":response["listing_id"]??"",
+                            "category": selectedCategoryId!,
+                            "company_name": companyNameCtrl.text.trim(),
+                            "email": emailCtrl.text.trim(),
+                            "phone_number": phoneCtrl.text.trim(),
+                            "office_address": addressCtrl.text.trim(),
+                            "tag_line": tagLineCtrl.text.trim(),
+                            "country_id": selectedCountryId!,
+                            "state": selectedstate["state_id"] ?? "",
+                            "about": descriptionCtrl.text.trim(),
+                            "logo_image": bannerImage?.path,
+                            "latitude": mapCenter.latitude.toString(),
+                            "longitude": mapCenter.longitude.toString(),
+                          };
+
+                          print("API Response: $response");
+
+                          Get.snackbar("Success", "Listing added successfully");
+
+                          Get.to(EditListingScreen(data:data));
+                        } catch (e) {
+                          Get.snackbar("Error", e.toString());
+                        }
+
+
+
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black87,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                      ),
+                      child: const Text("Save & Next",style: TextStyle(color: Colors.white),),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
                 ],
               ),
-              const SizedBox(height: 16),
-
-              // Registered Office Address
-              const Text("Registered Office Address"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: addressCtrl,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Registered Office Address",
+            ),
+            if (isloading)
+              Container(
+                color: Colors.black.withOpacity(0.4),
+                child: const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text("Business Tag Line"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: tagLineCtrl,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Business Tag Line",
-                ),
-              ),
-              const SizedBox(height: 16),
-              // Google Map
-              SizedBox(
-                height: 200,
-                child: GoogleMap(
-                  initialCameraPosition: CameraPosition(target: mapCenter, zoom: 14),
-                  onMapCreated: (controller) => mapController = controller,
-                  onCameraMove: (position) => mapCenter = position.target,
-                  markers: markers,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ElevatedButton(
-                onPressed: getCurrentLocation,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                child: const Text("Get Address On Map"),
-              ),
-              const SizedBox(height: 16),
-
-              // Country
-              _buildDropdown<String>(
-                hint: 'Country',
-                value: selectedCountryId,
-                items: countries.map<DropdownMenuItem<String>>((country) {
-                  return DropdownMenuItem<String>(
-                    value: country['country_id'].toString(), // ✅ ID
-                    child: Text(
-                      country['name'], // ✅ Name
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() {
-                    selectedCountryId = value;
-                    selectedState = null; // reset state when country changes
-                    stateList.clear();
-                  });
-
-                  fetchStates(int.parse(value));
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // State
-              const Text("Select State"),
-              const SizedBox(height: 8),
-              _buildDropdown<String>(
-                hint: isStateLoading
-                    ? 'Loading...'
-                    : selectedCountryId == null
-                    ? 'State'
-                    : 'State',
-                value: stateList.isEmpty ? null : selectedStateId,
-                items: stateList.map<DropdownMenuItem<String>>((state) {
-                  return DropdownMenuItem<String>(
-                    value: state['state_id'].toString(),
-                    child: Text(
-                      state['name'],
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
-                onChanged:
-                (selectedCountryId == null ||
-                    isStateLoading ||
-                    stateList.isEmpty)
-                    ? null
-                    : (String? value) {
-                  setState(() {
-                    selectedStateId = value;
-                  });
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Business Tag Line
-
-
-              // About Company
-              const Text("About Your Company"),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: descriptionCtrl,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: "Description",
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Save & Next
-              Center(
-                child: ElevatedButton(
-                    onPressed: () async {
-                      final selectedstate = stateList.firstWhere(
-                            (c) => c['state_id'].toString() == selectedStateId,
-                        orElse: () => null,
-                      );
-                      if (selectedCategoryId == null ||
-                          selectedCountryId == null ||
-                          selectedStateId == null ||
-                          bannerImage == null) {
-                        Get.snackbar("Error", "Please fill all required fields");
-                        return;
-                      }
-
-                      // 🔹 Convert image to base64
-                      final String? base64Image = await convertImageToBase64(bannerImage);
-
-                      if (base64Image == null) {
-                        Get.snackbar("Error", "Image conversion failed");
-                        return;
-                      }
-
-                      try {
-                        final response = await ProfileService().addlistingfun(
-
-                          userId: auth.userId.toString(),
-                          categoryId: selectedCategoryId!,
-                          companyName: companyNameCtrl.text.trim(),
-                          email: emailCtrl.text.trim(),
-                          phoneNumber: phoneCtrl.text.trim(),
-                          officeAddress: addressCtrl.text.trim(),
-                          tagLine: tagLineCtrl.text.trim(),
-                          countryId: selectedCountryId!,
-                          state: selectedstate["state_id"]??"",
-                          aboutCompany: descriptionCtrl.text.trim(),
-                          image: base64Image,
-                          latitude: mapCenter.latitude.toString(),
-                          longitude: mapCenter.longitude.toString(),
-                        );
-                        Map<String, dynamic> data = {
-                          "listing_id":response["listing_id"]??"",
-                          "category": selectedCategoryId!,
-                          "company_name": companyNameCtrl.text.trim(),
-                          "email": emailCtrl.text.trim(),
-                          "phone_number": phoneCtrl.text.trim(),
-                          "office_address": addressCtrl.text.trim(),
-                          "tag_line": tagLineCtrl.text.trim(),
-                          "country_id": selectedCountryId!,
-                          "state": selectedstate["state_id"] ?? "",
-                          "about": descriptionCtrl.text.trim(),
-                          "logo_image": bannerImage?.path,
-                          "latitude": mapCenter.latitude.toString(),
-                          "longitude": mapCenter.longitude.toString(),
-                        };
-
-                        print("API Response: $response");
-
-                        Get.snackbar("Success", "Listing added successfully");
-
-                        Get.to(EditListingScreen(data:data));
-                      } catch (e) {
-                        Get.snackbar("Error", e.toString());
-                      }
-
-
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black87,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
-                  ),
-                  child: const Text("Save & Next",style: TextStyle(color: Colors.white),),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
-          ),
+          ],
         );
       })
 

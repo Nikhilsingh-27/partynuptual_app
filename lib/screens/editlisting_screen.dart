@@ -6,6 +6,7 @@ import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/plan_screen.dart';
 import 'package:new_app/screens/widgets/convertimgtobase64.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:io';
@@ -852,7 +853,12 @@ class _EditListingScreenState extends State<EditListingScreen> {
                             "Success",
                             "Listing updated successfully",
                           );
-                          Get.toNamed("/home");
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => PricingScreen(id: widget.data["listing_id"].toString()??"")
+                            ),
+                          );
                         } catch (e) {
                           Get.snackbar("Error", e.toString());
                         }

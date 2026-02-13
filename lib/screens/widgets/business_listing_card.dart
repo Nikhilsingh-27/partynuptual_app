@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/editlisting_screen.dart';
+import 'package:new_app/screens/plan_screen.dart';
 class BusinessListingCard extends StatelessWidget {
   final VoidCallback onDeleteSuccess;
   final Map<String, dynamic> item;
@@ -170,7 +171,14 @@ class BusinessListingCard extends StatelessWidget {
                       bgColor: const Color(0xFFDFF3EA),
                       color: const Color(0xFF1E8E5A),
                       onTap: () {
-                       Get.toNamed('/plan');
+                       // Get.toNamed('/plan');
+                       Navigator.push(
+                         context,
+                         MaterialPageRoute(
+                           builder: (context) => PricingScreen(id: item["listing_id"]??"")
+                         ),
+                       );
+
                       },
                     ),
                     _actionButton(

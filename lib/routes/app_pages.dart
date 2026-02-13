@@ -117,10 +117,10 @@ class AppPages {
       name:AppRoutes.conversation,
       page:()=>ChatScreen()
     ),
-    GetPage(
-      name:AppRoutes.plan,
-      page: ()=>PricingScreen()
-    ),
+    // GetPage(
+    //   name:AppRoutes.plan,
+    //   page: ()=>PricingScreen()
+    // ),
     GetPage(
         name:AppRoutes.viewideas ,
         page:()=>ViewIdeasScreen()

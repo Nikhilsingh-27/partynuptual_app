@@ -26,26 +26,36 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
   bool isloading=true;
 
 
-  final List<String> videoThumbs = [
-    'https://www.pexels.com/download/video/35174752/',
-    'https://www.pexels.com/download/video/35174767/',
-    'https://www.pexels.com/download/video/35174755/',
-  ];
+  List<String> videoThumbs = [];
+
 
   Map<String, dynamic> listing = {};
   List gallerylist =[];
   Future<void> fetchlistingbyid(String id) async {
     final response = await HomeService().getlistingbyid(id: id);
     final gallerydata = await HomeService().gallerybyid(id: id);
+
     setState(() {
       listing = response["data"] ?? {};
+      gallerylist = gallerydata["data"] ?? [];
 
-      gallerylist = gallerydata["data"]??[];
 
-      isloading=false;
-     
+      String? videosString = listing["videos"];
+
+      if (videosString != null && videosString.isNotEmpty) {
+        videoThumbs = videosString
+            .split(",")               // split by comma
+            .map((e) => e.trim())      // remove extra spaces
+            .where((e) => e.isNotEmpty)
+            .toList();
+      } else {
+        videoThumbs = [];
+      }
+
+      isloading = false;
     });
   }
+
 
   @override
   void initState() {

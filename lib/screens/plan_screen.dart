@@ -4,11 +4,17 @@ import 'package:get/get.dart';
 import 'package:new_app/data/services/profile_service.dart';
 
 class PricingScreen extends StatefulWidget {
-  const PricingScreen({super.key});
+  final String id;
+
+  const PricingScreen({
+    super.key,
+    required this.id,
+  });
 
   @override
   State<PricingScreen> createState() => _PricingScreenState();
 }
+
 
 class _PricingScreenState extends State<PricingScreen> {
   final List planslisting = [];
@@ -51,7 +57,7 @@ class _PricingScreenState extends State<PricingScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: planslisting.map((plan) {
-                    return PricingCard(plan: plan);
+                    return PricingCard(plan: plan,listingId: widget.id,);
                   }).toList(),
                 ),
               ),
@@ -62,11 +68,16 @@ class _PricingScreenState extends State<PricingScreen> {
 
 class PricingCard extends StatelessWidget {
   final Map<String, dynamic> plan;
+  final String listingId;
 
-  const PricingCard({super.key, required this.plan});
-
+  const PricingCard({
+    super.key,
+    required this.plan,
+    required this.listingId,
+  });
   @override
   Widget build(BuildContext context) {
+    print(listingId);
     final discount = plan["discount"];
     final features = List<String>.from(plan["features"] ?? []);
 
@@ -173,8 +184,8 @@ class PricingCard extends StatelessWidget {
                     MaterialPageRoute(
                       builder: (BuildContext context) => UsePaypal(
                         sandboxMode: true, // change to false for live
-                        clientId: "YOUR_CLIENT_ID",
-                        secretKey: "YOUR_SECRET_KEY",
+                        clientId: "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
+                        secretKey: "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
 
                         returnURL: "https://samplesite.com/return",
                         cancelURL: "https://samplesite.com/cancel",
@@ -214,6 +225,7 @@ class PricingCard extends StatelessWidget {
                                 .verifyAndActivatePlan(
                                   planId: plan["id"].toString(),
                                   paymentId: params["paymentId"] ?? "",
+                                  lisintid: listingId
                                 );
 
                             Navigator.pop(context);

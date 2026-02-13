@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:new_app/screens/widgets/video_card.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ListingDetailsDropdown extends StatefulWidget {
   String lat;
@@ -22,6 +23,7 @@ class ListingDetailsDropdown extends StatefulWidget {
 }
 
 class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
+
   GoogleMapController? mapController;
   LatLng mapCenter = const LatLng(28.6139, 77.2090); // default Delhi
 
@@ -34,8 +36,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
   @override
   void initState() {
     super.initState();
-    print(widget.lat);
-    print(widget.long);
+    print(widget.video);
     double lat = double.tryParse(widget.lat) ?? 0;
     double lng = double.tryParse(widget.long) ?? 0;
 
@@ -59,33 +60,13 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
   final List<bool> _expanded = [false, false, false, false];
 
   // Dummy data (later replace with API)
-  final List<String> galleryImages = [
-    'assets/b.jpeg',
-    'assets/b.jpg',
-    'assets/b1.jpg',
-  ];
 
-  final List<String> videoThumbs = [
-    'https://www.pexels.com/download/video/35174752/',
-    'https://www.pexels.com/download/video/35174767/',
-    'https://www.pexels.com/download/video/35174755/',
-  ];
-
-  final String descriptionText =
-      "At New Bay Design, we pride ourselves on delivering exceptional quality "
-      "and personalized service that sets us apart in the construction industry. "
-      "What makes us unique is our commitment to custom solutions tailored to meet "
-      "the specific needs and preferences of our clients.\n\n"
-      "We specialize in custom kitchen and bathroom projects, transforming these "
-      "essential spaces into functional and aesthetically pleasing areas that reflect "
-      "your style. Our team works closely with you from the initial design phase to "
-      "the final touches, ensuring your vision is fully realized.\n\n"
-      "In addition to kitchen and bath renovations, we also excel in custom "
-      "construction projects, including accessory dwelling units (ADUs) and "
-      "home additions.";
 
   @override
   Widget build(BuildContext context) {
+    YoutubePlayerController? _youtubeController;
+    String? _selectedVideoId;
+
     return Column(
       children: [
         _buildDropdown(
@@ -128,44 +109,26 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
           index: 2,
           title: "Videos",
           child: SizedBox(
-            height: 160,
+            height: 180,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.all(12),
-              itemCount: videoThumbs.length,
+              itemCount: widget.video.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (_, i) {
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => VideoCard(videoId: videoThumbs[i]),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 160,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.black,
-                    ),
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        const Icon(
-                          Icons.play_circle_fill,
-                          size: 60,
-                          color: Colors.white,
-                        ),
-                      ],
-                    ),
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  width: 250,
+                  child: VideoCard(
+                    key: ValueKey(widget.video[index]),
+                    videoId: widget.video[index],
                   ),
                 );
               },
             ),
           ),
         ),
+
+
 
         _buildDropdown(
           index: 3,
