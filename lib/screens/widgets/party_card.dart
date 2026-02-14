@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
-
+import 'package:get/get.dart';
 class PartyCard extends StatefulWidget {
   final String id;
   final String image;
@@ -30,18 +29,6 @@ class PartyCard extends StatefulWidget {
 }
 
 class _PartyCardState extends State<PartyCard> {
-  late int likeCount;
-  late int dislikeCount;
-  bool isLiked = false;
-  bool isDisliked = false;
-
-  @override
-  void initState() {
-    super.initState();
-    likeCount = widget.likes;
-    dislikeCount = widget.dislikes;
-  }
-
   Future<void> onLikePressed() async {
     final auth = Get.find<AuthenticationController>();
 
@@ -124,6 +111,19 @@ class _PartyCardState extends State<PartyCard> {
     }
   }
 
+  late int likeCount;
+  late int dislikeCount;
+  bool isLiked = false;
+  bool isDisliked = false;
+  @override
+  void initState() {
+    super.initState();
+    likeCount = widget.likes;
+    dislikeCount = widget.dislikes;
+    // print(likeCount);
+    // print(dislikeCount);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -141,32 +141,33 @@ class _PartyCardState extends State<PartyCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+
           /// IMAGE
           ClipRRect(
             borderRadius:
             const BorderRadius.vertical(top: Radius.circular(12)),
-            child: Image.network(
-              "https://partynuptual.com/public/uploads/ideas/${widget.image}",
-              height: 160,
-              width: double.infinity,
-              fit: BoxFit.cover,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.network(
+                "https://partynuptual.com/public/uploads/ideas/${widget.image}",
+                fit: BoxFit.cover,
+              ),
             ),
           ),
 
-          /// CONTENT
+          /// CONTENT AREA
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   /// TITLE
                   Text(
                     widget.title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -182,8 +183,6 @@ class _PartyCardState extends State<PartyCard> {
                       Expanded(
                         child: Text(
                           widget.location,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.grey[600],
@@ -198,7 +197,7 @@ class _PartyCardState extends State<PartyCard> {
                   /// DESCRIPTION
                   Text(
                     widget.description,
-                    maxLines: 2,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       fontSize: 12,
@@ -207,7 +206,7 @@ class _PartyCardState extends State<PartyCard> {
                     ),
                   ),
 
-                  const Spacer(),
+                  const Spacer(), // 🔥 pushes date row to bottom
 
                   /// DATE + LIKE/DISLIKE
                   Row(
@@ -217,13 +216,12 @@ class _PartyCardState extends State<PartyCard> {
                       Text(
                         widget.date,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           color: Colors.grey[600],
                         ),
                       ),
                       Row(
                         children: [
-                          /// LIKE
                           IconButton(
                             icon: Icon(
                               Icons.thumb_up_outlined,
@@ -234,16 +232,11 @@ class _PartyCardState extends State<PartyCard> {
                             ),
                             onPressed: onLikePressed,
                           ),
-                          Text(
-                            likeCount.toString(),
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600]),
-                          ),
+                          const SizedBox(width: 4),
+                          Text(likeCount.toString()),
 
-                          const SizedBox(width: 10),
+                          const SizedBox(width: 12),
 
-                          /// DISLIKE
                           IconButton(
                             icon: Icon(
                               Icons.thumb_down_outlined,
@@ -254,12 +247,8 @@ class _PartyCardState extends State<PartyCard> {
                             ),
                             onPressed: onDislikePressed,
                           ),
-                          Text(
-                            dislikeCount.toString(),
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey[600]),
-                          ),
+                          const SizedBox(width: 4),
+                          Text(dislikeCount.toString()),
                         ],
                       ),
                     ],

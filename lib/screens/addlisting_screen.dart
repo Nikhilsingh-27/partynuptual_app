@@ -415,7 +415,16 @@ class _AddListingScreenState extends State<AddListingScreen> {
                         final String? base64Image = await convertImageToBase64(bannerImage);
 
                         if (base64Image == null) {
-                          Get.snackbar("Error", "Image conversion failed");
+                          Get.snackbar(
+                            "Error",
+                            "Image conversion failed",
+                            backgroundColor: Colors.red,
+                            colorText: Colors.white,
+                            snackPosition: SnackPosition.TOP,
+                            margin: const EdgeInsets.all(10), // optional spacing from edges
+                            borderRadius: 8,
+                          );
+
                           return;
                         }
 

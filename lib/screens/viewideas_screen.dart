@@ -3,6 +3,7 @@ import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/pagination.dart';
 import 'package:new_app/screens/widgets/party_card.dart';
+
 class ViewIdeasScreen extends StatefulWidget {
   const ViewIdeasScreen({super.key});
 
@@ -11,15 +12,22 @@ class ViewIdeasScreen extends StatefulWidget {
 }
 
 class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
+  final List<dynamic> listingList = [];
 
-  final List<dynamic> listingList = []; // Store fetched listings
   int currentPage = 1;
   int limit = 10;
-  bool isLoading = false; // Show loading indicator
-  bool hasMore = true; // Track if more pages are available
-  bool check = true;
+  int totalpage = 0;
+
+  bool isLoading = false;
   bool isPageChanging = false;
-  int totalpage=0;
+  bool check = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchideas();
+  }
+
   Future<void> fetchideas({bool reset = false}) async {
     if (isLoading) return;
 
@@ -27,26 +35,19 @@ class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
       isLoading = true;
       if (reset) {
         listingList.clear();
-        hasMore = true;
       }
     });
 
     try {
-      final data = await HomeService().shareideasfun(page: currentPage, limit: limit);
+      final data =
+      await HomeService().shareideasfun(page: currentPage, limit: limit);
 
       final newListings = data['data'] as List<dynamic>;
 
-      //print(newListings);
       setState(() {
-        totalpage=data['pagination']['total_pages'];
-        // print("pp");
-        // print(totalpage);
+        totalpage = data['pagination']['total_pages'];
         listingList.addAll(newListings);
-
-        if (newListings.length < limit) {
-          hasMore = false;
-        }
-        isPageChanging = false;
+        print(newListings);
         check = false;
       });
     } catch (e) {
@@ -60,99 +61,89 @@ class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    fetchideas();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Let Us Know How You Did Your Party"),),
+      appBar: AppBar(
+        title: const Text("Let Us Know How You Did Your Party"),
+      ),
       body: check
-          ? const Center(
-        child: CircularProgressIndicator(),
-      )
-          : SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                // 🔥 reserve space
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    // GRID
-                    Opacity(
-                      opacity: isPageChanging ? 0.2 : 1,
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: 290,
-                        ),
-                        itemCount: listingList.length,
-                        itemBuilder: (context, index) {
-                          final card = listingList[index];
-                          return PartyCard(
-                            id: card["id"],
-                            image: card["image"],
-                            title: card["party_theme"],
-                            location: card["venue"],
-                            description: card["description"],
-                            date: card["date_added"],
-                            likes: int.parse(card["like_count"]),
-                            dislikes: int.parse(card["dislike_count"]),
-                          );
-                        },
-                      ),
-                    ),
+          ? const Center(child: CircularProgressIndicator())
+          : Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.zero,
+            children: [
 
-                    // LOADER
-                    if (isPageChanging)
-                      Container(
-                        height: 1500, // existing overlay height
-                        width: double.infinity,
-                        alignment: Alignment.bottomCenter,
-                        color: Colors.white.withOpacity(0.8),
-                        child: SizedBox(
-                          height: 60, // 👈 spinner height
-                          width: 60,  // 👈 spinner width
-                          child: CircularProgressIndicator(
-                            strokeWidth: 6, // 👈 thicker spinner line
-                            color: Colors.red, // optional: change color
-                          ),
-                        ),
-                      )
-                  ],
+              /// GRID
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate:
+                  const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.7,
+                  ),
+                  itemCount: listingList.length,
+                  itemBuilder: (context, index) {
+                    final card = listingList[index];
+
+                    return PartyCard(
+                      id: card["id"].toString(),
+                      image: card["image"],
+                      title: card["party_theme"],
+                      location: card["venue"],
+                      description: card["description"],
+                      date: card["date_added"],
+                      likes: int.parse(card["like_count"]),
+                      dislikes:
+                      int.parse(card["dislike_count"]),
+                    );
+                  },
                 ),
               ),
-            ),
 
-            const SizedBox(height: 14),
+              const SizedBox(height: 20),
 
-            Pagination(
-              currentPage: currentPage,
-              totalPages: totalpage,
-              onPageChanged: (page) {
-                setState(() {
-                  currentPage = page;
-                  isPageChanging = true;
-                });
-                fetchideas(reset: true);
-              },
+              /// PAGINATION
+              Padding(
+                padding:
+                const EdgeInsets.symmetric(horizontal: 16),
+                child: Pagination(
+                  currentPage: currentPage,
+                  totalPages: totalpage,
+                  onPageChanged: (page) {
+                    setState(() {
+                      currentPage = page;
+                      isPageChanging = true;
+                    });
+                    fetchideas(reset: true);
+                  },
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              /// FOOTER
+              const BottomSection(),
+            ],
+          ),
+
+          if (isPageChanging)
+            const Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: LinearProgressIndicator(
+                color: Colors.red,
+                minHeight: 3,
+              ),
             ),
-            const SizedBox(height: 8,),
-            BottomSection(),
-          ],
-        ),
+        ],
       ),
-
     );
   }
 }

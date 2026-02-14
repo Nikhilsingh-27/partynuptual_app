@@ -142,7 +142,19 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
       appBar: AppBar(
         title: const Text("My Shared Ideas"),
       ),
-      body: isloading?Center(child:CircularProgressIndicator()): ListView.builder(
+      body: isloading
+          ? const Center(child: CircularProgressIndicator())
+          : listmyideas.isEmpty
+          ? const Center(
+        child: Text(
+          "No Record Found",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey,
+          ),
+        ),
+      ) : ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: listmyideas.length,
         itemBuilder: (context, index) {

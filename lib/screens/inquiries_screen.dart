@@ -46,7 +46,29 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
         title: const Text('Inquiries'),
         backgroundColor: Colors.white,
       ),
-      body: isloading?Center(child: CircularProgressIndicator(),): ListView.builder(
+      body: isloading?Center(child: CircularProgressIndicator(),): listinquiries.isEmpty
+    ? const Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.inbox_outlined,
+          size: 60,
+          color: Colors.grey,
+        ),
+        SizedBox(height: 12),
+        Text(
+          "No Record Found",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: Colors.grey,
+          ),
+        ),
+      ],
+    ),
+    )
+        :ListView.builder(
         padding: const EdgeInsets.all(12),
         itemCount: listinquiries.length,
         itemBuilder: (context, index) {

@@ -263,8 +263,8 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.apps),
                 title: const Text(
-                  "Top Categories",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  "Our Top Categories",
+                  style: TextStyle(fontWeight: FontWeight.bold,color:Colors.black),
                 ),
                 onTap: () {
                   Get.toNamed("/topcategory");
@@ -413,7 +413,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Connect With Your Community ',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 17,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFF2b2b2b),
                           ),
@@ -421,7 +421,7 @@ class _HomePageState extends State<HomePage> {
                         const Text(
                           'Vendors.',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 17,
                             fontWeight: FontWeight.w600,
                             color: Color(0xFFe23744),
                           ),
@@ -436,8 +436,8 @@ class _HomePageState extends State<HomePage> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Our Top Categories',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      'Our Top Categories.',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[800]),
                     ),
                   ],
                 ),
@@ -458,7 +458,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                   itemBuilder: (context, index) {
                     final category = topcategory[index];
-                    // print(category['app_icon']);
+
                     return CategoryCard(
                       icon: iconMap[category['app_icon']] ?? Icons.help_outline,
                       name: category['category_name'],
@@ -559,7 +559,7 @@ class _HomePageState extends State<HomePage> {
                         Text(
                           'Let Us Know How You Did Your ',
                           style: TextStyle(
-                            fontSize: 20,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.grey[900],
                           ),
@@ -567,7 +567,7 @@ class _HomePageState extends State<HomePage> {
                         const Text(
                           'Party',
                           style: TextStyle(
-                            fontSize: 24,
+                            fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.red,
                           ),
