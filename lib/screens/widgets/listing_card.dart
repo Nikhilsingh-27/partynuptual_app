@@ -104,7 +104,7 @@ Widget buildListingCard({
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.grey[600],
+                    color: Colors.black,
                   ),
                 ),
               ),
@@ -158,7 +158,7 @@ Widget buildListingCard({
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 7,
-                          color: Colors.grey[700],
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -177,18 +177,18 @@ Widget buildListingCard({
                           horizontal: 7,
                           vertical: 6,
                         ),
-                        minimumSize: const Size(0, 20),
+                        minimumSize: const Size(60, 22),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(6),
                         ),
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.visibility, size: 10),
+                          Icon(Icons.visibility, size: 12),
                           SizedBox(width: 4),
                           Text(
                             'View',
-                            style: TextStyle(fontSize: 7),
+                            style: TextStyle(fontSize: 12),
                           ),
                         ],
                       ),

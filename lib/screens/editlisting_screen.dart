@@ -167,13 +167,27 @@ class _EditListingScreenState extends State<EditListingScreen> {
       );
     }
 
+
     // 🔹 Logo Image
     if (data["logo_image"] != null &&
         data["logo_image"].toString().isNotEmpty) {
-      existingImageUrl = getLogoImageUrl(data["logo_image"]);
-    } else {
-      bannerImage = null;
+
+      final String imageValue = data["logo_image"].toString();
+
+      if (imageValue.startsWith("http")) {
+        // 🔹 From API full URL
+        existingImageUrl = imageValue;
+      }
+      else if (imageValue.startsWith("/")) {
+        // 🔹 Local file path
+        bannerImage = XFile(imageValue);
+      }
+      else {
+        // 🔹 From API filename only
+        existingImageUrl = getLogoImageUrl(imageValue);
+      }
     }
+
   }
 
   Future<void> getCurrentLocation() async {
@@ -417,7 +431,8 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   // Banner Image
                   const Text("Banner Image"),
                   const SizedBox(height: 8),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       ElevatedButton(
                         onPressed: pickBannerImage,
@@ -426,15 +441,41 @@ class _EditListingScreenState extends State<EditListingScreen> {
                         ),
                         child: const Text("Choose file"),
                       ),
-                      const SizedBox(width: 8),
-                      if (isImageChanged && bannerImage != null)
-                        Text(bannerImage!.name)
+                      const SizedBox(height: 12),
+
+                      /// 🔥 IMAGE PREVIEW
+                      /// 🔥 IMAGE PREVIEW
+                      /// 🔥 IMAGE PREVIEW
+                      if (bannerImage != null)
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.file(
+                              File(bannerImage!.path),
+                              fit: BoxFit.cover, // or BoxFit.contain
+                            ),
+                          ),
+                        )
                       else if (existingImageUrl != null)
-                        Text("Existing Image Selected")
+                        SizedBox(
+                          width: 200,
+                          height: 200,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              existingImageUrl!,
+                              fit: BoxFit.cover, // or BoxFit.contain
+                            ),
+                          ),
+                        )
                       else
-                        Text("No file chosen"),
+                        const Text("No image selected"),
+
                     ],
                   ),
+
                   const SizedBox(height: 16),
 
                   // Registered Office Address

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:get/get.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/home_page.dart';
 
 class PricingScreen extends StatefulWidget {
   final String id;
@@ -14,7 +15,6 @@ class PricingScreen extends StatefulWidget {
   @override
   State<PricingScreen> createState() => _PricingScreenState();
 }
-
 
 class _PricingScreenState extends State<PricingScreen> {
   final List planslisting = [];
@@ -54,13 +54,16 @@ class _PricingScreenState extends State<PricingScreen> {
             : planslisting.isEmpty
             ? const Center(child: Text("No Plans Available"))
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  children: planslisting.map((plan) {
-                    return PricingCard(plan: plan,listingId: widget.id,);
-                  }).toList(),
-                ),
-              ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: planslisting.map((plan) {
+              return PricingCard(
+                plan: plan,
+                listingId: widget.id,
+              );
+            }).toList(),
+          ),
+        ),
       ),
     );
   }
@@ -75,9 +78,9 @@ class PricingCard extends StatelessWidget {
     required this.plan,
     required this.listingId,
   });
+
   @override
   Widget build(BuildContext context) {
-    print(listingId);
     final discount = plan["discount"];
     final features = List<String>.from(plan["features"] ?? []);
 
@@ -106,7 +109,7 @@ class PricingCard extends StatelessWidget {
 
             const SizedBox(height: 12),
 
-            /// OLD PRICE (if discount exists)
+            /// OLD PRICE
             if (discount != null)
               Text(
                 "\$${discount["original"]}",
@@ -117,7 +120,7 @@ class PricingCard extends StatelessWidget {
                 ),
               ),
 
-            /// CURRENT PRICE + DURATION
+            /// CURRENT PRICE
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -137,7 +140,6 @@ class PricingCard extends StatelessWidget {
               ],
             ),
 
-            /// DISCOUNT PERCENT
             if (discount != null)
               Padding(
                 padding: const EdgeInsets.only(top: 4),
@@ -180,89 +182,77 @@ class PricingCard extends StatelessWidget {
               height: 50,
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => UsePaypal(
-                        sandboxMode: true, // change to false for live
-                        clientId: "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
-                        secretKey: "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
+                  Get.to(
+                        () => UsePaypal(
+                      sandboxMode: true,
+                      clientId:
+                      "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
+                      secretKey:
+                      "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
+                      returnURL: "https://samplesite.com/return",
+                      cancelURL: "https://samplesite.com/cancel",
 
-                        returnURL: "https://samplesite.com/return",
-                        cancelURL: "https://samplesite.com/cancel",
-
-                        transactions: [
-                          {
-                            "amount": {
-                              "total": plan["price"].toString(),
-                              "currency": "USD",
-                              "details": {
-                                "subtotal": plan["price"].toString(),
-                                "shipping": '0',
-                                "shipping_discount": 0,
-                              },
-                            },
-                            "description": plan["name"],
-                            "item_list": {
-                              "items": [
-                                {
-                                  "name": plan["name"],
-                                  "quantity": 1,
-                                  "price": plan["price"].toString(),
-                                  "currency": "USD",
-                                },
-                              ],
+                      transactions: [
+                        {
+                          "amount": {
+                            "total": plan["price"].toString(),
+                            "currency": "USD",
+                            "details": {
+                              "subtotal": plan["price"].toString(),
+                              "shipping": '0',
+                              "shipping_discount": 0,
                             },
                           },
-                        ],
-
-                        note: "Thank you for purchasing ${plan["name"]}",
-
-                        onSuccess: (Map params) async {
-                          print("onSuccess: $params");
-
-                          try {
-                            final response = await ProfileService()
-                                .verifyAndActivatePlan(
-                                  planId: plan["id"].toString(),
-                                  paymentId: params["paymentId"] ?? "",
-                                  lisintid: listingId
-                                );
-
-                            Navigator.pop(context);
-
-                            if (response["success"] == true) {
-                              Get.snackbar(
-                                "Success",
-                                "Plan Activated Successfully",
-                              );
-                            } else {
-                              Get.snackbar(
-                                "Error",
-                                "Payment verification failed",
-                              );
-                            }
-                          } catch (e) {
-                            Navigator.pop(context);
-                            Get.snackbar("Error", "Server Error");
-                          }
+                          "description": plan["name"],
+                          "item_list": {
+                            "items": [
+                              {
+                                "name": plan["name"],
+                                "quantity": 1,
+                                "price": plan["price"].toString(),
+                                "currency": "USD",
+                              },
+                            ],
+                          },
                         },
+                      ],
 
-                        onError: (error) {
-                          print("onError: $error");
-                          Navigator.pop(context);
-                          Get.snackbar("Error", "Payment Failed");
-                        },
+                      note: "Thank you for purchasing ${plan["name"]}",
 
-                        onCancel: (params) {
-                          print('cancelled: $params');
-                          Navigator.pop(context);
-                          Get.snackbar("Cancelled", "Payment Cancelled");
-                        },
-                      ),
+                      /// ✅ SUCCESS → Direct HomePage
+                      onSuccess: (Map params) async {
+                        print("onSuccess: $params");
+
+                        // VERIFY FUNCTION COMMENTED
+                        /*
+                        await ProfileService().verifyAndActivatePlan(
+                          planId: plan["id"].toString(),
+                          paymentId: params["paymentId"] ?? "",
+                          lisintid: listingId,
+                        );
+                        */
+
+                        Future.delayed(const Duration(milliseconds: 300), () {
+                          Get.offAll(() => HomePage());
+                        });
+                      },
+
+                      /// ❌ ERROR
+                      onError: (error) {
+                        print("onError: $error");
+
+                        Get.snackbar("Error", "Payment Failed");
+                      },
+
+                      /// ❌ CANCEL
+                      onCancel: (params) {
+                        print('cancelled: $params');
+
+                        Get.snackbar("Cancelled", "Payment Cancelled");
+                      },
                     ),
                   );
                 },
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black87,
                   shape: RoundedRectangleBorder(

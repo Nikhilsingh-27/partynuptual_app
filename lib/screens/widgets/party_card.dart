@@ -202,7 +202,7 @@ class _PartyCardState extends State<PartyCard> {
                     style: TextStyle(
                       fontSize: 12,
                       height: 1.4,
-                      color: Colors.black.withOpacity(0.7),
+                      color: Colors.black,
                     ),
                   ),
 

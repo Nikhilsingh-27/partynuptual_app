@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
+import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/search_listing_screen.dart';
 
 class SearchWidget extends StatefulWidget {
   const SearchWidget({super.key});
@@ -157,7 +159,13 @@ class _SearchWidgetState extends State<SearchWidget> {
                 icon: const Icon(Icons.search, color: Colors.white, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () {
+                onPressed: () async{
+                  if (selectedCountryId == null ||
+                      selectedStateId == null ||
+                      selectedCategoryId == null) {
+                    debugPrint("Please select all fields");
+                    return;
+                  }
                   final selectedCountry = countries.firstWhere(
                     (c) => c['country_id'].toString() == selectedCountryId,
                     orElse: () => null,
@@ -171,11 +179,39 @@ class _SearchWidgetState extends State<SearchWidget> {
                     orElse: () => null,
                   );
 
-                  debugPrint('''
-                    Category: ${selectedcategory?['category_name']}
-                    Country: ${selectedCountry?['name']}
-                    State : ${selectedstate?['name']}
-                    ''');
+                  // debugPrint('''
+                  //   Category: ${selectedcategory?['category_name']}
+                  //   Country: ${selectedCountry?['name']}
+                  //   State : ${selectedstate?['name']}
+                  //   ''');
+                  try {
+                    final response = await ProfileService().searchfun(
+                      country_id: selectedCountryId.toString(),
+                      state: selectedStateId.toString(),
+                      category: selectedCategoryId.toString(),
+                      page: "1", // first page
+                    );
+
+// Navigate to SearchListingsPage and pass all required params
+                    Get.to(
+                          () => SearchListingsPage(
+                        categoryId: selectedCategoryId.toString(),
+                        countryId: selectedCountryId.toString(),
+                        stateId: selectedStateId.toString(),
+                        totalPagesFromPrevious: response["total_pages"] is int
+                            ? response["total_pages"]
+                            : int.parse(response["total_pages"].toString()),
+                      ),
+                  );
+
+                    // debugPrint("Search Response: $response");
+
+                    // If you want to navigate after success:
+                    // Get.to(() => ResultScreen(data: response));
+
+                  } catch (e) {
+                    debugPrint("Search Error: $e");
+                  }
                 },
               ),
             ),

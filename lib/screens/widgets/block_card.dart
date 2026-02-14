@@ -95,7 +95,7 @@ Widget buildBlogCard({
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.grey[900],
+                  color: Colors.black,
                 ),
               ),
 
@@ -110,7 +110,7 @@ Widget buildBlogCard({
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.grey[600],
+                    color: Colors.black,
                     height: 1.4,
                   ),
                 ),
@@ -119,50 +119,45 @@ Widget buildBlogCard({
               const SizedBox(height: 12),
 
               /// BUTTON (auto-fit text)
-              SizedBox(
-                width: 95,
-                height: 20,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(
-                          () => BlogcompleteScreen(),
-                      arguments: {
-                        'image': image,
-                        'title': title,
-                        'description': description,
-                        'date': date,
-                        'author': author,
-                        'tag': tag,
-                      },
-                    );
-                  },
-
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(250, 232, 235, 1)
-                    ,
-                    foregroundColor: Colors.white,
-
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
+            SizedBox(
+              width: 120,
+              height: 30,
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.to(
+                        () => BlogcompleteScreen(),
+                    arguments: {
+                      'image': image,
+                      'title': title,
+                      'description': description,
+                      'date': date,
+                      'author': author,
+                      'tag': tag,
+                    },
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromRGBO(250, 232, 235, 1),
+                  padding: EdgeInsets.only(left: 3,right: 3),              // ✅ remove default padding
+                  minimumSize: Size.zero,                // ✅ remove minimum size
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // ✅ remove extra tap space
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
                   ),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: const Text(
-                      'Continue Reading',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color:Colors.red,
-                      ),
-                    ),
+                ),
+                child: const Text(
+                  'Continue Reading',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.red,
                   ),
                 ),
               ),
+            ),
 
-              const SizedBox(height: 12),
+
+            const SizedBox(height: 12),
 
               /// DATE + TAG (responsive row)
               Row(

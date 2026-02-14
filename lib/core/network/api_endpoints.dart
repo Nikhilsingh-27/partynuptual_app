@@ -48,4 +48,5 @@ class ApiEndpoints {
   static const String removegalleryimage="/remove_gallery_image";
   static const String getPlans="/getPlans";
 
+  static const String searchlistings="/search_listings";
 }

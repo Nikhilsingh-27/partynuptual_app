@@ -521,4 +521,18 @@ class ProfileService {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
+
+  Future<Map<String,dynamic>>searchfun({required String country_id,
+    required String state,required String category,required String page})async{
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.searchlistings,
+        data: {"country_id": country_id, "state": state, "category": category,"page":page},
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }
