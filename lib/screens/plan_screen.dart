@@ -7,10 +7,7 @@ import 'package:new_app/screens/home_page.dart';
 class PricingScreen extends StatefulWidget {
   final String id;
 
-  const PricingScreen({
-    super.key,
-    required this.id,
-  });
+  const PricingScreen({super.key, required this.id});
 
   @override
   State<PricingScreen> createState() => _PricingScreenState();
@@ -25,11 +22,16 @@ class _PricingScreenState extends State<PricingScreen> {
     super.initState();
     fetchPlans();
   }
-
+  String clientid="";
+  String secretid="";
   Future<void> fetchPlans() async {
     try {
       final response = await ProfileService().getplanfun();
-
+      final details = await ProfileService().paypalcredential();
+      setState(() {
+        clientid=details["clientId"]??"";
+        secretid=details["clientSecret"]??"";
+      });
       setState(() {
         planslisting.clear();
         planslisting.addAll(response["data"]);
@@ -54,16 +56,14 @@ class _PricingScreenState extends State<PricingScreen> {
             : planslisting.isEmpty
             ? const Center(child: Text("No Plans Available"))
             : SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: planslisting.map((plan) {
-              return PricingCard(
-                plan: plan,
-                listingId: widget.id,
-              );
-            }).toList(),
-          ),
-        ),
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  children: planslisting.map((plan) {
+                    return PricingCard(plan: plan, listingId: widget.id,clientid: clientid,          // ✅ pass here
+                      secretid: secretid, );
+                  }).toList(),
+                ),
+              ),
       ),
     );
   }
@@ -72,15 +72,14 @@ class _PricingScreenState extends State<PricingScreen> {
 class PricingCard extends StatelessWidget {
   final Map<String, dynamic> plan;
   final String listingId;
-
-  const PricingCard({
-    super.key,
-    required this.plan,
-    required this.listingId,
-  });
+  final String clientid;
+  final String secretid;
+  const PricingCard({super.key, required this.plan, required this.listingId,required this.clientid,required this.secretid});
 
   @override
   Widget build(BuildContext context) {
+    print(clientid);
+    print(secretid);
     final discount = plan["discount"];
     final features = List<String>.from(plan["features"] ?? []);
 
@@ -183,12 +182,10 @@ class PricingCard extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Get.to(
-                        () => UsePaypal(
+                    () => UsePaypal(
                       sandboxMode: true,
-                      clientId:
-                      "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
-                      secretKey:
-                      "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
+                      clientId: "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
+                      secretKey:"ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
                       returnURL: "https://samplesite.com/return",
                       cancelURL: "https://samplesite.com/cancel",
 
@@ -224,13 +221,30 @@ class PricingCard extends StatelessWidget {
                         print("onSuccess: $params");
 
                         // VERIFY FUNCTION COMMENTED
-                        /*
-                        await ProfileService().verifyAndActivatePlan(
-                          planId: plan["id"].toString(),
-                          paymentId: params["paymentId"] ?? "",
-                          lisintid: listingId,
-                        );
-                        */
+
+                        try {
+                          final response = await ProfileService()
+                              .verifyAndActivatePlan(
+                                token: params["token"],
+                                listing_id: listingId,
+                                duration: plan["duration"].toString(),
+                                price: plan["price"].toString(),
+                                plan_id: plan["id"].toString(),
+                              );
+
+                          print("verifyAndActivatePlan response: $response");
+
+                          // Navigate to HomePage only if response is valid
+                          if (response != null &&
+                              response["status"] == "true") {
+                            Get.offAll(() => HomePage());
+                          } else {
+                            Get.snackbar("Error", "Plan verification failed");
+                          }
+                        } catch (e) {
+                          print("Error verifying plan: $e");
+                          Get.snackbar("Error", "Plan verification failed");
+                        }
 
                         Future.delayed(const Duration(milliseconds: 300), () {
                           Get.offAll(() => HomePage());

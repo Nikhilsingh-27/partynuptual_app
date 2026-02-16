@@ -511,12 +511,30 @@ class ProfileService {
   }
 
   Future<Map<String, dynamic>> verifyAndActivatePlan({
-    required String planId,
-    required String paymentId,
-    required String lisintid
+    required String token,
+    required String listing_id,
+    required String duration,
+    required String price,
+    required String plan_id,
   }) async {
+    print(token);
+    print(listing_id);
+    print(duration);
+    print(price);
+    print(plan_id);
     try {
-      return {};
+        final response = await _dio.post(
+          "https://partynuptual.com/payment/paypal_success_app",
+          data:{
+            "token":token,
+            "listing_id":listing_id,
+            "duration":duration,
+            "price":price,
+            "plan_id":plan_id
+          }
+        );
+        print(response.data);
+      return response.data;
     } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
@@ -535,4 +553,81 @@ class ProfileService {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
+
+  Future<Map<String,dynamic>>allinboxfun({required String user_id})async{
+    try {
+      print(user_id);
+      final response = await _dio.post(
+        ApiEndpoints.allinbox,
+        data: {"user_id":user_id},
+        options: dio.Options(contentType: dio.Headers.jsonContentType),
+      );
+
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> getConversations({required String userId}) async {
+    try {
+      final response = await _dio.post(
+        'https://partynuptual.com/api/conversation',
+        data: {"user_id": userId},
+        options: dio.Options(
+          headers: {
+            "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+          },
+          validateStatus: (status) => status! < 500, // allow 403 to be handled
+        ),
+      );
+
+      if (response.statusCode == 403) {
+        throw Exception("Access Denied by server. Possible firewall or bot protection.");
+      }
+
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String,dynamic>>paypalcredential()async{
+    try {
+      final response = await _dio.get(
+        ApiEndpoints.credential,
+      );
+
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String,dynamic>>startconversationfun({
+    required String user_id,
+    required String vendor_id
+})async{
+    print(user_id);
+    print(vendor_id);
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.startconversation,
+        data:{
+          "user_id":user_id,
+          "vendor_id":vendor_id
+        }
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
 }

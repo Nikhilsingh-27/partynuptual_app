@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
+
 class MyInboxScreen extends StatefulWidget {
   const MyInboxScreen({super.key});
 
@@ -8,8 +11,50 @@ class MyInboxScreen extends StatefulWidget {
 }
 
 class _MyInboxScreenState extends State<MyInboxScreen> {
-  // Dummy inbox list
-  final List<String> inboxUsers = List.generate(20, (index) => "User $index");
+  final auth = Get.find<AuthenticationController>();
+  late String user_id;
+
+  List<Map<String, dynamic>> inboxList = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    user_id = auth.userId??"";
+    fetchInbox();
+  }
+
+  /// Fetch inbox using the API
+  Future<void> fetchInbox() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ProfileService().getConversations(userId: user_id);
+
+      if (response["status"] == true) {
+        setState(() {
+          inboxList = List<Map<String, dynamic>>.from(response["data"]);
+        });
+      } else {
+        // No data or error
+        setState(() {
+          inboxList = [];
+        });
+        Get.snackbar("Error", response["message"] ?? "Failed to fetch inbox");
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Failed to fetch inbox: $e");
+      setState(() {
+        inboxList = [];
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +65,11 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
+        child: isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : inboxList.isEmpty
+            ? const Center(child: Text("No Messages"))
+            : Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
@@ -31,12 +80,12 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
               ),
             ),
             const SizedBox(height: 12),
-
             Expanded(
               child: ListView.builder(
-                itemCount: inboxUsers.length,
+                itemCount: inboxList.length,
                 itemBuilder: (context, index) {
-                  return _messageTile(index);
+                  final item = inboxList[index];
+                  return _messageTile(item, index);
                 },
               ),
             ),
@@ -46,7 +95,12 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
     );
   }
 
-  Widget _messageTile(int index) {
+  Widget _messageTile(Map<String, dynamic> item, int index) {
+    String vendorName = item["vendor_name"] ?? "Unknown";
+    String vendorEmail = item["vendor_email"] ?? "";
+    String? avatar = item["avatar"];
+    String unreadCount = item["unread_count"] ?? "0";
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -62,36 +116,49 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
       ),
       child: Row(
         children: [
-          // Left red indicator
+          // Left red indicator if unread
           Container(
             width: 4,
             height: 80,
-            decoration: const BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.only(
+            decoration: BoxDecoration(
+              color: unreadCount != "0" ? Colors.red : Colors.transparent,
+              borderRadius: const BorderRadius.only(
                 topLeft: Radius.circular(8),
                 bottomLeft: Radius.circular(8),
               ),
             ),
           ),
-
           const SizedBox(width: 12),
 
           // Profile avatar (clickable)
           GestureDetector(
             onTap: () {
-              Get.toNamed('/conversation');
+              // Navigate to conversation screen
+              Get.toNamed(
+                '/conversation',
+                arguments: {
+                  "conversation_id": item["id"],
+                  "vendor_name": vendorName,
+                  "vendor_id": item["vendor_id"]
+                },
+              );
             },
             child: Stack(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 28,
-                  backgroundColor: Color(0xFF5B6786),
-                  child: Icon(
+                  backgroundColor: const Color(0xFF5B6786),
+                  backgroundImage: avatar != null
+                      ? NetworkImage(
+                      "https://partynuptual.com/public/uploads/avatar/$avatar")
+                      : null,
+                  child: avatar == null
+                      ? const Icon(
                     Icons.person,
                     size: 32,
                     color: Colors.white,
-                  ),
+                  )
+                      : null,
                 ),
                 Positioned(
                   right: 2,
@@ -110,7 +177,22 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
             ),
           ),
 
-          const Spacer(),
+          const SizedBox(width: 12),
+
+          // Name & Email
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  vendorName,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+
+              ],
+            ),
+          ),
 
           // Remove button
           Padding(
@@ -118,27 +200,21 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
             child: OutlinedButton.icon(
               onPressed: () {
                 setState(() {
-                  inboxUsers.removeAt(index);
+                  inboxList.removeAt(index);
                 });
               },
               icon: const Icon(
                 Icons.delete,
                 color: Colors.red,
-                size: 16, // slightly smaller icon
+                size: 16,
               ),
               label: const Text(
                 "Remove",
-                style: TextStyle(
-                  color: Colors.red,
-                  fontSize: 13, // smaller text
-                ),
+                style: TextStyle(color: Colors.red, fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
-                minimumSize: const Size(0, 36), // 👈 controls height
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4, // 👈 reduces height
-                ),
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(
@@ -147,26 +223,7 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
               ),
             ),
           ),
-
         ],
-      ),
-    );
-  }
-}
-
-// Placeholder screen for future navigation
-class ProfilePlaceholderScreen extends StatelessWidget {
-  const ProfilePlaceholderScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text("Profile")),
-      body: const Center(
-        child: Text(
-          "Profile Screen (Coming Soon)",
-          style: TextStyle(fontSize: 16),
-        ),
       ),
     );
   }

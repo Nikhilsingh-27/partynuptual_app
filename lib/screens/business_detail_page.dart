@@ -148,7 +148,27 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton.icon(
-                              onPressed: () {},
+                              onPressed: () async {
+                                try {
+                                  final response = await ProfileService().startconversationfun(
+                                    user_id: auth.userId??"",     // 🔥 replace with actual user id
+                                    vendor_id: widget.ownerid, // 🔥 replace with actual vendor id
+                                  );
+
+                                  print("Start Conversation Response: $response");
+
+                                  if (response["status"] == true) {
+                                    Get.snackbar("Success", response["message"] ?? "Conversation started");
+
+                                  } else {
+                                    Get.snackbar("Error", response["message"] ?? "Failed to start conversation");
+                                  }
+                                } catch (e) {
+                                  print("Error: $e");
+                                  Get.snackbar("Error", "Something went wrong");
+                                }
+                              },
+
                               icon: const Icon(Icons.chat_bubble_outline),
                               label: const Text("Chat Now"),
                               style: ElevatedButton.styleFrom(

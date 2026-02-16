@@ -49,4 +49,11 @@ class ApiEndpoints {
   static const String getPlans="/getPlans";
 
   static const String searchlistings="/search_listings";
+  static const String verify="/payment/paypal_success_app";
+
+
+  static const String credential="/paypal_credentials";
+
+  static const String allinbox="/conversation";
+  static const String startconversation="/start_conversation";
 }

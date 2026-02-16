@@ -4,20 +4,23 @@ import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/editlisting_screen.dart';
 import 'package:new_app/screens/plan_screen.dart';
+
 class BusinessListingCard extends StatelessWidget {
   final VoidCallback onDeleteSuccess;
   final Map<String, dynamic> item;
 
-  const BusinessListingCard({super.key, required this.item,required this.onDeleteSuccess,});
+  const BusinessListingCard({
+    super.key,
+    required this.item,
+    required this.onDeleteSuccess,
+  });
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage =
-        "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
 
     if (logoPath == null || logoPath.trim().isEmpty) {
       return defaultImage;
     }
-
 
     final String imageName = logoPath.split('/').last;
 
@@ -27,7 +30,6 @@ class BusinessListingCard extends StatelessWidget {
 
     return "${baseUrl}/public/uploads/logo/$imageName";
   }
-
 
   void _showDeleteDialog(BuildContext context, String listingId) {
     TextEditingController deleteController = TextEditingController();
@@ -40,9 +42,7 @@ class BusinessListingCard extends StatelessWidget {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                "Type DELETE to permanently remove this listing.",
-              ),
+              const Text("Type DELETE to permanently remove this listing."),
               const SizedBox(height: 10),
               TextField(
                 controller: deleteController,
@@ -61,16 +61,15 @@ class BusinessListingCard extends StatelessWidget {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () async {
                 if (deleteController.text.trim() == "DELETE") {
                   Navigator.pop(context);
 
                   try {
-                    final response =
-                    await ProfileService().deletelistingfun(id: listingId);
+                    final response = await ProfileService().deletelistingfun(
+                      id: listingId,
+                    );
 
                     debugPrint("Delete Response: $response");
                     //final controller = Get.find<HomeController>();
@@ -81,11 +80,9 @@ class BusinessListingCard extends StatelessWidget {
                       ),
                     );
                   } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text("Error: $e"),
-                      ),
-                    );
+                    ScaffoldMessenger.of(
+                      context,
+                    ).showSnackBar(SnackBar(content: Text("Error: $e")));
                   }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -152,35 +149,41 @@ class BusinessListingCard extends StatelessWidget {
 
                 Text(
                   item["tag_line"]!,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    height: 1.4,
-                  ),
+                  style: const TextStyle(fontSize: 14, height: 1.4),
                 ),
 
                 const SizedBox(height: 16),
 
-                /// ACTION BUTTONS
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    _actionButton(
+                    item["status"] == "1"
+                        ? _actionButton(
+                            icon: Icons.check_circle,
+                            text: "Listing is Activated",
+                            bgColor: const Color(0xFFDFF3EA),
+                            color: const Color(0xFF1E8E5A),
+                            onTap: () {
+                              // Optional: do nothing or show a message
+                            },
+                          ):_actionButton(
                       icon: Icons.check_circle,
                       text: "Activate Your Listing",
                       bgColor: const Color(0xFFDFF3EA),
                       color: const Color(0xFF1E8E5A),
                       onTap: () {
-                       // Get.toNamed('/plan');
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(
-                           builder: (context) => PricingScreen(id: item["listing_id"]??"")
-                         ),
-                       );
-
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PricingScreen(
+                              id: item["listing_id"] ?? "",
+                            ),
+                          ),
+                        );
                       },
                     ),
+
                     _actionButton(
                       icon: Icons.edit,
                       text: "Edit",
@@ -188,16 +191,16 @@ class BusinessListingCard extends StatelessWidget {
                       color: const Color(0xFF2563EB),
                       onTap: () {
                         Get.to(EditListingScreen(data: item));
-                      }
+                      },
                     ),
                     _actionButton(
                       icon: Icons.delete,
                       text: "Delete",
                       bgColor: const Color(0xFFFFE5E5),
                       color: Colors.red,
-                        onTap: () {
-                          _showDeleteDialog(context, item["listing_id"]);
-                        }
+                      onTap: () {
+                        _showDeleteDialog(context, item["listing_id"]);
+                      },
                     ),
                   ],
                 ),
