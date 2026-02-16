@@ -1,77 +1,164 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
-class ChatScreen extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:new_app/data/services/profile_service.dart';
+
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  Timer? _timer;
+  final TextEditingController _messageController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+
+  late String conversationId;
+  late String userId;
+  late String receiverId;
+
+  List messages = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments ?? {};
+    conversationId = args["conversation_id"] ?? "";
+    userId = args["user_id"] ?? "";
+    receiverId = args["vendor_id"] ?? "";
+
+    _loadMessages();
+    _startAutoRefresh();
+  }
+
+  // ===============================
+  // FETCH MESSAGES
+  // ===============================
+  Future<void> _loadMessages() async {
+    try {
+      final response = await ProfileService().fetchconversationfun(
+        id: conversationId,
+        user_id: userId,
+      );
+
+      if (response["status"] == true) {
+        setState(() {
+          messages = response["data"];
+        });
+
+        _scrollToBottom();
+      }
+    } catch (e) {
+      print("Error fetching messages: $e");
+    }
+  }
+
+  // ===============================
+  // SEND MESSAGE
+  // ===============================
+  Future<void> _sendMessage() async {
+    String text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    // ✅ CLEAR UI IMMEDIATELY
+    _messageController.clear();
+    FocusScope.of(context).unfocus();
+
+    try {
+      final response = await ProfileService().sendmessagefun(
+        id: conversationId,
+        user_id: userId,
+        receiver_id: receiverId,
+        message: text,
+      );
+
+      if (response["status"] == true) {
+        _loadMessages(); // refresh after send
+      }
+    } catch (e) {
+      print("Send error: $e");
+    }
+  }
+
+  // ===============================
+  // AUTO REFRESH
+  // ===============================
+  void _startAutoRefresh() {
+    _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      _loadMessages();
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  // ===============================
+  // SCROLL TO BOTTOM
+  // ===============================
+  void _scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  // ===============================
+  // FORMAT DATE TIME
+  // ===============================
+  String formatDateTime(String dateTimeString) {
+    DateTime dt = DateTime.parse(dateTimeString);
+    return DateFormat('dd MMM yyyy, hh:mm a').format(dt);
+  }
+
+  // ===============================
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true, // 🔥 IMPORTANT
       backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
+      appBar: AppBar(title: const Text("Chat"), backgroundColor: Colors.red),
 
       body: Column(
         children: [
-          // HEADER WITH BG IMAGE
-          Stack(
-            children: [
-              Container(
-                height: 170,
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/avatar-bg.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-
-              // Profile Avatar
-              Positioned.fill(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: CircleAvatar(
-                    radius: 42,
-                    backgroundColor: Colors.white.withOpacity(0.25),
-                    child: const CircleAvatar(
-                      radius: 34,
-                      backgroundColor: Color(0xFF5B6786),
-                      child: Icon(
-                        Icons.person,
-                        color: Colors.white,
-                        size: 36,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-
-          // CHAT BODY
+          // ================= CHAT BODY =================
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
-              children: [
-                _messageBubble("whats your name", "2026-01-21 00:30:08"),
-                const SizedBox(height: 28),
-                _messageBubble("whats your name", "2026-01-21 00:30:09"),
-              ],
+            child: ListView.builder(
+              controller: _scrollController,
+              padding: const EdgeInsets.all(16),
+              itemCount: messages.length,
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                bool isMe = message["sender_id"] == userId;
+
+                return _messageBubble(
+                  message["message"],
+                  formatDateTime(message["created_at"]),
+                  isMe,
+                );
+              },
             ),
           ),
 
-          // INPUT AREA
+          // ================= INPUT =================
           Container(
             padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
             decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(color: Color(0xFFEAEAEA)),
-              ),
+              border: Border(top: BorderSide(color: Color(0xFFEAEAEA))),
             ),
             child: Row(
               children: [
@@ -83,8 +170,9 @@ class ChatScreen extends StatelessWidget {
                       color: const Color(0xFFF5F5F5),
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    child: const TextField(
-                      decoration: InputDecoration(
+                    child: TextField(
+                      controller: _messageController,
+                      decoration: const InputDecoration(
                         hintText: "Type Your Message",
                         border: InputBorder.none,
                       ),
@@ -94,10 +182,10 @@ class ChatScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 CircleAvatar(
                   radius: 24,
-                  backgroundColor: Color(0xFFFFE5E5),
+                  backgroundColor: const Color(0xFFFFE5E5),
                   child: IconButton(
                     icon: const Icon(Icons.send, color: Colors.red),
-                    onPressed: () {},
+                    onPressed: _sendMessage,
                   ),
                 ),
               ],
@@ -108,25 +196,27 @@ class ChatScreen extends StatelessWidget {
     );
   }
 
-  Widget _messageBubble(String text, String time) {
+  // ===============================
+  // MESSAGE BUBBLE
+  // ===============================
+  Widget _messageBubble(String text, String time, bool isMe) {
     return Align(
-      alignment: Alignment.centerRight,
+      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: isMe
+            ? CrossAxisAlignment.end
+            : CrossAxisAlignment.start,
         children: [
           Container(
+            margin: const EdgeInsets.symmetric(vertical: 6),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF2F2F2),
-              borderRadius: BorderRadius.circular(10),
+              color: isMe ? Colors.red.shade100 : Colors.grey.shade200,
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Text(text),
           ),
-          const SizedBox(height: 6),
-          Text(
-            time,
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
-          ),
+          Text(time, style: const TextStyle(fontSize: 11, color: Colors.grey)),
         ],
       ),
     );

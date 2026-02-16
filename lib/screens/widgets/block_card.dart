@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:new_app/screens/blogcomplete_screen.dart';
+
 String fixBlogImageUrl(String? apiUrl) {
   if (apiUrl == null || apiUrl.isEmpty) {
     // fallback image
@@ -18,16 +17,11 @@ String fixBlogImageUrl(String? apiUrl) {
 
 String htmlToPreviewText(String html) {
   return html
-  // remove tables completely
-      .replaceAll(
-    RegExp(r'<table[\s\S]*?</table>', caseSensitive: false),
-    '',
-  )
-
-  // remove all HTML tags
+      // remove tables completely
+      .replaceAll(RegExp(r'<table[\s\S]*?</table>', caseSensitive: false), '')
+      // remove all HTML tags
       .replaceAll(RegExp(r'<[^>]+>'), '')
-
-  // decode common HTML entities
+      // decode common HTML entities
       .replaceAll('&nbsp;', ' ')
       .replaceAll('&rsquo;', "'")
       .replaceAll('&lsquo;', "'")
@@ -38,12 +32,10 @@ String htmlToPreviewText(String html) {
       .replaceAll('&hellip;', '...')
       .replaceAll('&#39;', "'")
       .replaceAll('&amp;', '&')
-
-  // remove extra whitespace & newlines
+      // remove extra whitespace & newlines
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
 }
-
 
 Widget buildBlogCard({
   required String image,
@@ -54,7 +46,6 @@ Widget buildBlogCard({
   required String author,
 }) {
   return Container(
-
     decoration: BoxDecoration(
       color: Colors.white,
       borderRadius: BorderRadius.circular(8),
@@ -119,45 +110,48 @@ Widget buildBlogCard({
               const SizedBox(height: 12),
 
               /// BUTTON (auto-fit text)
-            SizedBox(
-              width: 120,
-              height: 30,
-              child: ElevatedButton(
-                onPressed: () {
-                  Get.to(
-                        () => BlogcompleteScreen(),
-                    arguments: {
-                      'image': image,
-                      'title': title,
-                      'description': description,
-                      'date': date,
-                      'author': author,
-                      'tag': tag,
-                    },
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromRGBO(250, 232, 235, 1),
-                  padding: EdgeInsets.only(left: 3,right: 3),              // ✅ remove default padding
-                  minimumSize: Size.zero,                // ✅ remove minimum size
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap, // ✅ remove extra tap space
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(6),
+              SizedBox(
+                width: 120,
+                height: 30,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Get.to(
+                      () => BlogcompleteScreen(),
+                      arguments: {
+                        'image': image,
+                        'title': title,
+                        'description': description,
+                        'date': date,
+                        'author': author,
+                        'tag': tag,
+                      },
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromRGBO(250, 232, 235, 1),
+                    padding: EdgeInsets.only(
+                      left: 3,
+                      right: 3,
+                    ), // ✅ remove default padding
+                    minimumSize: Size.zero, // ✅ remove minimum size
+                    tapTargetSize: MaterialTapTargetSize
+                        .shrinkWrap, // ✅ remove extra tap space
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  'Continue Reading',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.red,
+                  child: const Text(
+                    'Continue Reading',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.red,
+                    ),
                   ),
                 ),
               ),
-            ),
 
-
-            const SizedBox(height: 12),
+              const SizedBox(height: 30),
 
               /// DATE + TAG (responsive row)
               Row(
@@ -167,8 +161,11 @@ Widget buildBlogCard({
                     flex: 1,
                     child: Row(
                       children: [
-                        Icon(Icons.calendar_today,
-                            size: 12, color: Colors.grey[600]),
+                        Icon(
+                          Icons.calendar_today,
+                          size: 12,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(
@@ -177,7 +174,7 @@ Widget buildBlogCard({
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: 9,
-                              fontWeight:FontWeight.w600,
+                              fontWeight: FontWeight.w600,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -193,8 +190,11 @@ Widget buildBlogCard({
                     flex: 1,
                     child: Row(
                       children: [
-                        Icon(Icons.local_offer,
-                            size: 14, color: Colors.grey[600]),
+                        Icon(
+                          Icons.local_offer,
+                          size: 14,
+                          color: Colors.grey[600],
+                        ),
                         const SizedBox(width: 4),
                         Flexible(
                           child: Text(

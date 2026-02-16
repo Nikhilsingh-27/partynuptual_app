@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 
-class PartyCard extends StatefulWidget {
+class PartyCardScroll extends StatefulWidget {
   final String id;
   final String image;
   final String title;
@@ -13,7 +13,7 @@ class PartyCard extends StatefulWidget {
   final int likes;
   final int dislikes;
 
-  const PartyCard({
+  const PartyCardScroll({
     super.key,
     required this.id,
     required this.image,
@@ -26,10 +26,10 @@ class PartyCard extends StatefulWidget {
   });
 
   @override
-  State<PartyCard> createState() => _PartyCardState();
+  State<PartyCardScroll> createState() => _PartyCardScrollState();
 }
 
-class _PartyCardState extends State<PartyCard> {
+class _PartyCardScrollState extends State<PartyCardScroll> {
   late int likeCount;
   late int dislikeCount;
   bool isLiked = false;
@@ -67,7 +67,7 @@ class _PartyCardState extends State<PartyCard> {
         idea_id: widget.id,
         action: "like",
       );
-    } catch (e) {
+    } catch (_) {
       setState(() {
         likeCount--;
         isLiked = false;
@@ -101,7 +101,7 @@ class _PartyCardState extends State<PartyCard> {
         idea_id: widget.id,
         action: "dislike",
       );
-    } catch (e) {
+    } catch (_) {
       setState(() {
         dislikeCount--;
         isDisliked = false;
@@ -131,7 +131,7 @@ class _PartyCardState extends State<PartyCard> {
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
             child: AspectRatio(
-              aspectRatio: 4 / 3,
+              aspectRatio: 16 / 9,
               child: Image.network(
                 "https://partynuptual.com/public/uploads/ideas/${widget.image}",
                 fit: BoxFit.cover,
@@ -144,13 +144,12 @@ class _PartyCardState extends State<PartyCard> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                /// TOP CONTENT (WITH PADDING)
+                /// TOP CONTENT WITH PADDING
                 Padding(
                   padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      /// TITLE
                       Text(
                         widget.title,
                         style: const TextStyle(
@@ -163,7 +162,6 @@ class _PartyCardState extends State<PartyCard> {
 
                       const SizedBox(height: 6),
 
-                      /// LOCATION
                       Row(
                         children: [
                           const Icon(
@@ -187,12 +185,11 @@ class _PartyCardState extends State<PartyCard> {
 
                       const SizedBox(height: 8),
 
-                      /// DESCRIPTION
                       Text(
                         widget.description,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 12, height: 1.2),
+                        style: const TextStyle(fontSize: 12, height: 1),
                       ),
                     ],
                   ),
@@ -207,7 +204,7 @@ class _PartyCardState extends State<PartyCard> {
                   color: Colors.black.withOpacity(0.07),
                 ),
 
-                /// BOTTOM ROW (WITH PADDING)
+                /// BOTTOM ROW WITH PADDING
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -215,7 +212,6 @@ class _PartyCardState extends State<PartyCard> {
                   ),
                   child: Row(
                     children: [
-                      /// DATE
                       Expanded(
                         child: Text(
                           widget.date,
@@ -227,7 +223,6 @@ class _PartyCardState extends State<PartyCard> {
                         ),
                       ),
 
-                      /// LIKE / DISLIKE
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

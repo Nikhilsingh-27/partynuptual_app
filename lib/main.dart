@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
       title: 'Vendor App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        brightness: Brightness.light,
         fontFamily: 'Jost',
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.red),
         useMaterial3: true,

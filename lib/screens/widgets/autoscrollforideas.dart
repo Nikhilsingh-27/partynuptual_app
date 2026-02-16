@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:new_app/screens/widgets/party_card.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/home_controller.dart';
+import 'package:new_app/screens/widgets/party_card_for_scroll.dart';
 
 class AutoScrollPartyCards extends StatefulWidget {
   const AutoScrollPartyCards({super.key});
@@ -64,7 +65,7 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SizedBox(
-          height: 290,
+          height: 300,
           child: PageView.builder(
             controller: _pageController,
             itemCount: ideas.length,
@@ -73,18 +74,17 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: PartyCard(
+                child: PartyCardScroll(
                   id: item['id'],
                   image: item['image'],
                   title: item['party_theme'],
                   location: item['venue'],
                   description: item['description'],
                   date: item['date_added'],
-                  likes: int.tryParse(
-                      item['like_count']?.toString() ?? '0') ??
-                      0,
-                  dislikes: int.tryParse(
-                      item['dislike_count']?.toString() ?? '0') ??
+                  likes:
+                      int.tryParse(item['like_count']?.toString() ?? '0') ?? 0,
+                  dislikes:
+                      int.tryParse(item['dislike_count']?.toString() ?? '0') ??
                       0,
                 ),
               );

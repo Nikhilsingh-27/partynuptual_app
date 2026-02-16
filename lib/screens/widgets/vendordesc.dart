@@ -23,7 +23,6 @@ class ListingDetailsDropdown extends StatefulWidget {
 }
 
 class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
-
   GoogleMapController? mapController;
   LatLng mapCenter = const LatLng(28.6139, 77.2090); // default Delhi
 
@@ -31,6 +30,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
 
   // Marker for showing selected location
   final Set<Marker> markers = {};
+  late List<String> validVideos;
 
   late LatLng staticLocation;
   @override
@@ -55,12 +55,22 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         ),
       );
     }
+
+    validVideos = widget.video
+        .where(
+          (video) =>
+              video != null &&
+              video.toString().trim().isNotEmpty &&
+              video != "@#@#" &&
+              video.toString().toLowerCase() != "null",
+        )
+        .map((e) => e.toString())
+        .toList();
   }
 
-  final List<bool> _expanded = [false, false, false, false];
+  final List<bool> _expanded = [true, true, false, true];
 
   // Dummy data (later replace with API)
-
 
   @override
   Widget build(BuildContext context) {
@@ -83,27 +93,34 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         _buildDropdown(
           index: 1,
           title: "Gallery",
-          child: SizedBox(
-            height: 120,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.all(12),
-              itemBuilder: (_, i) => ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  "https://partynuptual.com/public/uploads/listing/"
-                  "${widget.gallery[i]['owner_id']}/"
-                  "${widget.gallery[i]['listing_id']}/"
-                  "${widget.gallery[i]['file_name']}",
-                  width: 160,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(), // ❌ NO SCROLL
               itemCount: widget.gallery.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // 3 images per row
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 1, // perfect square
+              ),
+              itemBuilder: (context, i) {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    "https://partynuptual.com/public/uploads/listing/"
+                    "${widget.gallery[i]['owner_id']}/"
+                    "${widget.gallery[i]['listing_id']}/"
+                    "${widget.gallery[i]['file_name']}",
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
             ),
           ),
         ),
+
         // -------- VIDEOS DROPDOWN (UPDATED) --------
         _buildDropdown(
           index: 2,
@@ -113,22 +130,20 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.all(12),
-              itemCount: widget.video.length,
+              itemCount: validVideos.length,
               separatorBuilder: (_, __) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 return SizedBox(
                   width: 250,
                   child: VideoCard(
                     key: ValueKey(widget.video[index]),
-                    videoId: widget.video[index],
+                    videoId: validVideos[index],
                   ),
                 );
               },
             ),
           ),
         ),
-
-
 
         _buildDropdown(
           index: 3,

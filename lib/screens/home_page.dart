@@ -264,7 +264,10 @@ class _HomePageState extends State<HomePage> {
                 leading: const Icon(Icons.apps),
                 title: const Text(
                   "Our Top Categories",
-                  style: TextStyle(fontWeight: FontWeight.bold,color:Colors.black),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/topcategory");
@@ -337,6 +340,7 @@ class _HomePageState extends State<HomePage> {
         final banners = data["data"]["banners"];
         final listings = data["data"]["listings"];
         final blogs = data["data"]["blogs"];
+
         final topcategory = data["data"]["categories"];
         // print(topcategory);
         return SingleChildScrollView(
@@ -538,7 +542,7 @@ class _HomePageState extends State<HomePage> {
                     const SizedBox(height: 8),
                     Text(
                       'Explore Hot & Popular Business Listings.',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 14, color: Colors.black),
                     ),
                   ],
                 ),

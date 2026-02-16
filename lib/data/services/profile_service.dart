@@ -523,29 +523,15 @@ class ProfileService {
     print(price);
     print(plan_id);
     try {
-        final response = await _dio.post(
-          "https://partynuptual.com/payment/paypal_success_app",
-          data:{
-            "token":token,
-            "listing_id":listing_id,
-            "duration":duration,
-            "price":price,
-            "plan_id":plan_id
-          }
-        );
-        print(response.data);
-      return response.data;
-    } on dio.DioException catch (e) {
-      throw Exception(e.response?.data ?? "API Error");
-    }
-  }
-
-  Future<Map<String,dynamic>>searchfun({required String country_id,
-    required String state,required String category,required String page})async{
-    try {
       final response = await _dio.post(
-        ApiEndpoints.searchlistings,
-        data: {"country_id": country_id, "state": state, "category": category,"page":page},
+        "https://partynuptual.com/payment/paypal_success_app",
+        data: {
+          "token": token,
+          "listing_id": listing_id,
+          "duration": duration,
+          "price": price,
+          "plan_id": plan_id,
+        },
       );
       print(response.data);
       return response.data;
@@ -554,12 +540,35 @@ class ProfileService {
     }
   }
 
-  Future<Map<String,dynamic>>allinboxfun({required String user_id})async{
+  Future<Map<String, dynamic>> searchfun({
+    required String country_id,
+    required String state,
+    required String category,
+    required String page,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.searchlistings,
+        data: {
+          "country_id": country_id,
+          "state": state,
+          "category": category,
+          "page": page,
+        },
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> allinboxfun({required String user_id}) async {
     try {
       print(user_id);
       final response = await _dio.post(
         ApiEndpoints.allinbox,
-        data: {"user_id":user_id},
+        data: {"user_id": user_id},
         options: dio.Options(contentType: dio.Headers.jsonContentType),
       );
 
@@ -569,15 +578,17 @@ class ProfileService {
     }
   }
 
-  Future<Map<String, dynamic>> getConversations({required String userId}) async {
+  Future<Map<String, dynamic>> getConversations({
+    required String userId,
+  }) async {
     try {
-      final response = await _dio.post(
-        'https://partynuptual.com/api/conversation',
-        data: {"user_id": userId},
+      final response = await _dio.get(
+        "https://partynuptual.com/api/conversation/${userId}",
+
         options: dio.Options(
           headers: {
             "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
                 "(KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
             "Accept": "application/json",
             "Content-Type": "application/json",
@@ -585,23 +596,22 @@ class ProfileService {
           validateStatus: (status) => status! < 500, // allow 403 to be handled
         ),
       );
-
+      print(response.data);
       if (response.statusCode == 403) {
-        throw Exception("Access Denied by server. Possible firewall or bot protection.");
+        throw Exception(
+          "Access Denied by server. Possible firewall or bot protection.",
+        );
       }
 
-      print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
 
-  Future<Map<String,dynamic>>paypalcredential()async{
+  Future<Map<String, dynamic>> paypalcredential() async {
     try {
-      final response = await _dio.get(
-        ApiEndpoints.credential,
-      );
+      final response = await _dio.get(ApiEndpoints.credential);
 
       return response.data;
     } on dio.DioException catch (e) {
@@ -609,19 +619,15 @@ class ProfileService {
     }
   }
 
-  Future<Map<String,dynamic>>startconversationfun({
+  Future<Map<String, dynamic>> startconversationfun({
     required String user_id,
-    required String vendor_id
-})async{
+    required String vendor_id,
+  }) async {
     print(user_id);
     print(vendor_id);
     try {
-      final response = await _dio.post(
-        ApiEndpoints.startconversation,
-        data:{
-          "user_id":user_id,
-          "vendor_id":vendor_id
-        }
+      final response = await _dio.get(
+        "https://partynuptual.com/api/start_conversation/${user_id}/${vendor_id}",
       );
       print(response.data);
       return response.data;
@@ -630,4 +636,53 @@ class ProfileService {
     }
   }
 
+  Future<Map<String, dynamic>> deleteconversationfun({
+    required String id,
+  }) async {
+    try {
+      final response = await _dio.get("${ApiEndpoints.deleteconversation}/$id");
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchconversationfun({
+    required String id,
+    required String user_id,
+  }) async {
+    try {
+      final response = await _dio.get(
+        "${ApiEndpoints.fetchmessages}/$id/$user_id",
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> sendmessagefun({
+    required String id,
+    required String user_id,
+    required String receiver_id,
+    required String message,
+  }) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.sendmessage,
+        data: {
+          "chat_id": id,
+          "user_id": user_id,
+          "receiver_id": receiver_id,
+          "message": message,
+        },
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }

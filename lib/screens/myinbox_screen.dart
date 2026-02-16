@@ -20,7 +20,7 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
   @override
   void initState() {
     super.initState();
-    user_id = auth.userId??"";
+    user_id = auth.userId ?? "";
     fetchInbox();
   }
 
@@ -59,10 +59,7 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Messages"),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text("Messages"), elevation: 0),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: isLoading
@@ -70,27 +67,24 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
             : inboxList.isEmpty
             ? const Center(child: Text("No Messages"))
             : Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "All Messages",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "All Messages",
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 12),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: inboxList.length,
+                      itemBuilder: (context, index) {
+                        final item = inboxList[index];
+                        return _messageTile(item, index);
+                      },
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: ListView.builder(
-                itemCount: inboxList.length,
-                itemBuilder: (context, index) {
-                  final item = inboxList[index];
-                  return _messageTile(item, index);
-                },
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -100,6 +94,9 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
     String vendorEmail = item["vendor_email"] ?? "";
     String? avatar = item["avatar"];
     String unreadCount = item["unread_count"] ?? "0";
+    String user_id = item["user_id"] ?? "";
+    String vendor_id = item["vendor_id"] ?? "";
+    String conversation_id = item["id"] ?? "";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -137,9 +134,9 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
               Get.toNamed(
                 '/conversation',
                 arguments: {
-                  "conversation_id": item["id"],
-                  "vendor_name": vendorName,
-                  "vendor_id": item["vendor_id"]
+                  "conversation_id": conversation_id,
+                  "user_id": user_id,
+                  "vendor_id": vendor_id,
                 },
               );
             },
@@ -150,14 +147,11 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                   backgroundColor: const Color(0xFF5B6786),
                   backgroundImage: avatar != null
                       ? NetworkImage(
-                      "https://partynuptual.com/public/uploads/avatar/$avatar")
+                          "https://partynuptual.com/public/uploads/avatar/$avatar",
+                        )
                       : null,
                   child: avatar == null
-                      ? const Icon(
-                    Icons.person,
-                    size: 32,
-                    color: Colors.white,
-                  )
+                      ? const Icon(Icons.person, size: 32, color: Colors.white)
                       : null,
                 ),
                 Positioned(
@@ -187,9 +181,10 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                 Text(
                   vendorName,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-
               ],
             ),
           ),
@@ -198,23 +193,40 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: OutlinedButton.icon(
-              onPressed: () {
-                setState(() {
-                  inboxList.removeAt(index);
-                });
+              onPressed: () async {
+                final response = await ProfileService().deleteconversationfun(
+                  id: conversation_id,
+                );
+
+                if (response["status"]) {
+                  setState(() {
+                    inboxList.removeAt(index);
+                  });
+
+                  Get.snackbar(
+                    "Success",
+                    "Conversation deleted successfully",
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: Colors.green,
+                    colorText: Colors.white,
+                    margin: const EdgeInsets.all(12),
+                    borderRadius: 8,
+                    duration: const Duration(seconds: 2),
+                  );
+                }
               },
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.red,
-                size: 16,
-              ),
+
+              icon: const Icon(Icons.delete, color: Colors.red, size: 16),
               label: const Text(
                 "Remove",
                 style: TextStyle(color: Colors.red, fontSize: 13),
               ),
               style: OutlinedButton.styleFrom(
                 minimumSize: const Size(0, 36),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 side: const BorderSide(color: Colors.red),
                 shape: RoundedRectangleBorder(

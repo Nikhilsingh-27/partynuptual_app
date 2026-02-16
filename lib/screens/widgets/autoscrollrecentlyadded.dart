@@ -1,8 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:new_app/screens/widgets/listing_card.dart';
-import 'package:new_app/controllers/home_controller.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/home_controller.dart';
+import 'package:new_app/screens/widgets/listing_card.dart';
 
 class AutoScrollCards extends StatefulWidget {
   const AutoScrollCards({super.key});
@@ -14,16 +15,14 @@ class AutoScrollCards extends StatefulWidget {
 class _AutoScrollCardsState extends State<AutoScrollCards> {
   final HomeController controller = Get.find();
 
-  final PageController _pageController =
-  PageController(viewportFraction: 0.8);
+  final PageController _pageController = PageController(viewportFraction: 0.8);
 
   Timer? _timer;
   int _currentPage = 0;
   bool _isTimerRunning = false;
 
   String getLogoImageUrl(String? logoImage) {
-    const baseUrl =
-        "https://partynuptual.com/public/uploads/logo/";
+    const baseUrl = "https://partynuptual.com/public/uploads/logo/";
     const fallback =
         "https://partynuptual.com/public/front/assets/img/list-8.jpg";
 
@@ -80,7 +79,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SizedBox(
-          height: 340,
+          height: 380,
           child: PageView.builder(
             controller: _pageController,
             itemCount: listings.length,
@@ -97,7 +96,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
                   description: item['about'] ?? '',
                   phone: item['phone_number'] ?? '',
                   location: item['office_address'] ?? '',
-                  ownerid: item['owner_id']??''
+                  ownerid: item['owner_id'] ?? '',
                 ),
               );
             },

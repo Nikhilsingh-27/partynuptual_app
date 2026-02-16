@@ -59,7 +59,7 @@ class _OurVideoScreenState extends State<OurVideoScreen> {
                             crossAxisCount: 2,
                             mainAxisSpacing: 10,
                             crossAxisSpacing: 10,
-                            childAspectRatio: 16 / 9, // 🔥 correct for video
+                            childAspectRatio: 4 / 3, // 🔥 correct for video
                           ),
                       itemCount: allvideo.length,
                       itemBuilder: (context, index) {

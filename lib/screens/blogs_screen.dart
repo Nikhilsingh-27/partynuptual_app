@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/block_card.dart';
-import 'package:new_app/screens/widgets/pagination.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/pagination.dart';
 
 class BlockScreen extends StatefulWidget {
   const BlockScreen({super.key});
@@ -12,41 +12,6 @@ class BlockScreen extends StatefulWidget {
 }
 
 class _BlockScreenState extends State<BlockScreen> {
-  final List<Map<String, String>> dummyBlogs = [
-    {
-      "image": "assets/b.jpeg",
-      "title": "How to Save Your Marriage",
-      "description":
-      "If you're asking yourself how to save your marriage, it means you still care deeply about your relationship and want to rebuild trust and love.",
-      "date": "17 Dec 2025",
-      "tag": "Marriage",
-    },
-    {
-      "image": "assets/bl.jpeg",
-      "title": "How to Make Party Friends",
-      "description":
-      "The best parties aren't just about music and decor—they're about people. Learn simple tips to make friends at any party.",
-      "date": "12 Dec 2025",
-      "tag": "Party",
-    },
-    {
-      "image": "assets/b1.jpg",
-      "title": "Top Wedding Decoration Ideas",
-      "description":
-      "Discover modern and elegant wedding decoration ideas that will make your special day unforgettable and truly magical.",
-      "date": "05 Nov 2025",
-      "tag": "Wedding",
-    },
-    {
-      "image": "assets/b.jpeg",
-      "title": "Birthday Party Planning Guide",
-      "description":
-      "Planning a birthday party? Here’s a complete guide to organizing a fun, stress-free, and memorable birthday celebration.",
-      "date": "22 Oct 2025",
-      "tag": "Birthday",
-    },
-  ];
-
   final List<dynamic> listingList = []; // Store fetched listings
   int currentPage = 1;
   int limit = 10;
@@ -54,7 +19,7 @@ class _BlockScreenState extends State<BlockScreen> {
   bool hasMore = true; // Track if more pages are available
   bool check = true;
   bool isPageChanging = false;
-  int totalpage=0;
+  int totalpage = 0;
 
   Future<void> fetchblogs({bool reset = false}) async {
     if (isLoading) return;
@@ -67,12 +32,15 @@ class _BlockScreenState extends State<BlockScreen> {
       }
     });
     try {
-      final data = await HomeService().blogsfun(page: currentPage, limit: limit);
+      final data = await HomeService().blogsfun(
+        page: currentPage,
+        limit: limit,
+      );
 
       final newListings = data['data'] as List<dynamic>;
 
       setState(() {
-        totalpage=data['pagination']['total_pages'];
+        totalpage = data['pagination']['total_pages'];
         // print("pp");
         // print(totalpage);
         listingList.addAll(newListings);
@@ -98,6 +66,7 @@ class _BlockScreenState extends State<BlockScreen> {
     super.initState();
     fetchblogs();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,92 +79,91 @@ class _BlockScreenState extends State<BlockScreen> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: check?Center(child:CircularProgressIndicator()):SingleChildScrollView(
-        child: Column(
-          children: [
-            /// BLOG GRID
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                 // 🔥 reserve space
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
+      body: check
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  /// BLOG GRID
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      // 🔥 reserve space
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // GRID
+                          Opacity(
+                            opacity: isPageChanging ? 0.2 : 1,
+                            child: GridView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 1,
+                                    crossAxisSpacing: 12,
+                                    mainAxisSpacing: 12,
+                                    mainAxisExtent: 380,
+                                  ),
+                              itemCount: listingList.length,
+                              itemBuilder: (context, index) {
+                                final blog = listingList[index];
+                                return buildBlogCard(
+                                  image: blog["image"] ?? "",
+                                  title: blog["heading"] ?? "",
+                                  description: blog["description"] ?? "",
+                                  date: blog["back_date"] ?? "",
+                                  tag: blog["category"] ?? "",
+                                  author: "",
+                                );
+                              },
+                            ),
+                          ),
 
-                    // GRID
-                    Opacity(
-                      opacity: isPageChanging ? 0.2 : 1,
-                      child: GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: 380,
-                        ),
-                        itemCount: listingList.length,
-                        itemBuilder: (context, index) {
-                          final blog = listingList[index];
-                          return buildBlogCard(
-                            image: blog["image"] ?? "",
-                            title: blog["heading"] ?? "",
-                            description: blog["description"] ?? "",
-                            date: blog["back_date"] ?? "",
-                            tag: blog["category"] ?? "",
-                            author: "",
-                          );
-                        },
+                          // LOADER
+                          if (isPageChanging)
+                            Container(
+                              height: 1950, // existing overlay height
+                              width: double.infinity,
+                              alignment: Alignment.bottomCenter,
+                              color: Colors.white.withOpacity(0.8),
+                              child: SizedBox(
+                                height: 60, // 👈 spinner height
+                                width: 60, // 👈 spinner width
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 6, // 👈 thicker spinner line
+                                  color: Colors.red, // optional: change color
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    // LOADER
-                    if (isPageChanging)
-                      Container(
-                        height: 1950, // existing overlay height
-                        width: double.infinity,
-                        alignment: Alignment.bottomCenter,
-                        color: Colors.white.withOpacity(0.8),
-                        child: SizedBox(
-                          height: 60, // 👈 spinner height
-                          width: 60,  // 👈 spinner width
-                          child: CircularProgressIndicator(
-                            strokeWidth: 6, // 👈 thicker spinner line
-                            color: Colors.red, // optional: change color
-                          ),
-                        ),
-                      )
-                  ],
-                ),
+                  const SizedBox(height: 20),
+
+                  /// PAGINATION
+                  Pagination(
+                    currentPage: currentPage,
+                    totalPages: totalpage,
+                    onPageChanged: (page) {
+                      setState(() {
+                        currentPage = page;
+                        isPageChanging = true;
+                      });
+
+                      fetchblogs(reset: true);
+                    },
+                  ),
+
+                  const SizedBox(height: 30),
+
+                  /// BOTTOM SECTION
+                  BottomSection(),
+                ],
               ),
             ),
-
-
-
-            const SizedBox(height: 20),
-
-            /// PAGINATION
-            Pagination(
-              currentPage: currentPage,
-              totalPages: totalpage,
-              onPageChanged: (page) {
-                setState(() {
-                  currentPage = page;
-                  isPageChanging = true;
-                });
-
-                fetchblogs(reset: true);
-              },
-
-            ),
-
-            const SizedBox(height: 30),
-
-            /// BOTTOM SECTION
-            BottomSection(),
-          ],
-        ),
-      ),
     );
   }
 }

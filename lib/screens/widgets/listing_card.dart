@@ -9,7 +9,7 @@ Widget buildListingCard({
   required String description,
   required String phone,
   required String location,
-  required String ownerid
+  required String ownerid,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -31,19 +31,23 @@ Widget buildListingCard({
         Stack(
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-              child: Image.network(
-                image,
-                height: 160,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(8),
+              ),
+              child: SizedBox(
+                height: 200,
                 width: double.infinity,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  height: 160,
-                  color: Colors.grey[300],
-                  child: const Icon(Icons.image_not_supported),
+                child: Image.network(
+                  image,
+                  fit: BoxFit.fill, // ✅ stretches to fill completely
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image_not_supported),
+                  ),
                 ),
               ),
             ),
+
             Positioned(
               top: 8,
               left: 8,
@@ -102,10 +106,7 @@ Widget buildListingCard({
                   description,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.black,
-                  ),
+                  style: TextStyle(fontSize: 10, color: Colors.black),
                 ),
               ),
 
@@ -123,10 +124,7 @@ Widget buildListingCard({
                         phone,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
                       ),
                     ),
                   ],
@@ -143,7 +141,6 @@ Widget buildListingCard({
                 color: Colors.grey.shade300,
               ),
 
-
               // LOCATION + BUTTON
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -156,10 +153,7 @@ Widget buildListingCard({
                         location,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 7,
-                          color: Colors.black,
-                        ),
+                        style: TextStyle(fontSize: 7, color: Colors.black),
                       ),
                     ),
                     ElevatedButton(
@@ -167,7 +161,10 @@ Widget buildListingCard({
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BusinessDetailPage(listingid: listingid,ownerid: ownerid,),
+                            builder: (_) => BusinessDetailPage(
+                              listingid: listingid,
+                              ownerid: ownerid,
+                            ),
                           ),
                         );
                       },
@@ -186,10 +183,7 @@ Widget buildListingCard({
                         children: [
                           Icon(Icons.visibility, size: 12),
                           SizedBox(width: 4),
-                          Text(
-                            'View',
-                            style: TextStyle(fontSize: 12),
-                          ),
+                          Text('View', style: TextStyle(fontSize: 12)),
                         ],
                       ),
                     ),

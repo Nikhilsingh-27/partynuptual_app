@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/pagination.dart';
+
 import 'business_detail_page.dart';
 
 class ListingsPage extends StatefulWidget {
@@ -65,8 +66,7 @@ class _ListingsPageState extends State<ListingsPage> {
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage =
-        "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
 
     if (logoPath == null || logoPath.trim().isEmpty) {
       return defaultImage;
@@ -101,75 +101,72 @@ class _ListingsPageState extends State<ListingsPage> {
       body: check
           ? const Center(child: CircularProgressIndicator())
           : Stack(
-        children: [
-          ListView(
-            padding: EdgeInsets.zero,
-            children: [
-
-              /// LISTINGS SECTION (WITH SIDE PADDING)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Column(
-                  children: listingList.map((listing) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _buildListingCard(
-                        context: context,
-                        listingid:
-                        listing["listing_id"].toString(),
-                        image: getLogoImageUrl(
-                            listing['logo_image'] ?? ''),
-                        name: listing['company_name'] ?? '',
-                        description: listing['about'] ?? '',
-                        phone: listing['phone_number'] ?? '',
-                        location:
-                        listing['office_address'] ?? '',
-                        ownerid:
-                        listing['owner_id'].toString(),
+              children: [
+                ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    /// LISTINGS SECTION (WITH SIDE PADDING)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Column(
+                        children: listingList.map((listing) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildListingCard(
+                              context: context,
+                              listingid: listing["listing_id"].toString(),
+                              image: getLogoImageUrl(
+                                listing['logo_image'] ?? '',
+                              ),
+                              name: listing['company_name'] ?? '',
+                              description: listing['about'] ?? '',
+                              phone: listing['phone_number'] ?? '',
+                              location: listing['office_address'] ?? '',
+                              ownerid: listing['owner_id'].toString(),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// PAGINATION (WITH SIDE PADDING)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Pagination(
+                        currentPage: currentPage,
+                        totalPages: totalpage,
+                        onPageChanged: (page) {
+                          setState(() {
+                            currentPage = page;
+                            isPageChanging = true;
+                          });
+                          fetchListings(reset: true);
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    /// ✅ FULL WIDTH BOTTOM SECTION (NO PADDING)
+                    BottomSection(),
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 20),
-
-              /// PAGINATION (WITH SIDE PADDING)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Pagination(
-                  currentPage: currentPage,
-                  totalPages: totalpage,
-                  onPageChanged: (page) {
-                    setState(() {
-                      currentPage = page;
-                      isPageChanging = true;
-                    });
-                    fetchListings(reset: true);
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              /// ✅ FULL WIDTH BOTTOM SECTION (NO PADDING)
-              BottomSection(),
-            ],
-          ),
-
-          /// TOP LOADER WHEN PAGE CHANGES
-          if (isPageChanging)
-            const Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                color: Colors.red,
-                minHeight: 3,
-              ),
+                /// TOP LOADER WHEN PAGE CHANGES
+                if (isPageChanging)
+                  const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: LinearProgressIndicator(
+                      color: Colors.red,
+                      minHeight: 3,
+                    ),
+                  ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }
@@ -200,19 +197,17 @@ Widget _buildListingCard({
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ClipRRect(
-          borderRadius:
-          const BorderRadius.vertical(top: Radius.circular(12)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           child: AspectRatio(
             aspectRatio: 16 / 9,
             child: Image.network(
               image,
               width: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               errorBuilder: (_, __, ___) => Container(
                 color: Colors.grey[300],
                 alignment: Alignment.center,
-                child:
-                const Icon(Icons.image_not_supported),
+                child: const Icon(Icons.image_not_supported),
               ),
             ),
           ),
@@ -236,8 +231,7 @@ Widget _buildListingCard({
                       ),
                     ),
                   ),
-                  const Icon(Icons.verified,
-                      color: Colors.green, size: 16),
+                  const Icon(Icons.verified, color: Colors.green, size: 16),
                 ],
               ),
               const SizedBox(height: 8),
@@ -245,24 +239,17 @@ Widget _buildListingCard({
                 description,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.phone,
-                      size: 14, color: Colors.grey[600]),
+                  Icon(Icons.phone, size: 14, color: Colors.grey[600]),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       phone,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
                 ],
@@ -270,18 +257,14 @@ Widget _buildListingCard({
               const Divider(height: 20),
               Row(
                 children: [
-                  Icon(Icons.location_on,
-                      size: 16, color: Colors.grey[600]),
+                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       location,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                     ),
                   ),
                   ElevatedButton(
@@ -299,16 +282,14 @@ Widget _buildListingCard({
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       shape: RoundedRectangleBorder(
-                        borderRadius:
-                        BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'View',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    child: const Text('View', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),
