@@ -75,27 +75,14 @@ class ProfileService {
     try {
       print('Deleting account for user: $id');
 
-      // ✅ CHANGE: Call YOUR backend instead of partynuptual directly
-      // Your backend then proxies the request, bypassing the firewall
-      final response = await _dio.post(
-        "https://partynuptual.com/api/delete_account",
-        // Use your own backend endpoint
-        data: {"user_id": id},
-        options: dio.Options(
-          contentType: dio.Headers.jsonContentType,
-          receiveTimeout: const Duration(seconds: 30),
-          sendTimeout: const Duration(seconds: 30),
-        ),
+      final response = await _dio.get(
+        "https://partynuptual.com/api/delete_account/${id}",
       );
 
       print('Delete response: ${response.data}');
 
       // ✅ Validate response
-      if (response.data is! Map) {
-        throw Exception('Invalid response format');
-      }
-
-      return Map<String, dynamic>.from(response.data);
+      return response.data;
     } on dio.DioException catch (e) {
       print('DioException: ${e.message}');
       print('Status code: ${e.response?.statusCode}');

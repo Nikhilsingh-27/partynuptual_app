@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/controllers/profile_image_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/routes/app_routes.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 import 'package:new_app/screens/widgets/profileimg/imgupload.dart';
 
@@ -15,6 +17,31 @@ class MyProfileScreen extends StatefulWidget {
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
   final AuthenticationController auth = Get.find<AuthenticationController>();
+  Future<void> performLogout() async {
+    Get.dialog(
+      const Center(child: CircularProgressIndicator()),
+      barrierDismissible: false,
+    );
+
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    if (Get.isDialogOpen == true) {
+      Get.back();
+    }
+
+    // 🔥 CLEAR & DELETE CONTROLLERS
+    final auth = Get.find<AuthenticationController>();
+    auth.logout();
+    Get.find<ProfileImageController>().clear();
+
+    Get.delete<ProfileImageController>(force: true);
+    Get.delete<HomeController>(force: true);
+
+    // 🚀 Go to HOME cleanly
+    Get.offAllNamed(AppRoutes.home);
+
+    CustomSnackbar.showSuccess("Account successfully deleted");
+  }
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
@@ -158,13 +185,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
                       if (response["status"] == "success") {
                         // Navigate to home and clear previous routes
-                        Get.offAllNamed('/home');
 
                         // Show success snackbar
 
-                        CustomSnackbar.showSuccess(
-                          "Account successfully deleted",
-                        );
+                        await performLogout();
+                        Get.offAllNamed('/home');
                       } else {
                         CustomSnackbar.showError("Failed to delete account");
                       }

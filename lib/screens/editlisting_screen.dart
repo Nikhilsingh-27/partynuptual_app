@@ -529,7 +529,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       if (value == null) return;
                       setState(() {
                         selectedCountryId = value;
-                        selectedState =
+                        selectedStateId =
                             null; // reset state when country changes
                         stateList.clear();
                       });
