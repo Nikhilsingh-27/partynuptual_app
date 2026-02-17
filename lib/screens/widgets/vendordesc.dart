@@ -68,7 +68,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         .toList();
   }
 
-  final List<bool> _expanded = [true, true, true, false];
+  final List<bool> _expanded = [true, true, true, true];
 
   // Dummy data (later replace with API)
 
