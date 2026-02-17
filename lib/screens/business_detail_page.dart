@@ -4,6 +4,7 @@ import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 import 'package:new_app/screens/widgets/review.dart';
 import 'package:new_app/screens/widgets/vendordesc.dart';
 
@@ -176,16 +177,13 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                         if (response["status"] == true) {
                                           Get.toNamed("/myinbox");
                                         } else {
-                                          Get.snackbar(
-                                            "Error",
+                                          CustomSnackbar.showError(
                                             response["message"] ??
                                                 "Failed to start conversation",
                                           );
                                         }
                                       } catch (e) {
-                                        print("Error: $e");
-                                        Get.snackbar(
-                                          "Error",
+                                        CustomSnackbar.showError(
                                           "Something went wrong",
                                         );
                                       }
@@ -329,33 +327,18 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                           response["status"] == "success";
 
                                       if (isSuccess) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              "Inquiry sent successfully",
-                                            ),
-                                            backgroundColor: Colors.green,
-                                          ),
+                                        CustomSnackbar.showSuccess(
+                                          "Inquiry sent successfully",
                                         );
-
                                         // Optional: clear fields after success
                                         nameCtrl.clear();
                                         emailCtrl.clear();
                                         phoneCtrl.clear();
                                         commentCtrl.clear();
                                       } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              response["message"] ??
-                                                  "Failed to send inquiry",
-                                            ),
-                                            backgroundColor: Colors.red,
-                                          ),
+                                        CustomSnackbar.showError(
+                                          response["message"] ??
+                                              "Failed to send inquiry",
                                         );
                                       }
                                     },

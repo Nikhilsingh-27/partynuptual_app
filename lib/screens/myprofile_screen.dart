@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:new_app/controllers/authentication_controller.dart';
-import 'package:new_app/data/services/profile_service.dart';
-import 'package:new_app/screens/widgets/profileimg/imgupload.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/profile_image_controller.dart';
+import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
+import 'package:new_app/screens/widgets/profileimg/imgupload.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -13,18 +14,15 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
-
   final AuthenticationController auth = Get.find<AuthenticationController>();
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage =
-        "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
 
     if (logoPath == null || logoPath.trim().isEmpty) {
       return defaultImage;
     }
-
 
     final String imageName = logoPath.split('/').last;
 
@@ -34,7 +32,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     return "${baseUrl}/public/uploads/customers/$imageName";
   }
-  String? imgurl="";
+
+  String? imgurl = "";
   // Controllers
   final TextEditingController firstNameCtrl = TextEditingController();
   final TextEditingController lastNameCtrl = TextEditingController();
@@ -51,8 +50,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   final List<String> genderList = ["Male", "Female", "Other"];
   Future<void> fetchuserdetails() async {
     try {
-      final response =
-      await ProfileService().getuserdetailsfun(id: auth.userId ?? "");
+      final response = await ProfileService().getuserdetailsfun(
+        id: auth.userId ?? "",
+      );
 
       if (response == null || response["data"] == null) return;
 
@@ -66,14 +66,15 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         emailCtrl.text = data["email"] ?? "";
         phoneCtrl.text = data["phone"] ?? "";
         selectedGender = data["gender"];
-        imgurl=getLogoImageUrl(data["image"]);
+        imgurl = getLogoImageUrl(data["image"]);
         // optional
       });
 
       // If `ProfileImageController` is registered, update its `remoteImageUrl`
       try {
         if (Get.isRegistered<ProfileImageController>()) {
-          Get.find<ProfileImageController>().remoteImageUrl.value = imgurl ?? "";
+          Get.find<ProfileImageController>().remoteImageUrl.value =
+              imgurl ?? "";
         }
       } catch (_) {}
 
@@ -84,10 +85,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     fetchuserdetails();
   }
+
   @override
   Widget build(BuildContext context) {
     // print(auth.userId);
@@ -104,7 +106,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         elevation: 1,
       ),
       body: SingleChildScrollView(
-
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
@@ -117,7 +118,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   _dropdown(),
                   _input("Address", addressCtrl, maxLines: 3),
                   _input("Zip / Postal Code", zipCtrl),
-                  _input("Email", emailCtrl, keyboard: TextInputType.emailAddress),
+                  _input(
+                    "Email",
+                    emailCtrl,
+                    keyboard: TextInputType.emailAddress,
+                  ),
                   _input("Phone", phoneCtrl, keyboard: TextInputType.phone),
                   const SizedBox(height: 15),
                   _primaryButton("Update Info", _printBasicInfo),
@@ -146,39 +151,32 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () async{
-                      final response = await ProfileService()
-                          .deleteAccountfun(id: auth.userId ?? "");
+                    onPressed: () async {
+                      final response = await ProfileService().deleteAccountfun(
+                        id: auth.userId ?? "",
+                      );
 
-                      if (response["status"]=="success") {
+                      if (response["status"] == "success") {
                         // Navigate to home and clear previous routes
                         Get.offAllNamed('/home');
 
                         // Show success snackbar
-                        Get.snackbar(
-                          "Success",
+
+                        CustomSnackbar.showSuccess(
                           "Account successfully deleted",
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.green,
-                          colorText: Colors.white,
-                          duration: const Duration(seconds: 3),
                         );
                       } else {
-                        // Optional: failure snackbar
-                        Get.snackbar(
-                          "Error",
-                          "Failed to delete account",
-                          snackPosition: SnackPosition.BOTTOM,
-                          backgroundColor: Colors.red,
-                          colorText: Colors.white,
-                        );
+                        CustomSnackbar.showError("Failed to delete account");
                       }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(199, 31, 55,1),
+                      backgroundColor: Color.fromRGBO(199, 31, 55, 1),
                       minimumSize: const Size(double.infinity, 48),
                     ),
-                    child: const Text("Delete Account",style: TextStyle(color: Colors.white),),
+                    child: const Text(
+                      "Delete Account",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
@@ -186,17 +184,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
             const SizedBox(height: 20),
             Container(
-              child:  Card(
-                  color: Colors.white,
-                  elevation: 3,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                  child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: ProfileImageUploadContainer(imgurl: imgurl??"")
-                  ),
-            )
-            )
-
+              child: Card(
+                color: Colors.white,
+                elevation: 3,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: ProfileImageUploadContainer(imgurl: imgurl ?? ""),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -217,8 +216,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           children: [
             Text(
               title,
-              style: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 15),
             child,
@@ -229,12 +227,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   }
 
   Widget _input(
-      String label,
-      TextEditingController controller, {
-        bool obscure = false,
-        int maxLines = 1,
-        TextInputType keyboard = TextInputType.text,
-      }) {
+    String label,
+    TextEditingController controller, {
+    bool obscure = false,
+    int maxLines = 1,
+    TextInputType keyboard = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextField(
@@ -246,9 +244,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           labelText: label,
           filled: true,
           fillColor: Colors.white,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );
@@ -267,9 +263,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         },
         decoration: InputDecoration(
           labelText: "Gender",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         ),
       ),
     );
@@ -280,12 +274,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       onPressed: onTap,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
-        backgroundColor: Color.fromRGBO(199, 31, 55,1),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        backgroundColor: Color.fromRGBO(199, 31, 55, 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: Text(text,style: TextStyle(color: Colors.white),),
+      child: Text(text, style: TextStyle(color: Colors.white)),
     );
   }
 
@@ -295,12 +287,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("User not logged in"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError("User not logged in");
       return;
     }
 
@@ -313,58 +300,32 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         address: addressCtrl.text.trim(),
         zipCode: zipCtrl.text.trim(),
         email: emailCtrl.text.trim(),
-        phone : phoneCtrl.text.trim(),
+        phone: phoneCtrl.text.trim(),
       );
 
       final bool isSuccess =
           response['status'] == true || response['status'] == "success";
 
       if (isSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Profile updated successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        CustomSnackbar.showSuccess("Profile updated successfully");
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response['message'] ?? "Update failed"),
-            backgroundColor: Colors.red,
-          ),
-        );
+        CustomSnackbar.showError(response['message'] ?? "Update failed");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError(e.toString());
     }
   }
-
 
   void _printPasswordInfo() async {
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("User not logged in"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError("User not logged in");
       return;
     }
 
     if (oldPasswordCtrl.text.isEmpty || newPasswordCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please fill all password fields"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError("Please fill all password fields");
       return;
     }
 
@@ -379,32 +340,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           response['status'] == true || response['status'] == "success";
 
       if (isSuccess) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Password updated successfully"),
-            backgroundColor: Colors.green,
-          ),
-        );
+        CustomSnackbar.showSuccess("Password updated successfully");
 
         // Clear fields after success
         oldPasswordCtrl.clear();
         newPasswordCtrl.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response['message'] ?? "Password update failed"),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.showError(
+          response['message'] ?? "Password update failed",
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.toString()),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError(e.toString());
     }
   }
-
 }

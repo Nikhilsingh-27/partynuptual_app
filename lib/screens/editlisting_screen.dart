@@ -1,18 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/plan_screen.dart';
 import 'package:new_app/screens/widgets/convertimgtobase64.dart';
-import 'package:geolocator/geolocator.dart';
-import 'dart:io';
-import 'dart:convert';
-import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class EditListingScreen extends StatefulWidget {
   final Map<String, dynamic> data;
@@ -167,27 +166,22 @@ class _EditListingScreenState extends State<EditListingScreen> {
       );
     }
 
-
     // 🔹 Logo Image
     if (data["logo_image"] != null &&
         data["logo_image"].toString().isNotEmpty) {
-
       final String imageValue = data["logo_image"].toString();
 
       if (imageValue.startsWith("http")) {
         // 🔹 From API full URL
         existingImageUrl = imageValue;
-      }
-      else if (imageValue.startsWith("/")) {
+      } else if (imageValue.startsWith("/")) {
         // 🔹 Local file path
         bannerImage = XFile(imageValue);
-      }
-      else {
+      } else {
         // 🔹 From API filename only
         existingImageUrl = getLogoImageUrl(imageValue);
       }
     }
-
   }
 
   Future<void> getCurrentLocation() async {
@@ -320,12 +314,8 @@ class _EditListingScreenState extends State<EditListingScreen> {
       );
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          "Selected location: ${mapCenter.latitude}, ${mapCenter.longitude}",
-        ),
-      ),
+    CustomSnackbar.showSuccess(
+      "Selected location: ${mapCenter.latitude}, ${mapCenter.longitude}",
     );
   }
 
@@ -472,7 +462,6 @@ class _EditListingScreenState extends State<EditListingScreen> {
                         )
                       else
                         const Text("No image selected"),
-
                     ],
                   ),
 
@@ -738,20 +727,21 @@ class _EditListingScreenState extends State<EditListingScreen> {
                                                 gallerylist.removeAt(index);
                                               });
 
-                                              Get.snackbar(
-                                                "Success",
+                                              CustomSnackbar.showSuccess(
                                                 "Image removed successfully",
                                               );
                                             } else {
-                                              Get.snackbar(
-                                                "Error",
+                                              CustomSnackbar.showError(
                                                 response["message"] ??
                                                     "Failed to remove image",
                                               );
                                             }
                                           } catch (e) {
                                             Get.back(); // close loader
-                                            Get.snackbar("Error", e.toString());
+
+                                            CustomSnackbar.showError(
+                                              e.toString(),
+                                            );
                                           }
                                         },
 
@@ -828,8 +818,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                         if (selectedCategoryId == null ||
                             selectedCountryId == null ||
                             selectedStateId == null) {
-                          Get.snackbar(
-                            "Error",
+                          CustomSnackbar.showError(
                             "Please fill all required fields",
                           );
                           return;
@@ -890,18 +879,20 @@ class _EditListingScreenState extends State<EditListingScreen> {
                           setState(() {
                             isLoading = false;
                           });
-                          Get.snackbar(
-                            "Success",
+
+                          CustomSnackbar.showSuccess(
                             "Listing updated successfully",
                           );
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => PricingScreen(id: widget.data["listing_id"].toString()??"")
+                              builder: (context) => PricingScreen(
+                                id: widget.data["listing_id"].toString() ?? "",
+                              ),
                             ),
                           );
                         } catch (e) {
-                          Get.snackbar("Error", e.toString());
+                          CustomSnackbar.showError(e.toString());
                         }
                       },
                       style: ElevatedButton.styleFrom(

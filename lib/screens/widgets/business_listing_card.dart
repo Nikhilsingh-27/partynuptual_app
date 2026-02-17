@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/editlisting_screen.dart';
 import 'package:new_app/screens/plan_screen.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class BusinessListingCard extends StatelessWidget {
   final VoidCallback onDeleteSuccess;
@@ -74,22 +74,13 @@ class BusinessListingCard extends StatelessWidget {
                     debugPrint("Delete Response: $response");
                     //final controller = Get.find<HomeController>();
                     onDeleteSuccess();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Listing deleted successfully"),
-                      ),
-                    );
+
+                    CustomSnackbar.showSuccess("Listing deleted successfully");
                   } catch (e) {
-                    ScaffoldMessenger.of(
-                      context,
-                    ).showSnackBar(SnackBar(content: Text("Error: $e")));
+                    CustomSnackbar.showError(e.toString());
                   }
                 } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text("Please type DELETE correctly"),
-                    ),
-                  );
+                  CustomSnackbar.showError("Please type DELETE correctly");
                 }
               },
               child: const Text("Submit"),
@@ -167,22 +158,23 @@ class BusinessListingCard extends StatelessWidget {
                             onTap: () {
                               // Optional: do nothing or show a message
                             },
-                          ):_actionButton(
-                      icon: Icons.check_circle,
-                      text: "Activate Your Listing",
-                      bgColor: const Color(0xFFDFF3EA),
-                      color: const Color(0xFF1E8E5A),
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => PricingScreen(
-                              id: item["listing_id"] ?? "",
-                            ),
+                          )
+                        : _actionButton(
+                            icon: Icons.check_circle,
+                            text: "Activate Your Listing",
+                            bgColor: const Color(0xFFDFF3EA),
+                            color: const Color(0xFF1E8E5A),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PricingScreen(
+                                    id: item["listing_id"] ?? "",
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
-                    ),
 
                     _actionButton(
                       icon: Icons.edit,

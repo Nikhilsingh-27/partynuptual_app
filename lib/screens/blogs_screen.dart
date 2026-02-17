@@ -12,11 +12,11 @@ class BlockScreen extends StatefulWidget {
 }
 
 class _BlockScreenState extends State<BlockScreen> {
-  final List<dynamic> listingList = []; // Store fetched listings
+  final List<dynamic> listingList = [];
   int currentPage = 1;
   int limit = 10;
-  bool isLoading = false; // Show loading indicator
-  bool hasMore = true; // Track if more pages are available
+  bool isLoading = false;
+  bool hasMore = true;
   bool check = true;
   bool isPageChanging = false;
   int totalpage = 0;
@@ -31,6 +31,7 @@ class _BlockScreenState extends State<BlockScreen> {
         hasMore = true;
       }
     });
+
     try {
       final data = await HomeService().blogsfun(
         page: currentPage,
@@ -41,14 +42,8 @@ class _BlockScreenState extends State<BlockScreen> {
 
       setState(() {
         totalpage = data['pagination']['total_pages'];
-        // print("pp");
-        // print(totalpage);
         listingList.addAll(newListings);
-
-        if (newListings.length < limit) {
-          hasMore = false;
-        }
-        isPageChanging = false;
+        hasMore = newListings.length >= limit;
         check = false;
       });
     } catch (e) {
@@ -80,64 +75,56 @@ class _BlockScreenState extends State<BlockScreen> {
         elevation: 0,
       ),
       body: check
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
-                  /// BLOG GRID
+                  /// BLOG LIST
                   Padding(
                     padding: const EdgeInsets.all(16),
-                    child: SizedBox(
-                      // 🔥 reserve space
-                      child: Stack(
-                        alignment: Alignment.center,
-                        children: [
-                          // GRID
-                          Opacity(
-                            opacity: isPageChanging ? 0.2 : 1,
-                            child: GridView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 1,
-                                    crossAxisSpacing: 12,
-                                    mainAxisSpacing: 12,
-                                    mainAxisExtent: 380,
-                                  ),
-                              itemCount: listingList.length,
-                              itemBuilder: (context, index) {
-                                final blog = listingList[index];
-                                return buildBlogCard(
+                    child: Stack(
+                      children: [
+                        Opacity(
+                          opacity: isPageChanging ? 0.2 : 1,
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: listingList.length,
+                            itemBuilder: (context, index) {
+                              final blog = listingList[index];
+
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: buildBlogCard(
                                   image: blog["image"] ?? "",
                                   title: blog["heading"] ?? "",
                                   description: blog["description"] ?? "",
                                   date: blog["back_date"] ?? "",
                                   tag: blog["category"] ?? "",
                                   author: "",
-                                );
-                              },
-                            ),
+                                ),
+                              );
+                            },
                           ),
+                        ),
 
-                          // LOADER
-                          if (isPageChanging)
-                            Container(
-                              height: 1950, // existing overlay height
-                              width: double.infinity,
-                              alignment: Alignment.bottomCenter,
+                        /// LOADER OVERLAY
+                        if (isPageChanging)
+                          Positioned.fill(
+                            child: Container(
                               color: Colors.white.withOpacity(0.8),
-                              child: SizedBox(
-                                height: 60, // 👈 spinner height
-                                width: 60, // 👈 spinner width
+                              alignment: Alignment.center,
+                              child: const SizedBox(
+                                height: 60,
+                                width: 60,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 6, // 👈 thicker spinner line
-                                  color: Colors.red, // optional: change color
+                                  strokeWidth: 6,
+                                  color: Colors.red,
                                 ),
                               ),
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
 
@@ -159,8 +146,8 @@ class _BlockScreenState extends State<BlockScreen> {
 
                   const SizedBox(height: 30),
 
-                  /// BOTTOM SECTION
-                  BottomSection(),
+                  /// BOTTOM
+                  const BottomSection(),
                 ],
               ),
             ),

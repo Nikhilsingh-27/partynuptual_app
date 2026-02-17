@@ -37,7 +37,7 @@ String htmlToPreviewText(String html) {
       .trim();
 }
 
-Widget buildBlogCard({
+Widget buildBlogCardhome({
   required String image,
   required String title,
   required String description,
@@ -66,7 +66,7 @@ Widget buildBlogCard({
           borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
           child: Image.network(
             fixBlogImageUrl(image),
-            height: 170,
+            height: 140,
             width: double.infinity,
             fit: BoxFit.fill,
           ),

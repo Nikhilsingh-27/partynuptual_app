@@ -3,14 +3,14 @@ import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/profile_image_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class UpdateImageButton extends StatelessWidget {
   UpdateImageButton({super.key});
 
   final ProfileImageController imageController =
-  Get.find<ProfileImageController>();
-  final AuthenticationController auth =
-  Get.find<AuthenticationController>();
+      Get.find<ProfileImageController>();
+  final AuthenticationController auth = Get.find<AuthenticationController>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,12 +21,7 @@ class UpdateImageButton extends StatelessWidget {
         onPressed: () async {
           if (auth.userId == null ||
               imageController.selectedImage.value == null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Please select image first"),
-                backgroundColor: Colors.red,
-              ),
-            );
+            CustomSnackbar.showError("Please select image first");
             return;
           }
 
@@ -37,23 +32,14 @@ class UpdateImageButton extends StatelessWidget {
             );
 
             final isSuccess =
-                response['status'] == true ||
-                    response['status'] == "success";
+                response['status'] == true || response['status'] == "success";
 
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  isSuccess
-                      ? "Profile image updated successfully"
-                      : response['message'] ?? "Update failed",
-                ),
-                backgroundColor:
-                isSuccess ? Colors.green : Colors.red,
-              ),
-            );
             if (isSuccess) {
               // If backend returned image url, update controller so avatar refreshes
               try {
+                CustomSnackbar.showSuccess(
+                  "Profile image updated successfully",
+                );
                 final String? imageUrl = response['image']?.toString();
                 if (imageUrl != null && imageUrl.isNotEmpty) {
                   imageController.remoteImageUrl.value = imageUrl;
@@ -64,19 +50,12 @@ class UpdateImageButton extends StatelessWidget {
               imageController.clear();
             }
           } catch (e) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(e.toString()),
-                backgroundColor: Colors.red,
-              ),
-            );
+            CustomSnackbar.showError(e.toString());
           }
         },
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFFD61F3A),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
         child: const Text(
           "Update Image",

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class MyInboxScreen extends StatefulWidget {
   const MyInboxScreen({super.key});
@@ -42,10 +43,13 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
         setState(() {
           inboxList = [];
         });
-        Get.snackbar("Error", response["message"] ?? "Failed to fetch inbox");
+
+        CustomSnackbar.showError(
+          response["message"] ?? "Failed to fetch inbox",
+        );
       }
     } catch (e) {
-      Get.snackbar("Error", "Failed to fetch inbox: $e");
+      CustomSnackbar.showError("Failed to fetch inbox: $e");
       setState(() {
         inboxList = [];
       });
@@ -203,15 +207,8 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                     inboxList.removeAt(index);
                   });
 
-                  Get.snackbar(
-                    "Success",
+                  CustomSnackbar.showSuccess(
                     "Conversation deleted successfully",
-                    snackPosition: SnackPosition.TOP,
-                    backgroundColor: Colors.green,
-                    colorText: Colors.white,
-                    margin: const EdgeInsets.all(12),
-                    borderRadius: 8,
-                    duration: const Duration(seconds: 2),
                   );
                 }
               },

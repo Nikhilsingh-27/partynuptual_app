@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+
 import '../data/services/authentication_service.dart';
 
 class AuthenticationController extends GetxController {
@@ -8,8 +9,7 @@ class AuthenticationController extends GetxController {
   final isLoading = false.obs;
   final userData = Rxn<Map<String, dynamic>>();
   final error = ''.obs;
-
-  Future<void> login({
+  Future<Map<String, dynamic>> login({
     required String email,
     required String password,
     required String role,
@@ -23,14 +23,17 @@ class AuthenticationController extends GetxController {
         password: password,
         role: role,
       );
-    final user = Map<String, dynamic>.from(response['data']);
-    user['role'] = role; // ✅ add role manually
 
-    userData.value = user;
-    print(userData.value);
-    print(userData.value?['user_id']);// adjust based on API structure
+      if (response["status"] == true) {
+        final user = Map<String, dynamic>.from(response['data']);
+        user['role'] = role;
+        userData.value = user;
+      }
+      print(response);
+      return response; // ✅ RETURN RESPONSE
     } catch (e) {
       error.value = e.toString();
+      return {"status": false, "message": e.toString()};
     } finally {
       isLoading.value = false;
     }
@@ -42,6 +45,7 @@ class AuthenticationController extends GetxController {
     error.value = '';
     isLoading.value = false;
   }
+
   // getters for global access
   String? get userId => userData.value?['user_id']?.toString();
   String? get username => userData.value?['username'];

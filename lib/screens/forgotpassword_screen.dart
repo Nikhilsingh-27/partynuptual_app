@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:new_app/data/services/authentication_service.dart';
 import 'package:get/get.dart';
+import 'package:new_app/data/services/authentication_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -22,38 +23,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final emailOrUsername = emailController.text.trim();
 
     try {
-      final response =
-      await AuthenticationService().forgotpassfun(email: emailOrUsername);
-
-      Get.snackbar(
-        "Success",
-        "Temporary password is sent to your email",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        duration: const Duration(seconds: 3),
+      final response = await AuthenticationService().forgotpassfun(
+        email: emailOrUsername,
       );
 
+      CustomSnackbar.showSuccess("Temporary password is sent to your email");
       Get.offAllNamed("/home"); // better than toNamed
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Something went wrong",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
+      CustomSnackbar.showError("Something went wrong");
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-      ),
+      appBar: AppBar(backgroundColor: Colors.white),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),

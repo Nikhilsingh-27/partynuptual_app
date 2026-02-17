@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:new_app/data/services/home_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class BottomSection extends StatefulWidget {
   const BottomSection({super.key});
@@ -14,49 +13,32 @@ class BottomSection extends StatefulWidget {
 }
 
 class _BottomSectionState extends State<BottomSection> {
-  final TextEditingController email=TextEditingController();
+  final TextEditingController email = TextEditingController();
 
   Future<void> _subscribe() async {
     if (email.text.trim().isEmpty || !email.text.contains("@")) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter a valid email"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError("Please enter a valid email");
       return;
     }
 
     try {
-      final response = await HomeService().subscribefun(email: email.text.trim());
+      final response = await HomeService().subscribefun(
+        email: email.text.trim(),
+      );
 
-      if (response["status"] == "success" && response["message"]!="You are already subscribed") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Successfully subscribed"),
-            backgroundColor: Colors.green,
-          ),
-        );
+      if (response["status"] == "success" &&
+          response["message"] != "You are already subscribed") {
+        CustomSnackbar.showSuccess("Successfully subscribed");
         email.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response["message"] ?? "Subscription failed"),
-            backgroundColor: Colors.green,
-          ),
-
-        );
+        CustomSnackbar.showError(response["message"] ?? "Subscription failed");
         email.clear();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Failed to subscribe"),
-          backgroundColor: Colors.red,
-        ),
-      );
+      CustomSnackbar.showError("Failed to subscribe");
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -65,9 +47,7 @@ class _BottomSectionState extends State<BottomSection> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-          decoration: BoxDecoration(
-            color: Colors.red[700],
-          ),
+          decoration: BoxDecoration(color: Colors.red[700]),
           child: Column(
             children: [
               const Text(
@@ -82,10 +62,7 @@ class _BottomSectionState extends State<BottomSection> {
               const SizedBox(height: 8),
               const Text(
                 'Subscribe to our marketing platforms for the latest updates',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.white),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -187,10 +164,7 @@ class _BottomSectionState extends State<BottomSection> {
               // Copyright
               Text(
                 '© PartyNuptual 2025',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[400],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
               const SizedBox(height: 16),
 
@@ -216,11 +190,11 @@ class _BottomSectionState extends State<BottomSection> {
                       const SizedBox(width: 12),
                       _buildSocialIcon(
                         icon: FontAwesomeIcons.linkedinIn,
-                        url: 'https://www.linkedin.com/posts/party-nuptual_bartending-beverages-drinks-activity-7135975104554881024-YVeL',
+                        url:
+                            'https://www.linkedin.com/posts/party-nuptual_bartending-beverages-drinks-activity-7135975104554881024-YVeL',
                       ),
                     ],
                   ),
-
                 ],
               ),
               const SizedBox(height: 24),
@@ -247,20 +221,12 @@ class _BottomSectionState extends State<BottomSection> {
   }
 }
 
-
-
-Widget _buildSocialIcon({
-  required IconData icon,
-  required String url,
-}) {
+Widget _buildSocialIcon({required IconData icon, required String url}) {
   return InkWell(
     onTap: () async {
       final uri = Uri.parse(url);
 
-      if (!await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      )) {
+      if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
         debugPrint('Could not launch $uri');
       }
     },
@@ -281,16 +247,16 @@ Widget _buildSocialIcon({
 Widget _buildFooterLink(String text) {
   return InkWell(
     onTap: () {
-      if(text=="Terms & Condition"){
+      if (text == "Terms & Condition") {
         Get.toNamed("terms");
       }
-      if(text=="Privacy Policy"){
+      if (text == "Privacy Policy") {
         Get.toNamed("privacypolicy");
       }
-      if(text=="Disclaimer"){
+      if (text == "Disclaimer") {
         Get.toNamed("disclaimer");
       }
-      if(text=="Faq's"){
+      if (text == "Faq's") {
         Get.toNamed("faq");
       }
     },
@@ -298,10 +264,7 @@ Widget _buildFooterLink(String text) {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Text(
         text,
-        style: TextStyle(
-          fontSize: 12,
-          color: Colors.grey[400],
-        ),
+        style: TextStyle(fontSize: 12, color: Colors.grey[400]),
       ),
     ),
   );

@@ -3,6 +3,7 @@ import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:get/get.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/home_page.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class PricingScreen extends StatefulWidget {
   final String id;
@@ -22,15 +23,16 @@ class _PricingScreenState extends State<PricingScreen> {
     super.initState();
     fetchPlans();
   }
-  String clientid="";
-  String secretid="";
+
+  String clientid = "";
+  String secretid = "";
   Future<void> fetchPlans() async {
     try {
       final response = await ProfileService().getplanfun();
       final details = await ProfileService().paypalcredential();
       setState(() {
-        clientid=details["clientId"]??"";
-        secretid=details["clientSecret"]??"";
+        clientid = details["clientId"] ?? "";
+        secretid = details["clientSecret"] ?? "";
       });
       setState(() {
         planslisting.clear();
@@ -59,8 +61,12 @@ class _PricingScreenState extends State<PricingScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   children: planslisting.map((plan) {
-                    return PricingCard(plan: plan, listingId: widget.id,clientid: clientid,          // ✅ pass here
-                      secretid: secretid, );
+                    return PricingCard(
+                      plan: plan,
+                      listingId: widget.id,
+                      clientid: clientid, // ✅ pass here
+                      secretid: secretid,
+                    );
                   }).toList(),
                 ),
               ),
@@ -74,7 +80,13 @@ class PricingCard extends StatelessWidget {
   final String listingId;
   final String clientid;
   final String secretid;
-  const PricingCard({super.key, required this.plan, required this.listingId,required this.clientid,required this.secretid});
+  const PricingCard({
+    super.key,
+    required this.plan,
+    required this.listingId,
+    required this.clientid,
+    required this.secretid,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +196,10 @@ class PricingCard extends StatelessWidget {
                   Get.to(
                     () => UsePaypal(
                       sandboxMode: true,
-                      clientId: "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
-                      secretKey:"ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
+                      clientId:
+                          "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
+                      secretKey:
+                          "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
                       returnURL: "https://samplesite.com/return",
                       cancelURL: "https://samplesite.com/cancel",
 
@@ -239,11 +253,12 @@ class PricingCard extends StatelessWidget {
                               response["status"] == "true") {
                             Get.offAll(() => HomePage());
                           } else {
-                            Get.snackbar("Error", "Plan verification failed");
+                            CustomSnackbar.showError(
+                              "Plan verification failed",
+                            );
                           }
                         } catch (e) {
-                          print("Error verifying plan: $e");
-                          Get.snackbar("Error", "Plan verification failed");
+                          CustomSnackbar.showError("Plan verification failed");
                         }
 
                         Future.delayed(const Duration(milliseconds: 300), () {
@@ -253,16 +268,14 @@ class PricingCard extends StatelessWidget {
 
                       /// ❌ ERROR
                       onError: (error) {
-                        print("onError: $error");
-
-                        Get.snackbar("Error", "Payment Failed");
+                        CustomSnackbar.showError("Payment Failed");
                       },
 
                       /// ❌ CANCEL
                       onCancel: (params) {
                         print('cancelled: $params');
 
-                        Get.snackbar("Cancelled", "Payment Cancelled");
+                        CustomSnackbar.showError("Payment Cancelled");
                       },
                     ),
                   );

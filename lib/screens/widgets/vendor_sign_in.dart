@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import '../home_page.dart';
-import '../forgot_password.dart';
-import './vendor_sign_up.dart';
-import '../../controllers/authentication_controller.dart';
 import 'package:get/get.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
+
+import '../../controllers/authentication_controller.dart';
+import '../forgot_password.dart';
+import '../home_page.dart';
+import './vendor_sign_up.dart';
 
 class VendorSignIn extends StatefulWidget {
   const VendorSignIn({super.key});
@@ -25,7 +27,8 @@ class _VendorSignInState extends State<VendorSignIn> {
     _passwordController.dispose();
     super.dispose();
   }
-  bool isloading=false;
+
+  bool isloading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +50,10 @@ class _VendorSignInState extends State<VendorSignIn> {
           child: Stack(
             children: [
               SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 20,
+                ),
                 child: Container(
                   padding: const EdgeInsets.all(24),
                   decoration: BoxDecoration(
@@ -191,30 +197,32 @@ class _VendorSignInState extends State<VendorSignIn> {
                         child: ElevatedButton(
                           onPressed: () async {
                             setState(() {
-                              isloading=true;
+                              isloading = true;
                             });
-                            await auth.login(
+
+                            final response = await auth.login(
                               email: _emailController.text.trim(),
                               password: _passwordController.text.trim(),
-                              role: "vendor", // or whatever your API expects
+                              role: "vendor",
                             );
+
                             setState(() {
-                              isloading=false;
+                              isloading = false;
                             });
-                            if (auth.userData.value != null) {
-                              Get.offAll(() => HomePage());
+
+                            if (response["status"] == true) {
+                              CustomSnackbar.showSuccess("Login successful!");
+
+                              await Future.delayed(const Duration(seconds: 1));
+
+                              Get.offAll(() => HomePage()); // ✅ only this
                             } else {
-                              Get.snackbar(
-                                "Login Failed",
-                                auth.error.value,
-                                snackPosition: SnackPosition.BOTTOM,
+                              CustomSnackbar.showError(
+                                response["message"] ?? "Login failed",
                               );
                             }
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => HomePage()),
-                            );
                           },
+
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red,
                             foregroundColor: Colors.white,
@@ -267,7 +275,10 @@ class _VendorSignInState extends State<VendorSignIn> {
                         children: [
                           Text(
                             'Don\'t have an account? ',
-                            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
                           ),
                           TextButton(
                             onPressed: () {
@@ -301,7 +312,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                   ),
                 ),
             ],
-          )
+          ),
         ),
       ),
     );

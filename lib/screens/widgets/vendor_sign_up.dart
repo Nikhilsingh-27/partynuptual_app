@@ -1,8 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:new_app/data/services/authentication_service.dart';
-import 'package:new_app/screens/home_page.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:new_app/data/services/authentication_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
+
 class VendorSignUp extends StatefulWidget {
   const VendorSignUp({super.key});
 
@@ -20,7 +22,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
   Timer? _debounce;
   bool? _isUsernameAvailable; // null = not checked yet
   bool _isCheckingUsername = false;
-  bool isloading=false;
+  bool isloading = false;
   @override
   void dispose() {
     _usernameController.dispose();
@@ -29,7 +31,6 @@ class _VendorSignUpState extends State<VendorSignUp> {
     _debounce?.cancel();
     super.dispose();
   }
-
 
   void _onSearchChanged(String value) {
     // cancel previous timer
@@ -55,8 +56,9 @@ class _VendorSignUpState extends State<VendorSignUp> {
     });
 
     try {
-      final response =
-      await AuthenticationService().checkusername(username: query);
+      final response = await AuthenticationService().checkusername(
+        username: query,
+      );
       print(response["available"]);
       setState(() {
         _isUsernameAvailable = response["available"];
@@ -70,38 +72,35 @@ class _VendorSignUpState extends State<VendorSignUp> {
     }
   }
 
-  void signup(String username,String email,String password,String role)async{
+  void signup(
+    String username,
+    String email,
+    String password,
+    String role,
+  ) async {
     setState(() {
-      isloading=true;
+      isloading = true;
     });
-    final response = await AuthenticationService().signup(username: username, email: email, password: password, role: role);
+    final response = await AuthenticationService().signup(
+      username: username,
+      email: email,
+      password: password,
+      role: role,
+    );
     setState(() {
-      isloading=false;
+      isloading = false;
     });
-    if(response["message"]=="Email already registered"){
+    if (response["message"] == "Email already registered") {
       Get.toNamed("/home");
-      Get.snackbar(
-        "Email already registered",
-        "Please verify your email",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
+
+      CustomSnackbar.showError(
+        "Email already registered \nPlease verify your email",
       );
-    }
-    else {
+    } else {
       Get.toNamed("/home");
-      Get.snackbar(
-        "Signup Successful 🎉",
-        "Please verify your email",
-        snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.green,
-        colorText: Colors.white,
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.check_circle, color: Colors.white),
+
+      CustomSnackbar.showSuccess(
+        "Signup Successful 🎉\nPlease verify your email",
       );
     }
   }
@@ -119,7 +118,6 @@ class _VendorSignUpState extends State<VendorSignUp> {
             fontWeight: FontWeight.bold,
           ),
         ),
-
       ),
 
       backgroundColor: Colors.white,
@@ -144,10 +142,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                     const SizedBox(height: 8),
                     Text(
                       'Create your account.',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
                     ),
                     const SizedBox(height: 40),
                     Align(
@@ -186,23 +181,25 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         // 👇 suffix icon (loader / check / cross)
                         suffixIcon: _isCheckingUsername
                             ? const Padding(
-                          padding: EdgeInsets.all(12),
-                          child: SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        )
+                                padding: EdgeInsets.all(12),
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              )
                             : _isUsernameAvailable == null
                             ? null
                             : Icon(
-                          _isUsernameAvailable!
-                              ? Icons.check_circle
-                              : Icons.cancel,
-                          color: _isUsernameAvailable!
-                              ? Colors.green
-                              : Colors.red,
-                        ),
+                                _isUsernameAvailable!
+                                    ? Icons.check_circle
+                                    : Icons.cancel,
+                                color: _isUsernameAvailable!
+                                    ? Colors.green
+                                    : Colors.red,
+                              ),
                       ),
                     ),
 
@@ -321,19 +318,16 @@ class _VendorSignUpState extends State<VendorSignUp> {
                       child: ElevatedButton(
                         onPressed: () async {
                           if (_isCheckingUsername) {
-                            Get.snackbar(
-                              "Please wait",
-                              "Checking username availability",
+                            CustomSnackbar.showSuccess(
+                              "Please wait\nChecking username availability",
                             );
+
                             return;
                           }
 
                           if (_isUsernameAvailable == false) {
-                            Get.snackbar(
-                              "Username Taken",
-                              "Please choose another username",
-                              backgroundColor: Colors.red,
-                              colorText: Colors.white,
+                            CustomSnackbar.showError(
+                              "Username Taken\nPlease choose another username",
                             );
                             return;
                           }
@@ -341,25 +335,32 @@ class _VendorSignUpState extends State<VendorSignUp> {
                           if (_usernameController.text.trim().isEmpty ||
                               _emailController.text.trim().isEmpty ||
                               _passwordController.text.trim().isEmpty) {
-                            Get.snackbar(
-                              "Missing Information",
-                              "All fields are required",
+                            CustomSnackbar.showError(
+                              "Missing Information\nAll fields are required",
                             );
                             return;
                           }
                           if (_passwordController.text.trim().length < 6) {
-                            Get.snackbar(
-                              "Weak Password",
-                              "Password must be at least 6 characters long",
-                              snackPosition: SnackPosition.BOTTOM,
+                            CustomSnackbar.showError(
+                              "Weak Password\nPassword must be at least 6 characters long",
                             );
                             return;
                           }
+                          final email = _emailController.text.trim();
 
+                          final emailRegex = RegExp(
+                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                          );
+
+                          if (!emailRegex.hasMatch(email)) {
+                            CustomSnackbar.showError(
+                              "Invalid Email\nPlease enter a valid email address",
+                            );
+                            return;
+                          }
                           if (!_agreeToTerms) {
-                            Get.snackbar(
-                              "Terms Required",
-                              "Please accept Terms & Conditions",
+                            CustomSnackbar.showError(
+                              "Terms Required\nPlease accept Terms & Conditions",
                             );
                             return;
                           }
@@ -400,10 +401,9 @@ class _VendorSignUpState extends State<VendorSignUp> {
                   ),
                 ),
             ],
-          )
+          ),
         ),
       ),
     );
   }
 }
-

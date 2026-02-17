@@ -59,17 +59,19 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   // ===============================
-  // SEND MESSAGE
+  // SEND MESSAGE (UPDATED)
   // ===============================
   Future<void> _sendMessage() async {
     String text = _messageController.text.trim();
     if (text.isEmpty) return;
 
-    // ✅ CLEAR UI IMMEDIATELY
     _messageController.clear();
     FocusScope.of(context).unfocus();
 
     try {
+      // 🚫 Stop timer temporarily
+      _timer?.cancel();
+
       final response = await ProfileService().sendmessagefun(
         id: conversationId,
         user_id: userId,
@@ -78,10 +80,15 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       if (response["status"] == true) {
-        _loadMessages(); // refresh after send
+        // ✅ Immediate fetch after send
+        await _loadMessages();
       }
+
+      // 🔁 Restart timer
+      _startAutoRefresh();
     } catch (e) {
       print("Send error: $e");
+      _startAutoRefresh();
     }
   }
 
@@ -89,6 +96,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // AUTO REFRESH
   // ===============================
   void _startAutoRefresh() {
+    _timer?.cancel(); // prevent multiple timers
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
       _loadMessages();
     });
@@ -106,7 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
   // SCROLL TO BOTTOM
   // ===============================
   void _scrollToBottom() {
-    Future.delayed(const Duration(milliseconds: 300), () {
+    Future.delayed(const Duration(milliseconds: 200), () {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent,
@@ -130,9 +138,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       appBar: AppBar(title: const Text("Chat"), backgroundColor: Colors.red),
-
       body: Column(
         children: [
           // ================= CHAT BODY =================
@@ -176,6 +182,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         hintText: "Type Your Message",
                         border: InputBorder.none,
                       ),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
                 ),

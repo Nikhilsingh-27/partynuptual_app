@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/editlisting_screen.dart';
 import 'package:new_app/screens/widgets/convertimgtobase64.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class AddListingScreen extends StatefulWidget {
   const AddListingScreen({super.key});
@@ -18,8 +19,6 @@ class AddListingScreen extends StatefulWidget {
 }
 
 class _AddListingScreenState extends State<AddListingScreen> {
-
-
   Future<void> getCurrentLocation() async {
     bool serviceEnabled;
     LocationPermission permission;
@@ -65,10 +64,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
     // 🔥 Move camera to user location
     mapController?.animateCamera(
       CameraUpdate.newCameraPosition(
-        CameraPosition(
-          target: newLocation,
-          zoom: 16,
-        ),
+        CameraPosition(target: newLocation, zoom: 16),
       ),
     );
 
@@ -78,13 +74,11 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage =
-        "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
 
     if (logoPath == null || logoPath.trim().isEmpty) {
       return defaultImage;
     }
-
 
     final String imageName = logoPath.split('/').last;
 
@@ -94,6 +88,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
     return "${baseUrl}/public/uploads/logo/$imageName";
   }
+
   // Controllers
   final TextEditingController companyNameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
@@ -135,8 +130,6 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
   XFile? bannerImage;
 
-
-
   GoogleMapController? mapController;
   LatLng mapCenter = const LatLng(0, 0);
   // default Delhi
@@ -152,11 +145,8 @@ class _AddListingScreenState extends State<AddListingScreen> {
       final int imageSize = await image.length(); // size in bytes
 
       if (imageSize > 1048576) {
-        Get.snackbar(
-          "Image Too Large",
-          "Image size should not be greater than 1MB",
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
+        CustomSnackbar.showError(
+          "Image Too Large\nImage size should not be greater than 1MB",
         );
         return;
       }
@@ -167,8 +157,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
     }
   }
 
-
-  bool isloading=false;
+  bool isloading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -183,7 +172,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
         ),
         backgroundColor: Colors.redAccent,
       ),
-      body: Obx((){
+      body: Obx(() {
         final homeData = controller.homeData.value;
 
         if (homeData == null) {
@@ -193,8 +182,8 @@ class _AddListingScreenState extends State<AddListingScreen> {
         // ✅ API countries (List<Map>)
         final List countries = homeData.data["data"]["countries"] as List;
 
-        final List allcategory = homeData.data["data"]["categories_all"] as List;
-
+        final List allcategory =
+            homeData.data["data"]["categories_all"] as List;
 
         return Stack(
           children: [
@@ -209,7 +198,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   _buildDropdown<String>(
                     hint: 'Category',
                     value: selectedCategoryId,
-                    items: allcategory.map<DropdownMenuItem<String>>((category) {
+                    items: allcategory.map<DropdownMenuItem<String>>((
+                      category,
+                    ) {
                       return DropdownMenuItem<String>(
                         value: category['category_id'].toString(), // ✅ ID
                         child: Text(
@@ -271,7 +262,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     children: [
                       ElevatedButton(
                         onPressed: pickBannerImage,
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.redAccent,
+                        ),
                         child: const Text("Choose file"),
                       ),
                       const SizedBox(width: 8),
@@ -305,7 +298,10 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   SizedBox(
                     height: 200,
                     child: GoogleMap(
-                      initialCameraPosition: CameraPosition(target: mapCenter, zoom: 14),
+                      initialCameraPosition: CameraPosition(
+                        target: mapCenter,
+                        zoom: 14,
+                      ),
                       onMapCreated: (controller) => mapController = controller,
                       onCameraMove: (position) => mapCenter = position.target,
                       markers: markers,
@@ -314,7 +310,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const SizedBox(height: 8),
                   ElevatedButton(
                     onPressed: getCurrentLocation,
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                    ),
                     child: const Text("Get Address On Map"),
                   ),
                   const SizedBox(height: 16),
@@ -337,7 +335,8 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       if (value == null) return;
                       setState(() {
                         selectedCountryId = value;
-                        selectedState = null; // reset state when country changes
+                        selectedState =
+                            null; // reset state when country changes
                         stateList.clear();
                       });
 
@@ -367,20 +366,19 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       );
                     }).toList(),
                     onChanged:
-                    (selectedCountryId == null ||
-                        isStateLoading ||
-                        stateList.isEmpty)
+                        (selectedCountryId == null ||
+                            isStateLoading ||
+                            stateList.isEmpty)
                         ? null
                         : (String? value) {
-                      setState(() {
-                        selectedStateId = value;
-                      });
-                    },
+                            setState(() {
+                              selectedStateId = value;
+                            });
+                          },
                   ),
                   const SizedBox(height: 16),
 
                   // Business Tag Line
-
 
                   // About Company
                   const Text("About Your Company"),
@@ -400,37 +398,32 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     child: ElevatedButton(
                       onPressed: () async {
                         final selectedstate = stateList.firstWhere(
-                              (c) => c['state_id'].toString() == selectedStateId,
+                          (c) => c['state_id'].toString() == selectedStateId,
                           orElse: () => null,
                         );
                         if (selectedCategoryId == null ||
                             selectedCountryId == null ||
                             selectedStateId == null ||
                             bannerImage == null) {
-                          Get.snackbar("Error", "Please fill all required fields");
+                          CustomSnackbar.showError(
+                            "Please fill all required fields",
+                          );
                           return;
                         }
 
                         // 🔹 Convert image to base64
-                        final String? base64Image = await convertImageToBase64(bannerImage);
+                        final String? base64Image = await convertImageToBase64(
+                          bannerImage,
+                        );
 
                         if (base64Image == null) {
-                          Get.snackbar(
-                            "Error",
-                            "Image conversion failed",
-                            backgroundColor: Colors.red,
-                            colorText: Colors.white,
-                            snackPosition: SnackPosition.TOP,
-                            margin: const EdgeInsets.all(10), // optional spacing from edges
-                            borderRadius: 8,
-                          );
-
+                          CustomSnackbar.showError("Image conversion failed");
                           return;
                         }
 
                         try {
                           setState(() {
-                            isloading=true;
+                            isloading = true;
                           });
                           final response = await ProfileService().addlistingfun(
                             userId: auth.userId.toString(),
@@ -441,7 +434,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
                             officeAddress: addressCtrl.text.trim(),
                             tagLine: tagLineCtrl.text.trim(),
                             countryId: selectedCountryId!,
-                            state: selectedstate["state_id"]??"",
+                            state: selectedstate["state_id"] ?? "",
                             aboutCompany: descriptionCtrl.text.trim(),
                             image: base64Image,
                             latitude: mapCenter.latitude.toString(),
@@ -449,10 +442,10 @@ class _AddListingScreenState extends State<AddListingScreen> {
                           );
 
                           setState(() {
-                            isloading=false;
+                            isloading = false;
                           });
                           Map<String, dynamic> data = {
-                            "listing_id":response["listing_id"]??"",
+                            "listing_id": response["listing_id"] ?? "",
                             "category": selectedCategoryId!,
                             "company_name": companyNameCtrl.text.trim(),
                             "email": emailCtrl.text.trim(),
@@ -469,21 +462,25 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
                           print("API Response: $response");
 
-                          Get.snackbar("Success", "Listing added successfully");
-
-                          Get.to(EditListingScreen(data:data));
+                          CustomSnackbar.showSuccess(
+                            "Success\nListing added successfully",
+                          );
+                          Get.to(EditListingScreen(data: data));
                         } catch (e) {
-                          Get.snackbar("Error", e.toString());
+                          CustomSnackbar.showError("Error: ${e.toString()}");
                         }
-
-
-
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black87,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 40,
+                          vertical: 16,
+                        ),
                       ),
-                      child: const Text("Save & Next",style: TextStyle(color: Colors.white),),
+                      child: const Text(
+                        "Save & Next",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -499,11 +496,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
               ),
           ],
         );
-      })
-
+      }),
     );
   }
-
 
   Widget _buildDropdown<T>({
     required String hint,

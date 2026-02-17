@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -34,10 +35,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       print("-----------------------------");
       print(response);
       if (response["status"] == "success") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Message sent successfully"),backgroundColor: Colors.green,),
-        );
-
+        CustomSnackbar.showSuccess("Message sent successfully");
         // Clear fields
         nameController.clear();
         emailController.clear();
@@ -45,18 +43,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         subjectController.clear();
         queryController.clear();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response["message"] ?? "Something went wrong")),
-        );
+        CustomSnackbar.showError("Something went wrong");
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Failed to send message")),
-      );
+      CustomSnackbar.showError("Failed to send message");
     }
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -77,43 +69,43 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     children: [
                       isWide
                           ? Row(
-                        children: [
-                          Expanded(
-                              child:
-                              _field("Your Name", nameController)),
-                          const SizedBox(width: 20),
-                          Expanded(
-                              child:
-                              _field("Email ID", emailController)),
-                        ],
-                      )
+                              children: [
+                                Expanded(
+                                  child: _field("Your Name", nameController),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: _field("Email ID", emailController),
+                                ),
+                              ],
+                            )
                           : Column(
-                        children: [
-                          _field("Your Name", nameController),
-                          const SizedBox(height: 16),
-                          _field("Email ID", emailController),
-                        ],
-                      ),
+                              children: [
+                                _field("Your Name", nameController),
+                                const SizedBox(height: 16),
+                                _field("Email ID", emailController),
+                              ],
+                            ),
                       const SizedBox(height: 20),
                       isWide
                           ? Row(
-                        children: [
-                          Expanded(
-                              child:
-                              _field("Phone No.", phoneController)),
-                          const SizedBox(width: 20),
-                          Expanded(
-                              child:
-                              _field("Subject", subjectController)),
-                        ],
-                      )
+                              children: [
+                                Expanded(
+                                  child: _field("Phone No.", phoneController),
+                                ),
+                                const SizedBox(width: 20),
+                                Expanded(
+                                  child: _field("Subject", subjectController),
+                                ),
+                              ],
+                            )
                           : Column(
-                        children: [
-                          _field("Phone No.", phoneController),
-                          const SizedBox(height: 16),
-                          _field("Subject", subjectController),
-                        ],
-                      ),
+                              children: [
+                                _field("Phone No.", phoneController),
+                                const SizedBox(height: 16),
+                                _field("Subject", subjectController),
+                              ],
+                            ),
                       const SizedBox(height: 20),
                       _field(
                         "Your Query",
@@ -124,13 +116,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       const SizedBox(height: 24),
                       ElevatedButton.icon(
                         onPressed: _sendMessage,
-                        icon: const Icon(Icons.send, size: 18,color:Colors.white),
+                        icon: const Icon(
+                          Icons.send,
+                          size: 18,
+                          color: Colors.white,
+                        ),
                         label: const Text(
                           "Send Message",
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
-                            color:Colors.white,
+                            color: Colors.white,
                           ),
                         ),
                         style: ElevatedButton.styleFrom(
@@ -159,20 +155,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   }
 
   Widget _field(
-      String label,
-      TextEditingController controller, {
-        int maxLines = 1,
-        double height = 56,
-      }) {
+    String label,
+    TextEditingController controller, {
+    int maxLines = 1,
+    double height = 56,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 8),
         SizedBox(
@@ -191,8 +184,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide:
-                const BorderSide(color: Colors.black, width: 1.2),
+                borderSide: const BorderSide(color: Colors.black, width: 1.2),
               ),
             ),
           ),

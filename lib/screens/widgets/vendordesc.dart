@@ -68,7 +68,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         .toList();
   }
 
-  final List<bool> _expanded = [true, true, false, true];
+  final List<bool> _expanded = [true, true, true, false];
 
   // Dummy data (later replace with API)
 
@@ -124,29 +124,6 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         // -------- VIDEOS DROPDOWN (UPDATED) --------
         _buildDropdown(
           index: 2,
-          title: "Videos",
-          child: SizedBox(
-            height: 180,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.all(12),
-              itemCount: validVideos.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  width: 250,
-                  child: VideoCard(
-                    key: ValueKey(widget.video[index]),
-                    videoId: validVideos[index],
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-
-        _buildDropdown(
-          index: 3,
           title: "Map",
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -166,6 +143,28 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
                 onMapCreated: (controller) => mapController = controller,
                 markers: markers,
               ),
+            ),
+          ),
+        ),
+        _buildDropdown(
+          index: 3,
+          title: "Videos",
+          child: SizedBox(
+            height: 180,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(12),
+              itemCount: validVideos.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  width: 250,
+                  child: VideoCard(
+                    key: ValueKey(widget.video[index]),
+                    videoId: validVideos[index],
+                  ),
+                );
+              },
             ),
           ),
         ),

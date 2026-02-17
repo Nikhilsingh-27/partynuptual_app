@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/screens/widgets/autoscrollforideas.dart';
 import 'package:new_app/screens/widgets/autoscrollrecentlyadded.dart';
-import 'package:new_app/screens/widgets/block_card.dart';
+import 'package:new_app/screens/widgets/block_card_home.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/category_card.dart';
 import 'package:new_app/screens/widgets/profile.dart';
@@ -651,34 +651,33 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 30),
 
               // Blog Cards - 2 columns layout
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: buildBlogCard(
-                        image: "$partyurl/uploads/blogs/${blogs[0]['image']}",
-                        title: "${blogs[0]['heading']}",
-                        description: "${blogs[0]['description']}",
-                        date: "${blogs[0]['back_date']}",
-                        tag: "${blogs[0]['category']}",
-                        author: "${blogs[0]['author']}",
-                      ),
+              if (blogs.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: List.generate(
+                      blogs.length >= 2 ? 2 : blogs.length,
+                      (index) {
+                        final blog = blogs[index];
+
+                        return SizedBox(
+                          width: (MediaQuery.of(context).size.width - 52) / 2,
+                          child: buildBlogCardhome(
+                            image: blog['image'] ?? "",
+                            title: blog['heading'] ?? "",
+                            description: blog['description'] ?? "",
+                            date: blog['back_date'] ?? "",
+                            tag: blog['category'] ?? "",
+                            author: blog['author'] ?? "",
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: buildBlogCard(
-                        image: "$partyurl/uploads/blogs/${blogs[1]['image']}",
-                        title: "${blogs[1]['heading']}",
-                        description: "${blogs[1]['description']}",
-                        date: "${blogs[1]['back_date']}",
-                        tag: "${blogs[1]['category']}",
-                        author: "${blogs[1]['author']}",
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+
               const SizedBox(height: 30),
 
               // View More Button for Blogs Section
