@@ -150,7 +150,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
           index: 3,
           title: "Videos",
           child: SizedBox(
-            height: 180,
+            height: 50,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.all(12),
