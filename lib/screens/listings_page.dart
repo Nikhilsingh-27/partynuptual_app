@@ -183,146 +183,159 @@ Widget _buildListingCard({
   required String ownerid,
   required String tag,
 }) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.2),
-          blurRadius: 8,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Image.network(
-              image,
-              width: double.infinity,
-              fit: BoxFit.fill,
-              errorBuilder: (_, __, ___) => Container(
-                color: Colors.grey[300],
-                alignment: Alignment.center,
-                child: const Icon(Icons.image_not_supported),
+  void onpressnext() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) =>
+            BusinessDetailPage(listingid: listingid, ownerid: ownerid),
+      ),
+    );
+  }
+
+  return InkWell(
+    onTap: onpressnext,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Image.network(
+                image,
+                width: double.infinity,
+                fit: BoxFit.fill,
+                errorBuilder: (_, __, ___) => Container(
+                  color: Colors.grey[300],
+                  alignment: Alignment.center,
+                  child: const Icon(Icons.image_not_supported),
+                ),
               ),
             ),
           ),
-        ),
 
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const Icon(Icons.verified, color: Colors.green, size: 16),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                tag,
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: Colors.black),
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Icon(Icons.phone, size: 14, color: Colors.black),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      phone,
-                      style: TextStyle(fontSize: 12, color: Colors.black),
+                    const Icon(Icons.verified, color: Colors.green, size: 16),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  tag,
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 12, color: Colors.black),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    Icon(Icons.phone, size: 14, color: Colors.black),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        phone,
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const Divider(height: 20),
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Color(0xFFE8EEF5), // soft bluish background
+                  ],
+                ),
+                const Divider(height: 20),
+                Row(
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFE8EEF5), // soft bluish background
+                      ),
+                      child: const Icon(
+                        Icons.location_on_outlined,
+                        size: 20,
+                        color: Color(0xFF6C8EBF), // soft blue icon
+                      ),
                     ),
-                    child: const Icon(
-                      Icons.location_on_outlined,
-                      size: 20,
-                      color: Color(0xFF6C8EBF), // soft blue icon
-                    ),
-                  ),
 
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      location,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Colors.black),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        location,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: Colors.black),
+                      ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BusinessDetailPage(
-                            listingid: listingid,
-                            ownerid: ownerid,
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => BusinessDetailPage(
+                              listingid: listingid,
+                              ownerid: ownerid,
+                            ),
                           ),
-                        ),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFC71F37),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFC71F37),
 
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 7,
-                        vertical: 6,
-                      ),
-                      minimumSize: const Size(60, 22),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.visibility, size: 12, color: Colors.white),
-                        SizedBox(width: 4),
-                        Text(
-                          'View',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 7,
+                          vertical: 6,
                         ),
-                      ],
+                        minimumSize: const Size(60, 22),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.visibility, size: 12, color: Colors.white),
+                          SizedBox(width: 4),
+                          Text(
+                            'View',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

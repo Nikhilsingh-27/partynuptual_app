@@ -224,7 +224,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                           },
 
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
+                            backgroundColor: Color(0xFFc71f37),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
