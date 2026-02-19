@@ -119,14 +119,15 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                     const Icon(
                                       Icons.location_on,
                                       size: 18,
-                                      color: Colors.grey,
+                                      color: Colors.black,
                                     ),
                                     const SizedBox(width: 6),
                                     Expanded(
                                       child: Text(
                                         listing["office_address"] ?? "",
                                         style: const TextStyle(
-                                          color: Colors.grey,
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
                                     ),
@@ -137,14 +138,14 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                   children: const [
                                     Icon(
                                       Icons.verified,
-                                      color: Colors.green,
+                                      color: const Color(0xFF198754),
                                       size: 18,
                                     ),
                                     SizedBox(width: 6),
                                     Text(
                                       "Verified Listing",
                                       style: TextStyle(
-                                        color: Colors.green,
+                                        color: const Color(0xFF198754),
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
@@ -190,7 +191,12 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                     },
 
                                     icon: const Icon(Icons.chat_bubble_outline),
-                                    label: const Text("Chat Now"),
+                                    label: const Text(
+                                      "Chat Now",
+                                      style: TextStyle(
+                                        color: const Color(0xFFC72443),
+                                      ),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.pink.shade50,
                                       foregroundColor: Colors.red,
@@ -343,10 +349,17 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                       }
                                     },
 
-                                    icon: const Icon(Icons.send),
-                                    label: const Text("Send Inquiry"),
+                                    icon: const Icon(
+                                      Icons.send,
+                                      color: Colors.white,
+                                    ),
+                                    label: const Text(
+                                      "Send Inquiry",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,
+
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 14,
                                       ),
@@ -390,7 +403,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
 
   Widget _infoRow(IconData icon, String text) => Row(
     children: [
-      Icon(icon, size: 18, color: Colors.grey),
+      Icon(icon, size: 18, color: Colors.black),
       const SizedBox(width: 8),
       Expanded(child: Text(text)),
     ],

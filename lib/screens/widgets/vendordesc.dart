@@ -97,7 +97,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
             padding: const EdgeInsets.all(12),
             child: GridView.builder(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // ❌ NO SCROLL
+              physics: const NeverScrollableScrollPhysics(),
               itemCount: widget.gallery.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, // 3 images per row
@@ -150,7 +150,7 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
           index: 3,
           title: "Videos",
           child: SizedBox(
-            height: 50,
+            height: 100,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               padding: const EdgeInsets.all(12),

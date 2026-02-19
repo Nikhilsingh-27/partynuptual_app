@@ -35,7 +35,12 @@ class _OurVideoScreenState extends State<OurVideoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Hot & Trending Videos")),
+      appBar: AppBar(
+        title: const Text(
+          "Hot & Trending Videos",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -44,6 +49,7 @@ class _OurVideoScreenState extends State<OurVideoScreen> {
               padding: EdgeInsets.only(left: 15),
               child: Text(
                 "Watch the latest trending videos across all categories.",
+                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
               ),
             ),
 

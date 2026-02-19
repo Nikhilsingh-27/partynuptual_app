@@ -10,6 +10,7 @@ Widget buildListingCard({
   required String phone,
   required String location,
   required String ownerid,
+  required String tag,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -103,7 +104,7 @@ Widget buildListingCard({
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Text(
-                  description,
+                  tag,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(fontSize: 10, color: Colors.black),
@@ -117,14 +118,14 @@ Widget buildListingCard({
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.phone, size: 11, color: Colors.grey[600]),
+                    Icon(Icons.phone, size: 11, color: Colors.black),
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
                         phone,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                        style: TextStyle(fontSize: 10, color: Colors.black),
                       ),
                     ),
                   ],
@@ -146,7 +147,20 @@ Widget buildListingCard({
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.location_on, size: 14, color: Colors.grey[600]),
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFE8EEF5), // soft bluish background
+                      ),
+                      child: const Icon(
+                        Icons.location_on_outlined,
+                        size: 20,
+                        color: Color(0xFF6C8EBF), // soft blue icon
+                      ),
+                    ),
+
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -169,7 +183,8 @@ Widget buildListingCard({
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
+                        backgroundColor: const Color(0xFFC71F37),
+
                         padding: const EdgeInsets.symmetric(
                           horizontal: 7,
                           vertical: 6,
@@ -181,9 +196,12 @@ Widget buildListingCard({
                       ),
                       child: const Row(
                         children: [
-                          Icon(Icons.visibility, size: 12),
+                          Icon(Icons.visibility, size: 12, color: Colors.white),
                           SizedBox(width: 4),
-                          Text('View', style: TextStyle(fontSize: 12)),
+                          Text(
+                            'View',
+                            style: TextStyle(fontSize: 12, color: Colors.white),
+                          ),
                         ],
                       ),
                     ),

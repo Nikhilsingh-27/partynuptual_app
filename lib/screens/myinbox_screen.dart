@@ -101,6 +101,19 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
     String user_id = item["user_id"] ?? "";
     String vendor_id = item["vendor_id"] ?? "";
     String conversation_id = item["id"] ?? "";
+    void openchat() {
+      // Navigate to conversation screen
+      Get.toNamed(
+        '/conversation',
+        arguments: {
+          "conversation_id": conversation_id,
+          "user_id": user_id,
+          "vendor_id": vendor_id,
+          "vendor_name": vendorName,
+          "avatar": avatar,
+        },
+      );
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -141,6 +154,8 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                   "conversation_id": conversation_id,
                   "user_id": user_id,
                   "vendor_id": vendor_id,
+                  "vendor_name": vendorName,
+                  "avatar": avatar,
                 },
               );
             },
@@ -178,21 +193,24 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
           const SizedBox(width: 12),
 
           // Name & Email
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  vendorName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+          InkWell(
+            onTap: openchat,
+            child: Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    vendorName,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-
+          const Spacer(),
           // Remove button
           Padding(
             padding: const EdgeInsets.only(right: 12),

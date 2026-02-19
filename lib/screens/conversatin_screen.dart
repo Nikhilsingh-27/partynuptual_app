@@ -20,7 +20,8 @@ class _ChatScreenState extends State<ChatScreen> {
   late String conversationId;
   late String userId;
   late String receiverId;
-
+  late String vendorname;
+  late String avatar;
   List messages = [];
 
   @override
@@ -31,14 +32,12 @@ class _ChatScreenState extends State<ChatScreen> {
     conversationId = args["conversation_id"] ?? "";
     userId = args["user_id"] ?? "";
     receiverId = args["vendor_id"] ?? "";
-
+    vendorname = args["vendor_name"] ?? "";
+    avatar = args["avatar"] ?? "";
     _loadMessages();
     _startAutoRefresh();
   }
 
-  // ===============================
-  // FETCH MESSAGES
-  // ===============================
   Future<void> _loadMessages() async {
     try {
       final response = await ProfileService().fetchconversationfun(
@@ -58,9 +57,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // ===============================
-  // SEND MESSAGE (UPDATED)
-  // ===============================
   Future<void> _sendMessage() async {
     String text = _messageController.text.trim();
     if (text.isEmpty) return;
@@ -92,9 +88,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  // ===============================
-  // AUTO REFRESH
-  // ===============================
   void _startAutoRefresh() {
     _timer?.cancel(); // prevent multiple timers
     _timer = Timer.periodic(const Duration(seconds: 2), (timer) {
@@ -110,9 +103,6 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  // ===============================
-  // SCROLL TO BOTTOM
-  // ===============================
   void _scrollToBottom() {
     Future.delayed(const Duration(milliseconds: 200), () {
       if (_scrollController.hasClients) {
@@ -125,9 +115,6 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  // ===============================
-  // FORMAT DATE TIME
-  // ===============================
   String formatDateTime(String dateTimeString) {
     DateTime dt = DateTime.parse(dateTimeString);
     return DateFormat('dd MMM yyyy, hh:mm a').format(dt);
@@ -138,7 +125,35 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(title: const Text("Chat"), backgroundColor: Colors.red),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(
+                avatar.isNotEmpty
+                    ? avatar
+                    : "https://partynuptual.com/public/front/default-user.png",
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                vendorname.isNotEmpty ? vendorname : "Chat",
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+
       body: Column(
         children: [
           // ================= CHAT BODY =================
@@ -177,6 +192,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: TextField(
+                      textAlignVertical: TextAlignVertical(y: -0.3),
                       controller: _messageController,
                       decoration: const InputDecoration(
                         hintText: "Type Your Message",

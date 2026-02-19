@@ -170,7 +170,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
             Text("Business Listing"),
           ],
         ),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.white,
       ),
       body: Obx(() {
         final homeData = controller.homeData.value;
@@ -401,12 +401,37 @@ class _AddListingScreenState extends State<AddListingScreen> {
                           (c) => c['state_id'].toString() == selectedStateId,
                           orElse: () => null,
                         );
+                        String email = emailCtrl.text.trim();
+                        String phone = phoneCtrl.text.trim();
+
+                        bool isEmailValid = RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        ).hasMatch(email);
+                        bool isPhoneValid = RegExp(
+                          r'^\+?[0-9]{7,16}$',
+                        ).hasMatch(phone);
                         if (selectedCategoryId == null ||
                             selectedCountryId == null ||
                             selectedStateId == null ||
-                            bannerImage == null) {
+                            bannerImage == null ||
+                            descriptionCtrl.text.trim().isEmpty ||
+                            companyNameCtrl.text.trim().isEmpty ||
+                            emailCtrl.text.trim().isEmpty ||
+                            phoneCtrl.text.trim().isEmpty ||
+                            tagLineCtrl.text.trim().isEmpty ||
+                            addressCtrl.text.trim().isEmpty) {
                           CustomSnackbar.showError(
                             "Please fill all required fields",
+                          );
+                          return;
+                        } else if (!isEmailValid) {
+                          CustomSnackbar.showError(
+                            "Please enter a valid email address",
+                          );
+                          return;
+                        } else if (!isPhoneValid) {
+                          CustomSnackbar.showError(
+                            "Please enter a valid phone number",
                           );
                           return;
                         }

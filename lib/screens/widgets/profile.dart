@@ -129,33 +129,33 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
                   ),
                   if (auth.role == 'vendor') ...[
                     _buildSubItem(
-                      icon: Icons.inbox_outlined,
+                      icon: Icons.speed_outlined,
                       title: "Add Listings",
                       route: "/addlistings",
                     ),
                     _buildSubItem(
-                      icon: Icons.inbox_outlined,
+                      icon: Icons.speed_outlined,
                       title: "My Listings",
                       route: "/mylisting",
                     ),
                     _buildSubItem(
-                      icon: Icons.inbox_outlined,
+                      icon: Icons.speed_outlined,
                       title: "My Inquiries",
                       route: "/inquirie",
                     ),
                   ],
                   _buildSubItem(
-                    icon: Icons.inbox_outlined,
+                    icon: Icons.speed_outlined,
                     title: "My Inbox",
                     route: "/myinbox",
                   ),
                   _buildSubItem(
-                    icon: Icons.lightbulb_outline,
+                    icon: Icons.speed_outlined,
                     title: "My Ideas",
                     route: "/myideas",
                   ),
                   _buildSubItem(
-                    icon: Icons.add_circle_outline,
+                    icon: Icons.speed_outlined,
                     title: "Add My Ideas",
                     route: "/addmyideas",
                   ),

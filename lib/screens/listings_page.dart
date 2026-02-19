@@ -123,6 +123,7 @@ class _ListingsPageState extends State<ListingsPage> {
                               phone: listing['phone_number'] ?? '',
                               location: listing['office_address'] ?? '',
                               ownerid: listing['owner_id'].toString(),
+                              tag: listing['tag_line'] ?? '',
                             ),
                           );
                         }).toList(),
@@ -180,6 +181,7 @@ Widget _buildListingCard({
   required String phone,
   required String location,
   required String ownerid,
+  required String tag,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -236,20 +238,20 @@ Widget _buildListingCard({
               ),
               const SizedBox(height: 8),
               Text(
-                description,
+                tag,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                style: TextStyle(fontSize: 12, color: Colors.black),
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.phone, size: 14, color: Colors.grey[600]),
+                  Icon(Icons.phone, size: 14, color: Colors.black),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       phone,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 12, color: Colors.black),
                     ),
                   ),
                 ],
@@ -257,14 +259,27 @@ Widget _buildListingCard({
               const Divider(height: 20),
               Row(
                 children: [
-                  Icon(Icons.location_on, size: 16, color: Colors.grey[600]),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: const BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Color(0xFFE8EEF5), // soft bluish background
+                    ),
+                    child: const Icon(
+                      Icons.location_on_outlined,
+                      size: 20,
+                      color: Color(0xFF6C8EBF), // soft blue icon
+                    ),
+                  ),
+
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       location,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                      style: TextStyle(fontSize: 12, color: Colors.black),
                     ),
                   ),
                   ElevatedButton(
@@ -280,16 +295,27 @@ Widget _buildListingCard({
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                      backgroundColor: const Color(0xFFC71F37),
+
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
+                        horizontal: 7,
+                        vertical: 6,
                       ),
+                      minimumSize: const Size(60, 22),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(6),
                       ),
                     ),
-                    child: const Text('View', style: TextStyle(fontSize: 12)),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.visibility, size: 12, color: Colors.white),
+                        SizedBox(width: 4),
+                        Text(
+                          'View',
+                          style: TextStyle(fontSize: 12, color: Colors.white),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

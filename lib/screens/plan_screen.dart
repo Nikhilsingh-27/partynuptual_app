@@ -29,11 +29,11 @@ class _PricingScreenState extends State<PricingScreen> {
   Future<void> fetchPlans() async {
     try {
       final response = await ProfileService().getplanfun();
-      final details = await ProfileService().paypalcredential();
-      setState(() {
-        clientid = details["clientId"] ?? "";
-        secretid = details["clientSecret"] ?? "";
-      });
+      // final details = await ProfileService().paypalcredential();
+      // setState(() {
+      //   clientid = details["clientId"] ?? "";
+      //   secretid = details["clientSecret"] ?? "";
+      // });
       setState(() {
         planslisting.clear();
         planslisting.addAll(response["data"]);
@@ -64,8 +64,12 @@ class _PricingScreenState extends State<PricingScreen> {
                     return PricingCard(
                       plan: plan,
                       listingId: widget.id,
-                      clientid: clientid, // ✅ pass here
-                      secretid: secretid,
+                      //clientid: clientid,
+                      clientid:
+                          "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc", // ✅ pass here
+                      //secretid: secretid,
+                      secretid:
+                          "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
                     );
                   }).toList(),
                 ),
@@ -289,9 +293,12 @@ class PricingCard extends StatelessWidget {
                 child: const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("Pay Now", style: TextStyle(fontSize: 16)),
+                    Text(
+                      "Pay Now",
+                      style: TextStyle(fontSize: 16, color: Colors.white),
+                    ),
                     SizedBox(width: 8),
-                    Icon(Icons.arrow_forward),
+                    Icon(Icons.arrow_forward, color: Colors.white),
                   ],
                 ),
               ),

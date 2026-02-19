@@ -45,155 +45,168 @@ Widget buildBlogCard({
   required String tag,
   required String author,
 }) {
-  return Container(
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(8),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          spreadRadius: 1,
-          blurRadius: 4,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// IMAGE
-        ClipRRect(
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-          child: Image.network(
-            fixBlogImageUrl(image),
-            height: 170,
-            width: double.infinity,
-            fit: BoxFit.fill,
+  void openBlog() {
+    Get.to(
+      () => BlogcompleteScreen(),
+      arguments: {
+        'image': image,
+        'title': title,
+        'description': description,
+        'date': date,
+        'author': author,
+        'tag': tag,
+      },
+    );
+  }
+
+  return InkWell(
+    onTap: openBlog,
+    child: Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-        ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// IMAGE
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+            child: Image.network(
+              fixBlogImageUrl(image),
+              height: 170,
+              width: double.infinity,
+              fit: BoxFit.fill,
+            ),
+          ),
 
-        /// TITLE + DESCRIPTION + BUTTON
-        Padding(
-          padding: const EdgeInsets.all(12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              /// TITLE
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              /// DESCRIPTION
-              Text(
-                htmlToPreviewText(description),
-                maxLines: 4,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 12, height: 1.4),
-              ),
-
-              const SizedBox(height: 12),
-
-              /// BUTTON
-              SizedBox(
-                width: 130,
-                height: 32,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(
-                      () => BlogcompleteScreen(),
-                      arguments: {
-                        'image': image,
-                        'title': title,
-                        'description': description,
-                        'date': date,
-                        'author': author,
-                        'tag': tag,
-                      },
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(250, 232, 235, 1),
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    minimumSize: Size.zero,
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  ),
-                  child: const Text(
-                    'Continue Reading',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.red,
-                    ),
+          /// TITLE + DESCRIPTION + BUTTON
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                /// TITLE
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-              ),
-            ],
-          ),
-        ),
 
-        /// 🔥 FULL WIDTH DIVIDER (OUTSIDE PADDING)
-        Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
+                const SizedBox(height: 8),
 
-        /// DATE + TAG SECTION
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              /// DATE (expands)
-              Expanded(
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 12,
-                      color: Colors.grey[600],
+                /// DESCRIPTION
+                Text(
+                  htmlToPreviewText(description),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12, height: 1.4),
+                ),
+
+                const SizedBox(height: 12),
+
+                /// BUTTON
+                SizedBox(
+                  width: 130,
+                  height: 32,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Get.to(
+                        () => BlogcompleteScreen(),
+                        arguments: {
+                          'image': image,
+                          'title': title,
+                          'description': description,
+                          'date': date,
+                          'author': author,
+                          'tag': tag,
+                        },
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromRGBO(250, 232, 235, 1),
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(6),
+                      ),
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        date,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey[600],
+                    child: const Text(
+                      'Continue Reading',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFFc71f46),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          /// 🔥 FULL WIDTH DIVIDER (OUTSIDE PADDING)
+          Divider(height: 1, thickness: 1, color: Colors.grey.shade300),
+
+          /// DATE + TAG SECTION
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                /// DATE (expands)
+                Expanded(
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 12, color: Colors.black),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          date,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+
+                /// TAG (right aligned)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.star_border, size: 14, color: Colors.black),
+                    const SizedBox(width: 4),
+                    Text(
+                      tag,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(fontSize: 12, color: Colors.black),
                     ),
                   ],
                 ),
-              ),
-
-              /// TAG (right aligned)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.local_offer, size: 14, color: Colors.grey[600]),
-                  const SizedBox(width: 4),
-                  Text(
-                    tag,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     ),
   );
 }

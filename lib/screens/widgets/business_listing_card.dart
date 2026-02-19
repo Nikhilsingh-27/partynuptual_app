@@ -153,8 +153,8 @@ class BusinessListingCard extends StatelessWidget {
                         ? _actionButton(
                             icon: Icons.check_circle,
                             text: "Listing is Activated",
-                            bgColor: const Color(0xFFDFF3EA),
-                            color: const Color(0xFF1E8E5A),
+                            bgColor: const Color(0xFFFFE5E5),
+                            color: Colors.red,
                             onTap: () {
                               // Optional: do nothing or show a message
                             },

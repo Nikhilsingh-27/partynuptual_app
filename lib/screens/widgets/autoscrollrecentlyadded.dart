@@ -79,7 +79,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SizedBox(
-          height: 380,
+          height: 364,
           child: PageView.builder(
             controller: _pageController,
             itemCount: listings.length,
@@ -97,6 +97,7 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
                   phone: item['phone_number'] ?? '',
                   location: item['office_address'] ?? '',
                   ownerid: item['owner_id'] ?? '',
+                  tag: item['tag_line'] ?? '',
                 ),
               );
             },

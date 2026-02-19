@@ -18,32 +18,50 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   final TextEditingController queryController = TextEditingController();
   Future<void> _sendMessage() async {
     try {
-      final response = await HomeService().contactus(
-        name: nameController.text.trim(),
-        email: emailController.text.trim(),
-        phone: phoneController.text.trim(),
-        subject: subjectController.text.trim(),
-        message: queryController.text.trim(),
-      );
+      String name = nameController.text.trim();
+      String email = emailController.text.trim();
+      String phone = phoneController.text.trim();
+      String subject = subjectController.text.trim();
+      String message = queryController.text.trim();
 
-      print("------ Contact Us Data ------");
-      print("Name: ${nameController.text}");
-      print("Email: ${emailController.text}");
-      print("Phone: ${phoneController.text}");
-      print("Subject: ${subjectController.text}");
-      print("Query: ${queryController.text}");
-      print("-----------------------------");
-      print(response);
-      if (response["status"] == "success") {
-        CustomSnackbar.showSuccess("Message sent successfully");
-        // Clear fields
-        nameController.clear();
-        emailController.clear();
-        phoneController.clear();
-        subjectController.clear();
-        queryController.clear();
+      bool isEmailValid = RegExp(
+        r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+      ).hasMatch(email);
+
+      // ✅ International phone validation (7–16 digits, optional +)
+      bool isPhoneValid = RegExp(r'^\+?[0-9]{7,16}$').hasMatch(phone);
+
+      if (name.isEmpty ||
+          email.isEmpty ||
+          phone.isEmpty ||
+          subject.isEmpty ||
+          message.isEmpty) {
+        CustomSnackbar.showError("Please fill all required fields");
+      } else if (!isEmailValid) {
+        CustomSnackbar.showError("Please enter a valid email address");
+      } else if (!isPhoneValid) {
+        CustomSnackbar.showError("Please enter a valid phone number");
       } else {
-        CustomSnackbar.showError("Something went wrong");
+        // handle response here
+
+        final response = await HomeService().contactus(
+          name: nameController.text.trim(),
+          email: emailController.text.trim(),
+          phone: phoneController.text.trim(),
+          subject: subjectController.text.trim(),
+          message: queryController.text.trim(),
+        );
+
+        print(response);
+        if (response["status"] == "success") {
+          CustomSnackbar.showSuccess("Message sent successfully");
+          // Clear fields
+          nameController.clear();
+          emailController.clear();
+          phoneController.clear();
+          subjectController.clear();
+          queryController.clear();
+        }
       }
     } catch (e) {
       CustomSnackbar.showError("Failed to send message");

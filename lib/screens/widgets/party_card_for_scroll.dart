@@ -167,7 +167,7 @@ class _PartyCardScrollState extends State<PartyCardScroll> {
                           const Icon(
                             Icons.location_on,
                             size: 14,
-                            color: Colors.grey,
+                            color: Colors.black,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -175,7 +175,7 @@ class _PartyCardScrollState extends State<PartyCardScroll> {
                               widget.location,
                               style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey[600],
+                                color: Colors.black,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -215,10 +215,7 @@ class _PartyCardScrollState extends State<PartyCardScroll> {
                       Expanded(
                         child: Text(
                           widget.date,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
+                          style: TextStyle(fontSize: 11, color: Colors.black),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
