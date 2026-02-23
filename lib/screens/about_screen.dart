@@ -102,7 +102,7 @@ class _Paragraph extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black54),
+      style: const TextStyle(fontSize: 15, height: 1.5, color: Colors.black),
     );
   }
 }

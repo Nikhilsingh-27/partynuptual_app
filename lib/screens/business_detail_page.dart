@@ -318,6 +318,49 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                   width: double.infinity,
                                   child: ElevatedButton.icon(
                                     onPressed: () async {
+                                      if (nameCtrl.text.trim().isEmpty) {
+                                        CustomSnackbar.showError(
+                                          "Please enter your name",
+                                        );
+                                        return;
+                                      }
+
+                                      if (emailCtrl.text.trim().isEmpty) {
+                                        CustomSnackbar.showError(
+                                          "Please enter your email",
+                                        );
+                                        return;
+                                      }
+
+                                      if (!GetUtils.isEmail(
+                                        emailCtrl.text.trim(),
+                                      )) {
+                                        CustomSnackbar.showError(
+                                          "Please enter a valid email",
+                                        );
+                                        return;
+                                      }
+
+                                      if (phoneCtrl.text.trim().isEmpty) {
+                                        CustomSnackbar.showError(
+                                          "Please enter your phone number",
+                                        );
+                                        return;
+                                      }
+
+                                      if (phoneCtrl.text.trim().length < 6) {
+                                        CustomSnackbar.showError(
+                                          "Please enter valid phone number",
+                                        );
+                                        return;
+                                      }
+
+                                      if (commentCtrl.text.trim().isEmpty) {
+                                        CustomSnackbar.showError(
+                                          "Please write your message",
+                                        );
+                                        return;
+                                      }
                                       final response = await ProfileService()
                                           .sendinquiry(
                                             name: nameCtrl.text.trim(),
@@ -358,7 +401,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.red,
+                                      backgroundColor: Color(0xFFc71f37),
 
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 14,
@@ -413,9 +456,31 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
       TextField(
         controller: c,
         maxLines: maxLines,
+        style: const TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w400,
+        ),
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          labelStyle: const TextStyle(color: Colors.black),
+
+          // Normal Border
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.black, width: 1),
+          ),
+
+          // Focused Border
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.black, width: 1),
+          ),
+
+          // Error Border (optional but recommended)
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: const BorderSide(color: Colors.red, width: 1),
+          ),
         ),
       );
 }

@@ -71,7 +71,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Contact Us")),
+      appBar: AppBar(
+        title: const Text(
+          "Contact Us",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [

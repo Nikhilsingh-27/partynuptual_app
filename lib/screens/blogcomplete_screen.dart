@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:get/get.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-
 
 String fixBlogImageUrl(String? apiUrl) {
   if (apiUrl == null || apiUrl.isEmpty) {
@@ -16,6 +15,7 @@ String fixBlogImageUrl(String? apiUrl) {
   // Combine with correct base URL
   return "https://partynuptual.com/public/uploads/blogs/$filename";
 }
+
 class BlogcompleteScreen extends StatelessWidget {
   const BlogcompleteScreen({super.key});
 
@@ -36,6 +36,7 @@ class BlogcompleteScreen extends StatelessWidget {
           title,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       body: SingleChildScrollView(
@@ -56,7 +57,7 @@ class BlogcompleteScreen extends StatelessWidget {
                         height: 220,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) =>
-                        const SizedBox(height: 200),
+                            const SizedBox(height: 200),
                       ),
                     ),
 
@@ -66,7 +67,9 @@ class BlogcompleteScreen extends StatelessWidget {
                   if (tag.isNotEmpty)
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(6),

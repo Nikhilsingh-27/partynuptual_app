@@ -142,7 +142,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                     const SizedBox(height: 8),
                     Text(
                       'Create your account.',
-                      style: TextStyle(fontSize: 16, color: Colors.grey[700]),
+                      style: TextStyle(fontSize: 16, color: Colors.black),
                     ),
                     const SizedBox(height: 40),
                     Align(
@@ -152,7 +152,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[800],
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -163,15 +163,15 @@ class _VendorSignUpState extends State<VendorSignUp> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[400]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -211,7 +211,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[800],
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -221,15 +221,15 @@ class _VendorSignUpState extends State<VendorSignUp> {
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[400]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -245,7 +245,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[800],
+                          color: Colors.black,
                         ),
                       ),
                     ),
@@ -255,18 +255,21 @@ class _VendorSignUpState extends State<VendorSignUp> {
                       obscureText: _obscurePassword,
                       decoration: InputDecoration(
                         hintText: '6+ characters required',
-                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        hintStyle: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w200,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[400]!),
+                          borderSide: BorderSide(color: Colors.black),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16,
@@ -277,7 +280,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                             _obscurePassword
                                 ? Icons.visibility_outlined
                                 : Icons.visibility_off_outlined,
-                            color: Colors.grey[600],
+                            color: Colors.black,
                           ),
                           onPressed: () {
                             setState(() {
@@ -304,10 +307,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
                         Expanded(
                           child: Text(
                             'I agree to the Terms and Conditions',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[800],
-                            ),
+                            style: TextStyle(fontSize: 14, color: Colors.black),
                           ),
                         ),
                       ],

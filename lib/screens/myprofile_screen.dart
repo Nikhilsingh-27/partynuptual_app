@@ -45,7 +45,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/default-user.png";
 
     if (logoPath == null || logoPath.trim().isEmpty) {
       return defaultImage;

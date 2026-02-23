@@ -50,7 +50,12 @@ class _PricingScreenState extends State<PricingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Choose Your Plan")),
+      appBar: AppBar(
+        title: const Text(
+          "Choose Your Plan",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       backgroundColor: Colors.white,
       body: SafeArea(
         child: isLoading

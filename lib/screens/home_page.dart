@@ -243,7 +243,7 @@ class _HomePageState extends State<HomePage> {
               ListTile(
                 leading: const Icon(Icons.info_outline),
                 title: const Text(
-                  "About",
+                  "About Us",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 onTap: () {

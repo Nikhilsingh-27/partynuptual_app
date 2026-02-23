@@ -46,15 +46,15 @@ class MyApp extends StatelessWidget {
         return Stack(
           children: [
             child!, // Your app pages
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton(
-                onPressed: openWhatsApp,
-                backgroundColor: Colors.green,
-                child: const FaIcon(FontAwesomeIcons.whatsapp),
-              ),
-            ),
+            // Positioned(
+            //   bottom: 20,
+            //   right: 20,
+            //   child: FloatingActionButton(
+            //     onPressed: openWhatsApp,
+            //     backgroundColor: Colors.green,
+            //     child: const FaIcon(FontAwesomeIcons.whatsapp),
+            //   ),
+            // ),
           ],
         );
       },

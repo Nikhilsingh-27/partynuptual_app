@@ -26,8 +26,10 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final response = await AuthenticationService().forgotpassfun(
         email: emailOrUsername,
       );
-
-      CustomSnackbar.showSuccess("Temporary password is sent to your email");
+      if (response["status"] == false)
+        CustomSnackbar.showError(" Email not found in our records");
+      else
+        CustomSnackbar.showSuccess("Temporary password is sent to your email");
       Get.offAllNamed("/home"); // better than toNamed
     } catch (e) {
       CustomSnackbar.showError("Something went wrong");

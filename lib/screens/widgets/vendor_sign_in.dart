@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 import '../../controllers/authentication_controller.dart';
-import '../forgot_password.dart';
 import '../home_page.dart';
 import './vendor_sign_up.dart';
 
@@ -83,7 +82,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                               'Login to manage your account.',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.grey[700],
+                                color: Colors.black,
                               ),
                             ),
                           ),
@@ -95,7 +94,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[800],
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -103,18 +102,21 @@ class _VendorSignInState extends State<VendorSignIn> {
                         controller: _emailController,
                         decoration: InputDecoration(
                           hintText: 'Your Email or Username',
-                          hintStyle: TextStyle(color: Colors.grey[400]),
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w200,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[400]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -128,7 +130,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey[800],
+                          color: Colors.black,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -137,18 +139,21 @@ class _VendorSignInState extends State<VendorSignIn> {
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           hintText: '6+ characters required',
-                          hintStyle: TextStyle(color: Colors.grey[400]),
+                          hintStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w200,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[300]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: Colors.grey[400]!),
+                            borderSide: BorderSide(color: Colors.black),
                           ),
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -159,7 +164,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                               _obscurePassword
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
-                              color: Colors.grey[600],
+                              color: Colors.black,
                             ),
                             onPressed: () {
                               setState(() {
@@ -174,18 +179,13 @@ class _VendorSignInState extends State<VendorSignIn> {
                         alignment: Alignment.centerRight,
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ForgotPassword(),
-                              ),
-                            );
+                            Get.toNamed("/forgotpassword");
                           },
                           child: Text(
                             'Forgot Password?',
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.red,
+                              color: Color(0xFFc71f37),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -196,30 +196,86 @@ class _VendorSignInState extends State<VendorSignIn> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () async {
-                            setState(() {
-                              isloading = true;
-                            });
+                            // ✅ VALIDATION FIRST
 
-                            final response = await auth.login(
-                              email: _emailController.text.trim(),
-                              password: _passwordController.text.trim(),
-                              role: "vendor",
-                            );
-
-                            setState(() {
-                              isloading = false;
-                            });
-
-                            if (response["status"] == true) {
-                              CustomSnackbar.showSuccess("Login successful!");
-
-                              await Future.delayed(const Duration(seconds: 1));
-
-                              Get.offAll(() => HomePage()); // ✅ only this
-                            } else {
+                            if (_emailController.text.trim().isEmpty) {
                               CustomSnackbar.showError(
-                                response["message"] ?? "Login failed",
+                                "Please enter your email or username",
                               );
+                              return;
+                            }
+
+                            // if (!GetUtils.isEmail(
+                            //   _emailController.text.trim(),
+                            // )) {
+                            //   CustomSnackbar.showError(
+                            //     "Please enter a valid email",
+                            //   );
+                            //   return;
+                            // }
+
+                            if (_passwordController.text.trim().isEmpty) {
+                              CustomSnackbar.showError(
+                                "Please enter your password",
+                              );
+                              return;
+                            }
+
+                            if (_passwordController.text.trim().length < 6) {
+                              CustomSnackbar.showError(
+                                "Password must be at least 6 characters",
+                              );
+                              return;
+                            }
+
+                            // ✅ Start loading AFTER validation
+                            if (mounted) {
+                              setState(() {
+                                isloading = true;
+                              });
+                            }
+
+                            try {
+                              final response = await auth.login(
+                                email: _emailController.text.trim(),
+                                password: _passwordController.text.trim(),
+                                role: "vendor",
+                              );
+
+                              if (!mounted) return;
+
+                              setState(() {
+                                isloading = false;
+                              });
+
+                              final bool isSuccess =
+                                  response["status"] == true ||
+                                  response["status"] == "success";
+
+                              if (isSuccess) {
+                                CustomSnackbar.showSuccess("Login successful!");
+
+                                await Future.delayed(
+                                  const Duration(seconds: 1),
+                                );
+
+                                Get.offAll(() => HomePage());
+                              } else {
+                                CustomSnackbar.showError(
+                                  response["message"] ?? "Login failed",
+                                );
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                setState(() {
+                                  isloading = false;
+                                });
+                              }
+
+                              CustomSnackbar.showError(
+                                "Something went wrong. Please try again.",
+                              );
+                              print("Vendor login error: $e");
                             }
                           },
 
@@ -253,8 +309,8 @@ class _VendorSignInState extends State<VendorSignIn> {
                             );
                           },
                           style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.red,
-                            side: BorderSide(color: Colors.red),
+                            foregroundColor: Color(0xFFc71f37),
+                            side: BorderSide(color: Color(0xFFc71f37)),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -275,10 +331,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                         children: [
                           Text(
                             'Don\'t have an account? ',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
-                            ),
+                            style: TextStyle(fontSize: 14, color: Colors.black),
                           ),
                           TextButton(
                             onPressed: () {
@@ -293,7 +346,7 @@ class _VendorSignInState extends State<VendorSignIn> {
                               'Sign Up',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.red,
+                                color: Color(0xFFc71f37),
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

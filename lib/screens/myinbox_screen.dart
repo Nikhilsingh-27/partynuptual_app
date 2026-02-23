@@ -63,7 +63,13 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Messages"), elevation: 0),
+      appBar: AppBar(
+        title: const Text(
+          "Messages",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        elevation: 0,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: isLoading
@@ -193,24 +199,21 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
           const SizedBox(width: 12),
 
           // Name & Email
-          InkWell(
-            onTap: openchat,
-            child: Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    vendorName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  vendorName,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          const Spacer(),
+
           // Remove button
           Padding(
             padding: const EdgeInsets.only(right: 12),

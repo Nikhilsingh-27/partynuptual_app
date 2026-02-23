@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/pagination.dart';
+
 import 'business_detail_page.dart';
 
 class SearchListingsPage extends StatefulWidget {
   final String categoryId;
   final String countryId;
   final String stateId;
-  final int totalPagesFromPrevious; // ✅ total pages passed from previous API call
+  final int
+  totalPagesFromPrevious; // ✅ total pages passed from previous API call
 
   const SearchListingsPage({
     super.key,
@@ -36,7 +37,8 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
   @override
   void initState() {
     super.initState();
-    totalpage = widget.totalPagesFromPrevious; // initialize total pages from previous API call
+    totalpage = widget
+        .totalPagesFromPrevious; // initialize total pages from previous API call
     fetchListings();
   }
 
@@ -57,7 +59,9 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
       );
 
       final newListings = response['data'] as List<dynamic>;
-      final totalPagesFromApi = response['pagination']?['total_pages'] ?? widget.totalPagesFromPrevious;
+      final totalPagesFromApi =
+          response['pagination']?['total_pages'] ??
+          widget.totalPagesFromPrevious;
 
       setState(() {
         totalpage = totalPagesFromApi;
@@ -76,8 +80,7 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
 
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
-    const String defaultImage =
-        "${baseUrl}public/front/assets/img/list-8.jpg";
+    const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
 
     if (logoPath == null || logoPath.trim().isEmpty) return defaultImage;
 
@@ -100,79 +103,78 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
         ),
         title: Text(
           'Listings',
-          style: TextStyle(
-            color: Colors.grey[900],
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
       body: check
           ? const Center(child: CircularProgressIndicator())
           : Stack(
-        children: [
-          ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              /// LISTINGS SECTION
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-                child: Column(
-                  children: listingList.map((listing) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: _buildListingCard(
-                        context: context,
-                        listingid: listing["listing_id"].toString(),
-                        image: getLogoImageUrl(listing['logo_image'] ?? ''),
-                        name: listing['company_name'] ?? '',
-                        description: listing['about'] ?? '',
-                        phone: listing['phone_number'] ?? '',
-                        location: listing['office_address'] ?? '',
-                        ownerid: listing['owner_id'].toString(),
+              children: [
+                ListView(
+                  padding: EdgeInsets.zero,
+                  children: [
+                    /// LISTINGS SECTION
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                      child: Column(
+                        children: listingList.map((listing) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _buildListingCard(
+                              context: context,
+                              listingid: listing["listing_id"].toString(),
+                              image: getLogoImageUrl(
+                                listing['logo_image'] ?? '',
+                              ),
+                              name: listing['company_name'] ?? '',
+                              description: listing['about'] ?? '',
+                              phone: listing['phone_number'] ?? '',
+                              location: listing['office_address'] ?? '',
+                              ownerid: listing['owner_id'].toString(),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                    );
-                  }).toList(),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// PAGINATION
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Pagination(
+                        currentPage: currentPage,
+                        totalPages: totalpage,
+                        onPageChanged: (page) {
+                          setState(() {
+                            currentPage = page;
+                            isPageChanging = true;
+                          });
+                          fetchListings(reset: true);
+                        },
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    /// BOTTOM SECTION
+                    BottomSection(),
+                  ],
                 ),
-              ),
 
-              const SizedBox(height: 20),
-
-              /// PAGINATION
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Pagination(
-                  currentPage: currentPage,
-                  totalPages: totalpage,
-                  onPageChanged: (page) {
-                    setState(() {
-                      currentPage = page;
-                      isPageChanging = true;
-                    });
-                    fetchListings(reset: true);
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 30),
-
-              /// BOTTOM SECTION
-              BottomSection(),
-            ],
-          ),
-
-          /// PAGE CHANGE LOADER
-          if (isPageChanging)
-            const Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(
-                color: Colors.red,
-                minHeight: 3,
-              ),
+                /// PAGE CHANGE LOADER
+                if (isPageChanging)
+                  const Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: LinearProgressIndicator(
+                      color: Colors.red,
+                      minHeight: 3,
+                    ),
+                  ),
+              ],
             ),
-        ],
-      ),
     );
   }
 }
@@ -244,10 +246,7 @@ Widget _buildListingCard({
                 description,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[700],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
               ),
               const SizedBox(height: 10),
               Row(
@@ -257,10 +256,7 @@ Widget _buildListingCard({
                   Expanded(
                     child: Text(
                       phone,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                     ),
                   ),
                 ],
@@ -275,10 +271,7 @@ Widget _buildListingCard({
                       location,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[700],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[700]),
                     ),
                   ),
                   ElevatedButton(
@@ -295,15 +288,15 @@ Widget _buildListingCard({
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    child: const Text(
-                      'View',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    child: const Text('View', style: TextStyle(fontSize: 12)),
                   ),
                 ],
               ),

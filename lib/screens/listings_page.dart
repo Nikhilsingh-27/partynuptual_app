@@ -91,10 +91,7 @@ class _ListingsPageState extends State<ListingsPage> {
         ),
         title: Text(
           'Listings',
-          style: TextStyle(
-            color: Colors.grey[900],
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
 

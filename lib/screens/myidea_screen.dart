@@ -130,7 +130,12 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("My Shared Ideas")),
+      appBar: AppBar(
+        title: const Text(
+          "My Shared Ideas",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: isloading
           ? const Center(child: CircularProgressIndicator())
           : listmyideas.isEmpty

@@ -119,7 +119,10 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            const Text("Share Your Party Idea"),
+            const Text(
+              "Share Your Party Idea",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
       ),
@@ -136,7 +139,14 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
                       ? const Center(child: CircularProgressIndicator())
                       : DropdownButtonFormField<String>(
                           value: selectedTheme,
-                          hint: const Text("Select Party Theme"),
+                          hint: const Text(
+                            "Select Party Theme",
+                            style: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+
                           items: partyThemes
                               .where((e) => e["id"] != "")
                               .map(
@@ -352,6 +362,7 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     return TextField(
       controller: controller,
       maxLines: maxLines,
+      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
       decoration: InputDecoration(
         hintText: hint,
         contentPadding: const EdgeInsets.symmetric(

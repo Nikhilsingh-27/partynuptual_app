@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:new_app/screens/widgets/bottom.dart';
-
-import 'package:new_app/screens/widgets/category_card.dart';
 import 'package:new_app/screens/listings_page.dart';
+import 'package:new_app/screens/widgets/bottom.dart';
+import 'package:new_app/screens/widgets/category_card.dart';
+
 import '../../controllers/home_controller.dart';
+
 class TopCategoryScreen extends StatefulWidget {
   const TopCategoryScreen({super.key});
 
@@ -108,56 +109,62 @@ class _TopCategoryScreenState extends State<TopCategoryScreen> {
     'Icons.church': Icons.church,
   };
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Hot & Trending Categories"),),
-      body:SingleChildScrollView(
+      appBar: AppBar(
+        title: Text(
+          "Hot & Trending Categories",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: SingleChildScrollView(
         child: Obx(() {
           final data = controller.homeData.value!.data;
-          final allcategory=data["data"]["categories_all"];
+          final allcategory = data["data"]["categories_all"];
           print(allcategory);
           return Column(
             children: [
-              Padding(padding: EdgeInsets.only(left: 15,right: 15),
-                  child:GridView.builder(
-                    shrinkWrap: true, // ✅ MUST
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: allcategory.length,
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                    ),
-                    itemBuilder: (context, index) {
-                      final category = allcategory[index];
+              Padding(
+                padding: EdgeInsets.only(left: 15, right: 15),
+                child: GridView.builder(
+                  shrinkWrap: true, // ✅ MUST
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: allcategory.length,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                  ),
+                  itemBuilder: (context, index) {
+                    final category = allcategory[index];
 
-                      return CategoryCard(
-                        icon: iconMap[category['app_icon']] ?? Icons.help_outline,
-                        name: category['category_name'],
-                        categoryId:int.parse(category['category_id']),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ListingsPage(
-                                categoryId: int.parse(category['category_id']), // ✅ pass id
-                              ),
+                    return CategoryCard(
+                      icon: iconMap[category['app_icon']] ?? Icons.help_outline,
+                      name: category['category_name'],
+                      categoryId: int.parse(category['category_id']),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ListingsPage(
+                              categoryId: int.parse(
+                                category['category_id'],
+                              ), // ✅ pass id
                             ),
-                          );
-                        },
-                      );
-                    },
-                  )
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
-              SizedBox(height: 20,),
+              SizedBox(height: 20),
               BottomSection(),
             ],
           );
-        })
-      )
+        }),
+      ),
     );
   }
 }

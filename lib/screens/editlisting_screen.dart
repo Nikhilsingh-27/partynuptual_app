@@ -325,12 +325,14 @@ class _EditListingScreenState extends State<EditListingScreen> {
       appBar: AppBar(
         title: Row(
           children: const [
-            Icon(Icons.note),
+            Icon(Icons.note, color: Color(0xFFc71f37)),
             SizedBox(width: 8),
-            Text("Edit Business Listing"),
+            Text(
+              "Edit Business Listing",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
-        backgroundColor: Colors.redAccent,
       ),
       body: Obx(() {
         final homeData = controller.homeData.value;
@@ -356,7 +358,13 @@ class _EditListingScreenState extends State<EditListingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Listing Category
-                  const Text("Listing Category"),
+                  const Text(
+                    "Listing Category",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   _buildDropdown<String>(
                     hint: 'Category',
@@ -382,44 +390,110 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   const SizedBox(height: 16),
 
                   // Company Name
-                  const Text("Company Name / Freelancer"),
+                  const Text(
+                    "Company Name / Freelancer",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: companyNameCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Company Name / Freelancer",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Email
-                  const Text("Email"),
+                  const Text(
+                    "Email",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: emailCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Email",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Phone
-                  const Text("Phone"),
+                  const Text(
+                    "Phone",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: phoneCtrl,
                     keyboardType: TextInputType.phone,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Phone",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Banner Image
-                  const Text("Banner Image"),
+                  const Text(
+                    "Banner Image",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,10 +501,17 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       ElevatedButton(
                         onPressed: pickBannerImage,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
+                          backgroundColor: Color(0xFFc71f37),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Choose file"),
+                        child: const Text(
+                          "Choose file",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
+
                       const SizedBox(height: 12),
 
                       /// 🔥 IMAGE PREVIEW
@@ -468,23 +549,63 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   const SizedBox(height: 16),
 
                   // Registered Office Address
-                  const Text("Registered Office Address"),
+                  const Text(
+                    "Registered Office Address",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: addressCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Registered Office Address",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text("Business Tag Line"),
+                  const Text(
+                    "Business Tag Line",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: tagLineCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Business Tag Line",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -505,12 +626,25 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   ElevatedButton(
                     onPressed: getCurrentLocation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: Color(0xFFc71f37),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text("Get Address On Map"),
+                    child: const Text(
+                      "Get Address On Map",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(height: 16),
-
+                  const Text(
+                    "Select Country",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   // Country
                   _buildDropdown<String>(
                     hint: 'Country',
@@ -540,7 +674,13 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   const SizedBox(height: 16),
 
                   // State
-                  const Text("Select State"),
+                  const Text(
+                    "Select State",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   _buildDropdown<String>(
                     hint: isStateLoading
@@ -574,70 +714,190 @@ class _EditListingScreenState extends State<EditListingScreen> {
                   const SizedBox(height: 16),
 
                   // Facebook
-                  const Text("Facebook"),
+                  const Text(
+                    "Facebook",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: facebookCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Facebook",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  const Text("Instagram"),
+                  const Text(
+                    "Instagram",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: instagramCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Instagram",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  const Text("Twitter"),
+                  const Text(
+                    "Twitter",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: twitterCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Twitter",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  const Text("Pinterest"),
+                  const Text(
+                    "Pinterest",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: pinterestCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Pinterest",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
-                  const Text("Video Link"),
+                  const Text(
+                    "Video Link",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: videoLinkCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Video Link",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
 
                   const SizedBox(height: 16),
                   // About Company
-                  const Text("About Your Company"),
+                  const Text(
+                    "About Your Company",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: descriptionCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     maxLines: 5,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Description",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -648,7 +908,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey.shade400),
+                        border: Border.all(color: Colors.black),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Column(
@@ -658,6 +918,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                             "Gallery Images",
                             style: TextStyle(
                               fontSize: 14,
+                              color: Colors.black,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -897,6 +1158,9 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 40,
                           vertical: 16,
@@ -937,7 +1201,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black54),
+        border: Border.all(color: Colors.black),
         borderRadius: BorderRadius.circular(6),
       ),
       child: DropdownButtonHideUnderline(
@@ -945,7 +1209,11 @@ class _EditListingScreenState extends State<EditListingScreen> {
           hint: Text(hint, style: const TextStyle(fontSize: 12)),
           value: value,
           isExpanded: true,
-          style: const TextStyle(fontSize: 12, color: Colors.black),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
           items: items,
           onChanged: onChanged,
         ),

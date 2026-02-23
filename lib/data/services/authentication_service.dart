@@ -78,6 +78,7 @@ class AuthenticationService {
         data: {"email": email},
         options: Options(contentType: Headers.jsonContentType),
       );
+      print(response.data);
       return response.data;
     } on DioException catch (e) {
       throw Exception(e.response?.data ?? "Not found");

@@ -65,7 +65,12 @@ class _ViewIdeasScreenState extends State<ViewIdeasScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Let Us Know How You Did Your Party")),
+      appBar: AppBar(
+        title: const Text(
+          "Let Us Know How You Did Your Party",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
       body: check
           ? const Center(child: CircularProgressIndicator())
           : Stack(

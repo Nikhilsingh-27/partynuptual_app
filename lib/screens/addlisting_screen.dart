@@ -165,9 +165,12 @@ class _AddListingScreenState extends State<AddListingScreen> {
       appBar: AppBar(
         title: Row(
           children: const [
-            Icon(Icons.note),
+            Icon(Icons.note, color: Color(0xFFe23744)),
             SizedBox(width: 8),
-            Text("Business Listing"),
+            Text(
+              "Business Listing",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         backgroundColor: Colors.white,
@@ -193,7 +196,13 @@ class _AddListingScreenState extends State<AddListingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Listing Category
-                  const Text("Listing Category"),
+                  const Text(
+                    "Listing Category",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   _buildDropdown<String>(
                     hint: 'Category',
@@ -219,78 +228,195 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const SizedBox(height: 16),
 
                   // Company Name
-                  const Text("Company Name / Freelancer"),
+                  const Text(
+                    "Company Name / Freelancer",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: companyNameCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
                       hintText: "Company Name / Freelancer",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Email
-                  const Text("Email"),
+                  const Text(
+                    "Email",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: emailCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Email",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Phone
-                  const Text("Phone"),
+                  const Text(
+                    "Phone",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: phoneCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     keyboardType: TextInputType.phone,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Phone",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
 
                   // Banner Image
-                  const Text("Banner Image"),
+                  const Text(
+                    "Banner Image",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
                       ElevatedButton(
                         onPressed: pickBannerImage,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.redAccent,
+                          backgroundColor: Color(0xFFc71f37),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Choose file"),
+                        child: const Text(
+                          "Choose file",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                       const SizedBox(width: 8),
-                      Text(bannerImage?.name ?? "No file chosen"),
+                      Text(
+                        bannerImage?.name ?? "No file chosen",
+                        style: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 16),
 
                   // Registered Office Address
-                  const Text("Registered Office Address"),
+                  const Text(
+                    "Registered Office Address",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: addressCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Registered Office Address",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text("Business Tag Line"),
+                  const Text(
+                    "Business Tag Line",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: tagLineCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Business Tag Line",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -311,12 +437,25 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   ElevatedButton(
                     onPressed: getCurrentLocation,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: Color(0xFFc71f37),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                    child: const Text("Get Address On Map"),
+                    child: const Text(
+                      "Get Address On Map",
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   const SizedBox(height: 16),
-
+                  const Text(
+                    "Select Country",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
                   // Country
                   _buildDropdown<String>(
                     hint: 'Country',
@@ -346,7 +485,13 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const SizedBox(height: 16),
 
                   // State
-                  const Text("Select State"),
+                  const Text(
+                    "Select State",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   _buildDropdown<String>(
                     hint: isStateLoading
@@ -381,14 +526,34 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   // Business Tag Line
 
                   // About Company
-                  const Text("About Your Company"),
+                  const Text(
+                    "About Your Company",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: descriptionCtrl,
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w400,
+                    ),
                     maxLines: 5,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                       hintText: "Description",
+                      hintStyle: TextStyle(color: Colors.black),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.black, width: 1),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.red, width: 1),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -501,7 +666,11 @@ class _AddListingScreenState extends State<AddListingScreen> {
                           horizontal: 40,
                           vertical: 16,
                         ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+
                       child: const Text(
                         "Save & Next",
                         style: TextStyle(color: Colors.white),
@@ -535,15 +704,22 @@ class _AddListingScreenState extends State<AddListingScreen> {
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black54),
+        border: Border.all(color: Colors.black),
         borderRadius: BorderRadius.circular(6),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          hint: Text(hint, style: const TextStyle(fontSize: 12)),
+          hint: Text(
+            hint,
+            style: const TextStyle(fontSize: 12, color: Colors.black),
+          ),
           value: value,
           isExpanded: true,
-          style: const TextStyle(fontSize: 12, color: Colors.black),
+          style: const TextStyle(
+            fontSize: 12,
+            color: Colors.black,
+            fontWeight: FontWeight.w600,
+          ),
           items: items,
           onChanged: onChanged,
         ),
