@@ -7,6 +7,7 @@ import 'package:new_app/screens/widgets/custom_snackbar.dart';
 class ReviewToVendor extends StatefulWidget {
   final String ownerId;
   final String listingId;
+
   const ReviewToVendor({
     Key? key,
     required this.ownerId,
@@ -27,73 +28,57 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
 
   int rating = 0;
 
+  bool nameError = false;
+  bool emailError = false;
+  bool phoneError = false;
+  bool reviewError = false;
+  bool ratingError = false;
+
   Future<void> submitReview() async {
+    setState(() {
+      nameError = nameCtrl.text.trim().isEmpty;
+      emailError =
+          emailCtrl.text.trim().isEmpty ||
+          !GetUtils.isEmail(emailCtrl.text.trim());
+      phoneError =
+          phoneCtrl.text.trim().isEmpty || phoneCtrl.text.trim().length < 10;
+      reviewError = reviewCtrl.text.trim().isEmpty;
+      ratingError = rating == 0;
+    });
+
+    if (nameError || emailError || phoneError || reviewError || ratingError) {
+      CustomSnackbar.showError("All fields are required");
+      return;
+    }
+
+    if (auth.userId == null || auth.userId!.isEmpty) {
+      CustomSnackbar.showError("User not logged in");
+      return;
+    }
+
     try {
-      print("Name: ${nameCtrl.text}");
-      print("Email: ${emailCtrl.text}");
-      print("Phone: ${phoneCtrl.text}");
-      print("Rating: $rating");
-      print("Review: ${reviewCtrl.text}");
-      if (nameCtrl.text.trim().isEmpty) {
-        CustomSnackbar.showError("Please enter your name");
-        return;
-      }
-
-      if (emailCtrl.text.trim().isEmpty) {
-        CustomSnackbar.showError("Please enter your email");
-        return;
-      }
-
-      // simple email regex
-      if (!GetUtils.isEmail(emailCtrl.text.trim())) {
-        CustomSnackbar.showError("Please enter a valid email");
-        return;
-      }
-
-      if (phoneCtrl.text.trim().isEmpty) {
-        CustomSnackbar.showError("Please enter your phone number");
-        return;
-      }
-
-      if (phoneCtrl.text.trim().length < 10) {
-        CustomSnackbar.showError("Please enter valid phone number");
-        return;
-      }
-
-      if (rating == 0) {
-        CustomSnackbar.showError("Please give a rating");
-        return;
-      }
-
-      if (reviewCtrl.text.trim().isEmpty) {
-        CustomSnackbar.showError("Please write a review");
-        return;
-      }
-
-      if (auth.userId == null || auth.userId!.isEmpty) {
-        CustomSnackbar.showError("User not logged in");
-        return;
-      }
       final response = await ProfileService().addReviewFun(
         vendorId: widget.ownerId,
         listingId: widget.listingId,
         rating: rating.toString(),
-        review: reviewCtrl.text,
-        name: nameCtrl.text,
-        email: emailCtrl.text,
-        phone: phoneCtrl.text,
+        review: reviewCtrl.text.trim(),
+        name: nameCtrl.text.trim(),
+        email: emailCtrl.text.trim(),
+        phone: phoneCtrl.text.trim(),
         userId: auth.userId ?? '',
       );
 
       if (response['status'] == 'success') {
         CustomSnackbar.showSuccess("Review submitted successfully");
 
-        // Optional: clear fields
         nameCtrl.clear();
         emailCtrl.clear();
         phoneCtrl.clear();
         reviewCtrl.clear();
-        rating = 0;
+
+        setState(() {
+          rating = 0;
+        });
       } else {
         CustomSnackbar.showError(response['message'] ?? "Something went wrong");
       }
@@ -107,6 +92,7 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
       onTap: () {
         setState(() {
           rating = index + 1;
+          ratingError = false;
         });
       },
       child: Icon(
@@ -134,13 +120,28 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
           ),
           const SizedBox(height: 16),
 
-          _input(nameCtrl, "Your Name"),
+          _input(
+            nameCtrl,
+            "Your Name",
+            nameError,
+            errorText: "Please enter your name",
+          ),
           const SizedBox(height: 12),
 
-          _input(emailCtrl, "Your Email"),
+          _input(
+            emailCtrl,
+            "Your Email",
+            emailError,
+            errorText: "Please enter valid email",
+          ),
           const SizedBox(height: 12),
 
-          _input(phoneCtrl, "Your Phone"),
+          _input(
+            phoneCtrl,
+            "Your Phone",
+            phoneError,
+            errorText: "Please enter valid phone number",
+          ),
           const SizedBox(height: 16),
 
           const Text(
@@ -151,9 +152,24 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
 
           Row(children: List.generate(5, (index) => _star(index))),
 
+          if (ratingError)
+            const Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: Text(
+                "Please give a rating",
+                style: TextStyle(color: Colors.red, fontSize: 12),
+              ),
+            ),
+
           const SizedBox(height: 16),
 
-          _input(reviewCtrl, "Leave your review here", maxLines: 4),
+          _input(
+            reviewCtrl,
+            "Leave your review here",
+            reviewError,
+            maxLines: 4,
+            errorText: "Please write a review",
+          ),
 
           const SizedBox(height: 20),
 
@@ -168,7 +184,7 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFc71f37),
+                backgroundColor: const Color(0xFFc71f37),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -182,35 +198,63 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
 
   Widget _input(
     TextEditingController controller,
-    String hint, {
+    String hint,
+    bool hasError, {
     int maxLines = 1,
+    String? errorText,
   }) {
-    return TextField(
-      controller: controller,
-      maxLines: maxLines,
-      style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w400),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: const TextStyle(color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+          ),
+          onChanged: (_) {
+            setState(() {});
+          },
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Colors.black),
 
-        // Normal Border
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black, width: 1),
-        ),
+            suffixIcon: hasError
+                ? const Icon(Icons.error_outline, color: Colors.red)
+                : null,
 
-        // Focused Border
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black, width: 1),
-        ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : Colors.black,
+                width: 1,
+              ),
+            ),
 
-        // Error Border (optional)
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.red, width: 1),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: hasError ? Colors.red : Colors.black,
+                width: 1,
+              ),
+            ),
+
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
+            ),
+          ),
         ),
-      ),
+        if (hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              errorText ?? "",
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 }

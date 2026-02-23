@@ -97,6 +97,17 @@ class _AddListingScreenState extends State<AddListingScreen> {
   final TextEditingController tagLineCtrl = TextEditingController();
   final TextEditingController descriptionCtrl = TextEditingController();
 
+  bool showCategoryError = false;
+  bool showCompanyError = false;
+  bool showEmailError = false;
+  bool showPhoneError = false;
+  bool showBannerError = false;
+  bool showAddressError = false;
+  bool showTaglineError = false;
+  bool showCountryError = false;
+  bool showStateError = false;
+  bool showDescriptionError = false;
+
   // String? selectedCategory;
   String selectedCountry = "India";
   // String? selectedState;
@@ -211,9 +222,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       category,
                     ) {
                       return DropdownMenuItem<String>(
-                        value: category['category_id'].toString(), // ✅ ID
+                        value: category['category_id'].toString(),
                         child: Text(
-                          category['category_name'], // ✅ Name
+                          category['category_name'],
                           style: const TextStyle(fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -222,8 +233,11 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     onChanged: (value) {
                       setState(() {
                         selectedCategoryId = value;
+                        showCategoryError = false; // remove error on select
                       });
                     },
+                    showError: showCategoryError,
+                    errorText: "The Listing Category field is required.",
                   ),
                   const SizedBox(height: 16),
 
@@ -231,10 +245,11 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const Text(
                     "Company Name / Freelancer",
                     style: TextStyle(
-                      color: Colors.black,
                       fontWeight: FontWeight.w500,
+                      color: Colors.black,
                     ),
                   ),
+
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: companyNameCtrl,
@@ -242,18 +257,62 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: "Company Name / Freelancer",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showCompanyError
+                              ? Colors.red.withOpacity(
+                                  0.6,
+                                ) // soft transparent red
+                              : Colors.black,
+                          width: showCompanyError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showCompanyError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showCompanyError ? 2 : 1,
+                        ),
                       ),
+
                       errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red.withOpacity(0.8),
+                          width: 2,
+                        ),
                       ),
+
+                      focusedErrorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red.withOpacity(0.9),
+                          width: 2,
+                        ),
+                      ),
+
+                      suffixIcon: showCompanyError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -273,19 +332,44 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
                       hintText: "Email",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showEmailError
+                              ? Colors.red.withOpacity(0.6)
+                              : Colors.black,
+                          width: showEmailError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showEmailError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showEmailError ? 2 : 1,
+                        ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
+
+                      suffixIcon: showEmailError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -301,24 +385,49 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: phoneCtrl,
+                    keyboardType: TextInputType.phone,
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
                       hintText: "Phone",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showPhoneError
+                              ? Colors.red.withOpacity(0.6)
+                              : Colors.black,
+                          width: showPhoneError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showPhoneError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showPhoneError ? 2 : 1,
+                        ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
+
+                      suffixIcon: showPhoneError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -332,29 +441,55 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ElevatedButton(
-                        onPressed: pickBannerImage,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFc71f37),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                showBannerError =
+                                    false; // remove error when clicking
+                              });
+                              pickBannerImage();
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFc71f37),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: const Text(
+                              "Choose file",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              bannerImage?.name ?? "No file chosen",
+                              style: const TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      /// 🔴 SHOW ERROR ONLY WHEN SUBMIT PRESSED
+                      if (showBannerError)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 6, left: 4),
+                          child: Text(
+                            "Banner Image is required.",
+                            style: TextStyle(color: Colors.red, fontSize: 12),
                           ),
                         ),
-                        child: const Text(
-                          "Choose file",
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        bannerImage?.name ?? "No file chosen",
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
+
+                      const SizedBox(height: 16),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -374,19 +509,44 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
                       hintText: "Registered Office Address",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showAddressError
+                              ? Colors.red.withOpacity(0.6)
+                              : Colors.black,
+                          width: showAddressError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showAddressError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showAddressError ? 2 : 1,
+                        ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
+
+                      suffixIcon: showAddressError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -404,19 +564,44 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
                       hintText: "Business Tag Line",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showTaglineError
+                              ? Colors.red.withOpacity(0.6)
+                              : Colors.black,
+                          width: showTaglineError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showTaglineError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showTaglineError ? 2 : 1,
+                        ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
+
+                      suffixIcon: showTaglineError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -462,9 +647,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     value: selectedCountryId,
                     items: countries.map<DropdownMenuItem<String>>((country) {
                       return DropdownMenuItem<String>(
-                        value: country['country_id'].toString(), // ✅ ID
+                        value: country['country_id'].toString(),
                         child: Text(
-                          country['name'], // ✅ Name
+                          country['name'],
                           style: const TextStyle(fontSize: 12),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -472,15 +657,18 @@ class _AddListingScreenState extends State<AddListingScreen> {
                     }).toList(),
                     onChanged: (value) {
                       if (value == null) return;
+
                       setState(() {
                         selectedCountryId = value;
-                        selectedState =
-                            null; // reset state when country changes
+                        showCountryError = false;
+                        selectedStateId = null;
                         stateList.clear();
                       });
 
                       fetchStates(int.parse(value));
                     },
+                    showError: showCountryError,
+                    errorText: "The Country field is required.",
                   ),
                   const SizedBox(height: 16),
 
@@ -518,8 +706,14 @@ class _AddListingScreenState extends State<AddListingScreen> {
                         : (String? value) {
                             setState(() {
                               selectedStateId = value;
+                              showStateError =
+                                  false; // remove error when selected
                             });
                           },
+
+                    /// 👇 JUST ADD THESE TWO
+                    showError: showStateError,
+                    errorText: "The State field is required.",
                   ),
                   const SizedBox(height: 16),
 
@@ -536,24 +730,49 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   const SizedBox(height: 8),
                   TextFormField(
                     controller: descriptionCtrl,
+                    maxLines: 5,
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.w400,
                     ),
-                    maxLines: 5,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
                       hintText: "Description",
-                      hintStyle: TextStyle(color: Colors.black),
+                      hintStyle: const TextStyle(color: Colors.black),
+
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showDescriptionError
+                              ? Colors.red.withOpacity(0.6)
+                              : Colors.black,
+                          width: showDescriptionError ? 1.5 : 1,
+                        ),
                       ),
+
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.black, width: 1),
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: showDescriptionError
+                              ? Colors.red.withOpacity(0.8)
+                              : Colors.black,
+                          width: showDescriptionError ? 2 : 1,
+                        ),
                       ),
-                      errorBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.red, width: 1),
-                      ),
+
+                      suffixIcon: showDescriptionError
+                          ? Container(
+                              margin: const EdgeInsets.all(10),
+                              decoration: const BoxDecoration(
+                                color: Colors.red,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.error_outline,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -562,9 +781,41 @@ class _AddListingScreenState extends State<AddListingScreen> {
                   Center(
                     child: ElevatedButton(
                       onPressed: () async {
+                        setState(() {
+                          showCategoryError = selectedCategoryId == null;
+                          showCountryError = selectedCountryId == null;
+                          showStateError = selectedStateId == null;
+                          showBannerError = bannerImage == null;
+                          showDescriptionError = descriptionCtrl.text
+                              .trim()
+                              .isEmpty;
+                          showCompanyError = companyNameCtrl.text
+                              .trim()
+                              .isEmpty;
+                          showEmailError = emailCtrl.text.trim().isEmpty;
+                          showPhoneError = phoneCtrl.text.trim().isEmpty;
+                          showTaglineError = tagLineCtrl.text.trim().isEmpty;
+                          showAddressError = addressCtrl.text.trim().isEmpty;
+                        });
+
+                        if (showCategoryError ||
+                            showCountryError ||
+                            showStateError ||
+                            showBannerError ||
+                            showDescriptionError ||
+                            showCompanyError ||
+                            showEmailError ||
+                            showPhoneError ||
+                            showTaglineError ||
+                            showAddressError) {
+                          CustomSnackbar.showError(
+                            "Please fill all required fields",
+                          );
+                          return;
+                        }
                         final selectedstate = stateList.firstWhere(
                           (c) => c['state_id'].toString() == selectedStateId,
-                          orElse: () => null,
+                          orElse: () => {},
                         );
                         String email = emailCtrl.text.trim();
                         String phone = phoneCtrl.text.trim();
@@ -575,24 +826,28 @@ class _AddListingScreenState extends State<AddListingScreen> {
                         bool isPhoneValid = RegExp(
                           r'^\+?[0-9]{7,16}$',
                         ).hasMatch(phone);
-                        if (selectedCategoryId == null ||
-                            selectedCountryId == null ||
-                            selectedStateId == null ||
-                            bannerImage == null ||
-                            descriptionCtrl.text.trim().isEmpty ||
-                            companyNameCtrl.text.trim().isEmpty ||
-                            emailCtrl.text.trim().isEmpty ||
-                            phoneCtrl.text.trim().isEmpty ||
-                            tagLineCtrl.text.trim().isEmpty ||
-                            addressCtrl.text.trim().isEmpty) {
-                          CustomSnackbar.showError(
-                            "Please fill all required fields",
-                          );
-                          return;
-                        } else if (!isEmailValid) {
+                        // if (selectedCategoryId == null ||
+                        //     selectedCountryId == null ||
+                        //     selectedStateId == null ||
+                        //     bannerImage == null ||
+                        //     descriptionCtrl.text.trim().isEmpty ||
+                        //     companyNameCtrl.text.trim().isEmpty ||
+                        //     emailCtrl.text.trim().isEmpty ||
+                        //     phoneCtrl.text.trim().isEmpty ||
+                        //     tagLineCtrl.text.trim().isEmpty ||
+                        //     addressCtrl.text.trim().isEmpty) {
+                        //   CustomSnackbar.showError(
+                        //     "Please fill all required fields",
+                        //   );
+                        //   return;
+                        // } else
+                        if (!isEmailValid) {
                           CustomSnackbar.showError(
                             "Please enter a valid email address",
                           );
+                          setState(() {
+                            showEmailError = true;
+                          });
                           return;
                         } else if (!isPhoneValid) {
                           CustomSnackbar.showError(
@@ -699,31 +954,51 @@ class _AddListingScreenState extends State<AddListingScreen> {
     required T? value,
     required List<DropdownMenuItem<T>> items,
     ValueChanged<T?>? onChanged,
+    bool showError = false,
+    String errorText = '',
   }) {
-    return Container(
-      height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<T>(
-          hint: Text(
-            hint,
-            style: const TextStyle(fontSize: 12, color: Colors.black),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 45,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: showError ? Colors.red : Colors.black,
+              width: showError ? 1.5 : 1,
+            ),
           ),
-          value: value,
-          isExpanded: true,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.black,
-            fontWeight: FontWeight.w600,
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<T>(
+              hint: Text(
+                hint,
+                style: const TextStyle(fontSize: 12, color: Colors.black),
+              ),
+              value: value,
+              isExpanded: true,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.black,
+                fontWeight: FontWeight.w600,
+              ),
+              items: items,
+              onChanged: onChanged,
+            ),
           ),
-          items: items,
-          onChanged: onChanged,
         ),
-      ),
+
+        /// 🔴 Error Message
+        if (showError)
+          Padding(
+            padding: const EdgeInsets.only(top: 6, left: 4),
+            child: Text(
+              errorText,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+      ],
     );
   }
 }

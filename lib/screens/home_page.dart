@@ -230,10 +230,13 @@ class _HomePageState extends State<HomePage> {
               if (role.contains('vendor') || role.contains('guest'))
                 ProfileDropdownTile(),
               ListTile(
-                leading: const Icon(Icons.home),
+                leading: const Icon(Icons.home, color: Colors.black),
                 title: const Text(
                   "Home",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/home");
@@ -241,27 +244,33 @@ class _HomePageState extends State<HomePage> {
               ),
 
               ListTile(
-                leading: const Icon(Icons.info_outline),
+                leading: const Icon(Icons.info_outline, color: Colors.black),
                 title: const Text(
                   "About Us",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/about");
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.article),
+                leading: const Icon(Icons.article, color: Colors.black),
                 title: const Text(
                   "Blogs",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/blogs");
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.apps),
+                leading: const Icon(Icons.apps, color: Colors.black),
                 title: const Text(
                   "Our Top Categories",
                   style: TextStyle(
@@ -274,10 +283,13 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.mail),
+                leading: const Icon(Icons.mail, color: Colors.black),
                 title: const Text(
                   "Contact Us",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/contactus");
@@ -292,10 +304,13 @@ class _HomePageState extends State<HomePage> {
               //     }
               // ),
               ListTile(
-                leading: const Icon(Icons.videocam),
+                leading: const Icon(Icons.videocam, color: Colors.black),
                 title: const Text(
                   "Our Videos",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
                 onTap: () {
                   Get.toNamed("/ourvideo");
@@ -305,10 +320,13 @@ class _HomePageState extends State<HomePage> {
                 SignInDropdown(),
                 SignUpDropdown(),
                 ListTile(
-                  leading: const Icon(Icons.lock_outline),
+                  leading: const Icon(Icons.lock_outline, color: Colors.black),
                   title: const Text(
                     "Forgot Password",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
                   onTap: () {
                     Get.toNamed("/forgotpassword");

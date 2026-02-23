@@ -78,8 +78,20 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     return ListTile(
       dense: true,
       contentPadding: const EdgeInsets.only(left: 72, right: 16),
-      leading: Icon(icon, size: 20),
-      title: Text(title, style: const TextStyle(fontSize: 14)),
+      leading: Icon(
+        icon,
+        size: 20,
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 14,
+          color: Colors.black,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       onTap:
           onTap ??
           () {
@@ -103,14 +115,17 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
         children: [
           // MAIN TILE
           ListTile(
-            leading: const Icon(Icons.person_outline),
+            leading: const Icon(Icons.person_outline, color: Colors.black),
             title: Text(
               auth.username ?? "Guest",
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
             ),
             trailing: RotationTransition(
               turns: _arrowRotation,
-              child: const Icon(Icons.keyboard_arrow_down),
+              child: const Icon(Icons.keyboard_arrow_down, color: Colors.black),
             ),
             onTap: toggleDropdown,
           ),

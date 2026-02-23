@@ -22,6 +22,13 @@ class BusinessDetailPage extends StatefulWidget {
 }
 
 class _BusinessDetailPageState extends State<BusinessDetailPage> {
+  // 🔴 Inquiry Form Errors
+  bool showNameError = false;
+  bool showEmailError = false;
+  bool showPhoneError = false;
+  bool showCommentError = false;
+  bool showEmailFormatError = false;
+  bool showPhoneLengthError = false;
   final TextEditingController nameCtrl = TextEditingController();
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController phoneCtrl = TextEditingController();
@@ -302,65 +309,108 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                   ),
                                 ),
                                 const SizedBox(height: 16),
-                                _input(nameCtrl, "Your Name"),
+
+                                _input(
+                                  nameCtrl,
+                                  "Your Name",
+                                  showError: showNameError,
+                                  errorText: "Name is required",
+                                  onChanged: (val) {
+                                    if (val.trim().isNotEmpty) {
+                                      setState(() => showNameError = false);
+                                    }
+                                  },
+                                ),
                                 const SizedBox(height: 12),
-                                _input(emailCtrl, "Your Email"),
+
+                                _input(
+                                  emailCtrl,
+                                  "Your Email",
+                                  showError:
+                                      showEmailError || showEmailFormatError,
+                                  errorText: showEmailFormatError
+                                      ? "Enter valid email"
+                                      : "Email is required",
+                                  onChanged: (val) {
+                                    setState(() {
+                                      showEmailError = false;
+                                      showEmailFormatError = false;
+                                    });
+                                  },
+                                ),
                                 const SizedBox(height: 12),
-                                _input(phoneCtrl, "Your Phone"),
+
+                                _input(
+                                  phoneCtrl,
+                                  "Your Phone",
+                                  showError:
+                                      showPhoneError || showPhoneLengthError,
+                                  errorText: showPhoneLengthError
+                                      ? "Enter valid phone number"
+                                      : "Phone is required",
+                                  onChanged: (val) {
+                                    setState(() {
+                                      showPhoneError = false;
+                                      showPhoneLengthError = false;
+                                    });
+                                  },
+                                ),
                                 const SizedBox(height: 12),
+
                                 _input(
                                   commentCtrl,
                                   "Leave a comment",
                                   maxLines: 4,
+                                  showError: showCommentError,
+                                  errorText: "Message is required",
+                                  onChanged: (val) {
+                                    if (val.trim().isNotEmpty) {
+                                      setState(() => showCommentError = false);
+                                    }
+                                  },
                                 ),
+
                                 const SizedBox(height: 16),
+
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton.icon(
                                     onPressed: () async {
-                                      if (nameCtrl.text.trim().isEmpty) {
+                                      setState(() {
+                                        showNameError = nameCtrl.text
+                                            .trim()
+                                            .isEmpty;
+                                        showEmailError = emailCtrl.text
+                                            .trim()
+                                            .isEmpty;
+                                        showEmailFormatError =
+                                            emailCtrl.text.isNotEmpty &&
+                                            !GetUtils.isEmail(
+                                              emailCtrl.text.trim(),
+                                            );
+                                        showPhoneError = phoneCtrl.text
+                                            .trim()
+                                            .isEmpty;
+                                        showPhoneLengthError =
+                                            phoneCtrl.text.isNotEmpty &&
+                                            phoneCtrl.text.trim().length < 6;
+                                        showCommentError = commentCtrl.text
+                                            .trim()
+                                            .isEmpty;
+                                      });
+
+                                      if (showNameError ||
+                                          showEmailError ||
+                                          showEmailFormatError ||
+                                          showPhoneError ||
+                                          showPhoneLengthError ||
+                                          showCommentError) {
                                         CustomSnackbar.showError(
-                                          "Please enter your name",
+                                          "All fields are required",
                                         );
                                         return;
                                       }
 
-                                      if (emailCtrl.text.trim().isEmpty) {
-                                        CustomSnackbar.showError(
-                                          "Please enter your email",
-                                        );
-                                        return;
-                                      }
-
-                                      if (!GetUtils.isEmail(
-                                        emailCtrl.text.trim(),
-                                      )) {
-                                        CustomSnackbar.showError(
-                                          "Please enter a valid email",
-                                        );
-                                        return;
-                                      }
-
-                                      if (phoneCtrl.text.trim().isEmpty) {
-                                        CustomSnackbar.showError(
-                                          "Please enter your phone number",
-                                        );
-                                        return;
-                                      }
-
-                                      if (phoneCtrl.text.trim().length < 6) {
-                                        CustomSnackbar.showError(
-                                          "Please enter valid phone number",
-                                        );
-                                        return;
-                                      }
-
-                                      if (commentCtrl.text.trim().isEmpty) {
-                                        CustomSnackbar.showError(
-                                          "Please write your message",
-                                        );
-                                        return;
-                                      }
                                       final response = await ProfileService()
                                           .sendinquiry(
                                             name: nameCtrl.text.trim(),
@@ -379,7 +429,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                         CustomSnackbar.showSuccess(
                                           "Inquiry sent successfully",
                                         );
-                                        // Optional: clear fields after success
+
                                         nameCtrl.clear();
                                         emailCtrl.clear();
                                         phoneCtrl.clear();
@@ -391,7 +441,6 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                         );
                                       }
                                     },
-
                                     icon: const Icon(
                                       Icons.send,
                                       color: Colors.white,
@@ -401,8 +450,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                       style: TextStyle(color: Colors.white),
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFFc71f37),
-
+                                      backgroundColor: const Color(0xFFc71f37),
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 14,
                                       ),
@@ -452,35 +500,56 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
     ],
   );
 
-  Widget _input(TextEditingController c, String label, {int maxLines = 1}) =>
-      TextField(
-        controller: c,
-        maxLines: maxLines,
-        style: const TextStyle(
-          color: Colors.black,
-          fontWeight: FontWeight.w400,
+  Widget _input(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 1,
+    bool showError = false,
+    String? errorText,
+    required Function(String) onChanged,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        TextField(
+          controller: controller,
+          maxLines: maxLines,
+          onChanged: onChanged,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.w400,
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+
+            suffixIcon: showError
+                ? const Icon(Icons.error_outline, color: Colors.red)
+                : null,
+
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: showError ? Colors.red : Colors.black,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(
+                color: showError ? Colors.red : Colors.black,
+                width: 1.5,
+              ),
+            ),
+          ),
         ),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(color: Colors.black),
-
-          // Normal Border
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.black, width: 1),
+        if (showError && errorText != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 5, left: 4),
+            child: Text(
+              errorText,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
           ),
-
-          // Focused Border
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.black, width: 1),
-          ),
-
-          // Error Border (optional but recommended)
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: Colors.red, width: 1),
-          ),
-        ),
-      );
+      ],
+    );
+  }
 }

@@ -22,7 +22,9 @@ class _OurVideoScreenState extends State<OurVideoScreen> {
         isLoading = false;
       });
     } catch (e) {
-      isLoading = false;
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -41,46 +43,49 @@ class _OurVideoScreenState extends State<OurVideoScreen> {
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.only(left: 15),
-              child: Text(
-                "Watch the latest trending videos across all categories.",
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
-              ),
-            ),
 
-            Padding(
-              padding: const EdgeInsets.all(15),
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            mainAxisSpacing: 10,
-                            crossAxisSpacing: 10,
-                            childAspectRatio: 4 / 3, // 🔥 correct for video
-                          ),
-                      itemCount: allvideo.length,
-                      itemBuilder: (context, index) {
-                        return VideoCard(
-                          key: ValueKey(allvideo[index]),
-                          videoId: allvideo[index],
-                        );
-                      },
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : CustomScrollView(
+              slivers: [
+                /// 🔹 Top Text
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 15, top: 10),
+                    child: Text(
+                      "Watch the latest trending videos across all categories.",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
-            ),
+                  ),
+                ),
 
-            const BottomSection(),
-          ],
-        ),
-      ),
+                /// 🔹 Grid (Lazy Loaded = Smooth)
+                SliverPadding(
+                  padding: const EdgeInsets.all(15),
+                  sliver: SliverGrid(
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      return VideoCard(
+                        key: ValueKey(allvideo[index]),
+                        videoId: allvideo[index],
+                      );
+                    }, childCount: allvideo.length),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          mainAxisSpacing: 10,
+                          crossAxisSpacing: 10,
+                          childAspectRatio: 4 / 3,
+                        ),
+                  ),
+                ),
+
+                /// 🔹 Bottom Section
+                const SliverToBoxAdapter(child: BottomSection()),
+              ],
+            ),
     );
   }
 }

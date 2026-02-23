@@ -9,8 +9,7 @@ class SearchListingsPage extends StatefulWidget {
   final String categoryId;
   final String countryId;
   final String stateId;
-  final int
-  totalPagesFromPrevious; // ✅ total pages passed from previous API call
+  final int totalPagesFromPrevious;
 
   const SearchListingsPage({
     super.key,
@@ -37,8 +36,7 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
   @override
   void initState() {
     super.initState();
-    totalpage = widget
-        .totalPagesFromPrevious; // initialize total pages from previous API call
+    totalpage = widget.totalPagesFromPrevious;
     fetchListings();
   }
 
@@ -55,16 +53,17 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
         country_id: widget.countryId,
         state: widget.stateId,
         category: widget.categoryId,
-        page: currentPage.toString(), // send current page
+        page: currentPage.toString(),
       );
 
-      final newListings = response['data'] as List<dynamic>;
+      final newListings = response['data'] as List<dynamic>? ?? [];
       final totalPagesFromApi =
           response['pagination']?['total_pages'] ??
           widget.totalPagesFromPrevious;
 
       setState(() {
         totalpage = totalPagesFromApi;
+        listingList.clear();
         listingList.addAll(newListings);
         check = false;
       });
@@ -101,19 +100,32 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
           icon: Icon(Icons.arrow_back, color: Colors.grey[900]),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Listings',
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
         ),
       ),
       body: check
           ? const Center(child: CircularProgressIndicator())
+          : listingList.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.search_off, size: 60, color: Colors.grey[400]),
+                  const SizedBox(height: 12),
+                  const Text(
+                    "No Listings Found",
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ],
+              ),
+            )
           : Stack(
               children: [
                 ListView(
                   padding: EdgeInsets.zero,
                   children: [
-                    /// LISTINGS SECTION
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
                       child: Column(
@@ -136,10 +148,7 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
                         }).toList(),
                       ),
                     ),
-
                     const SizedBox(height: 20),
-
-                    /// PAGINATION
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Pagination(
@@ -154,15 +163,10 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
                         },
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
-                    /// BOTTOM SECTION
                     BottomSection(),
                   ],
                 ),
-
-                /// PAGE CHANGE LOADER
                 if (isPageChanging)
                   const Positioned(
                     top: 0,

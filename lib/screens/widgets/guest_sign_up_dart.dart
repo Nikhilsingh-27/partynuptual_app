@@ -13,56 +13,65 @@ class GuestSignUp extends StatefulWidget {
 }
 
 class _GuestSignUpState extends State<GuestSignUp> {
-  bool _obscurePassword = true;
-  bool _agreeToTerms = false;
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _agreeToTerms = false;
+  bool isloading = false;
+
+  bool usernameError = false;
+  bool emailError = false;
+  bool passwordError = false;
+  bool confirmPasswordError = false;
+  bool termsError = false;
 
   Timer? _debounce;
-  bool? _isUsernameAvailable; // null = not checked yet
+  bool? _isUsernameAvailable;
   bool _isCheckingUsername = false;
 
-  bool isloading = false;
   @override
   void dispose() {
     _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     _debounce?.cancel();
     super.dispose();
   }
 
-  void _onSearchChanged(String value) {
-    // cancel previous timer
+  /// ================= USERNAME CHECK =================
+  void _onUsernameChanged(String value) {
     if (_debounce?.isActive ?? false) _debounce!.cancel();
 
+    setState(() {
+      usernameError = false;
+    });
+
     _debounce = Timer(const Duration(milliseconds: 500), () {
-      // 👇 this runs when user stops typing
-      print("User stopped typing: $value");
-      searchApi(value);
+      _checkUsername(value);
     });
   }
 
-  void searchApi(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        _isUsernameAvailable = null;
-      });
+  Future<void> _checkUsername(String username) async {
+    if (username.isEmpty) {
+      setState(() => _isUsernameAvailable = null);
       return;
     }
 
-    setState(() {
-      _isCheckingUsername = true;
-    });
+    setState(() => _isCheckingUsername = true);
 
     try {
       final response = await AuthenticationService().checkusername(
-        username: query,
+        username: username,
       );
 
       setState(() {
-        _isUsernameAvailable = response["available"]; // true or false
+        _isUsernameAvailable = response["available"];
         _isCheckingUsername = false;
       });
     } catch (e) {
@@ -73,223 +82,253 @@ class _GuestSignUpState extends State<GuestSignUp> {
     }
   }
 
-  void signup(
-    String username,
-    String email,
-    String password,
-    String role,
-  ) async {
+  /// ================= SIGNUP LOGIC =================
+  Future<void> _handleSignup() async {
+    final username = _usernameController.text.trim();
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+    final confirmPassword = _confirmPasswordController.text.trim();
+
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+
+    /// Reset errors first
     setState(() {
-      isloading = true;
+      usernameError = false;
+      emailError = false;
+      passwordError = false;
+      confirmPasswordError = false;
+      termsError = false;
     });
-    final response = await AuthenticationService().signup(
-      username: username,
-      email: email,
-      password: password,
-      role: role,
-    );
-    isloading = false;
 
-    if (response["message"] == "Email already registered") {
-      Get.toNamed("/home");
+    /// ========== FIELD VALIDATIONS (STEP BY STEP PRIORITY) ==========
+
+    if (username.isEmpty) {
+      setState(() => usernameError = true);
+      CustomSnackbar.showError("Username is required");
+      return;
+    }
+
+    if (_isCheckingUsername) {
       CustomSnackbar.showError(
-        response["message"] ?? "Email already registered",
+        "Please wait while we check username availability",
       );
-    } else {
-      Get.toNamed("/home");
+      return;
+    }
 
-      CustomSnackbar.showSuccess(
-        "Signup Successful 🎉\nPlease verify your email",
+    if (_isUsernameAvailable == false) {
+      setState(() => usernameError = true);
+      CustomSnackbar.showError("This username is already taken. Try another.");
+      return;
+    }
+
+    if (email.isEmpty) {
+      setState(() => emailError = true);
+      CustomSnackbar.showError("Email address is required");
+      return;
+    }
+
+    if (!emailRegex.hasMatch(email)) {
+      setState(() => emailError = true);
+      CustomSnackbar.showError("Please enter a valid email address");
+      return;
+    }
+
+    if (password.isEmpty) {
+      setState(() => passwordError = true);
+      CustomSnackbar.showError("Password is required");
+      return;
+    }
+
+    if (password.length < 6) {
+      setState(() => passwordError = true);
+      CustomSnackbar.showError("Password must be at least 6 characters long");
+      return;
+    }
+
+    if (confirmPassword.isEmpty) {
+      setState(() => confirmPasswordError = true);
+      CustomSnackbar.showError("Please confirm your password");
+      return;
+    }
+
+    if (confirmPassword != password) {
+      setState(() => confirmPasswordError = true);
+      CustomSnackbar.showError("Passwords do not match");
+      return;
+    }
+
+    if (!_agreeToTerms) {
+      setState(() => termsError = true);
+      CustomSnackbar.showError(
+        "You must accept Terms & Conditions to continue",
+      );
+      return;
+    }
+
+    /// ========== API CALL STARTS ==========
+    setState(() => isloading = true);
+
+    try {
+      final response = await AuthenticationService().signup(
+        username: username,
+        email: email,
+        password: password,
+        role: "guest",
+      );
+
+      setState(() => isloading = false);
+
+      final bool isSuccess =
+          response["status"] == true || response["status"] == "success";
+
+      if (isSuccess) {
+        CustomSnackbar.showSuccessSlow(
+          "Account created successfully 🎉\nPlease verify your email to continue.",
+        );
+
+        await Future.delayed(const Duration(seconds: 1));
+        Get.offAllNamed("/home");
+        return;
+      }
+
+      /// Handle known backend messages
+      final message = response["message"]?.toString() ?? "";
+
+      if (message.contains("Email already registered")) {
+        setState(() => emailError = true);
+        CustomSnackbar.showError(
+          "This email is already registered. Please login instead.",
+        );
+      } else if (message.contains("Username")) {
+        setState(() => usernameError = true);
+        CustomSnackbar.showError(message);
+      } else {
+        CustomSnackbar.showError(
+          message.isNotEmpty ? message : "Signup failed. Please try again.",
+        );
+      }
+    } catch (e) {
+      setState(() => isloading = false);
+
+      CustomSnackbar.showError(
+        "Network error. Please check your connection and try again.",
       );
     }
   }
 
+  /// ================= UI =================
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black),
         title: Text(
-          'Sign UP',
+          'Sign Up',
           style: TextStyle(
             color: Colors.grey[900],
             fontWeight: FontWeight.bold,
           ),
         ),
       ),
-
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: Stack(
-            children: [
-              SingleChildScrollView(
+      body: Stack(
+        children: [
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              child: Container(
                 padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Guest Sign Up',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[900],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Create your account.',
-                      style: TextStyle(fontSize: 16, color: Colors.black),
-                    ),
-                    const SizedBox(height: 40),
-                    Align(
-                      alignment: Alignment.centerLeft,
+                    const Center(
                       child: Text(
-                        'User Name',
+                        "Guest Sign Up",
                         style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    const SizedBox(height: 30),
+
+                    /// USERNAME
+                    _buildTextField(
+                      label: "Username",
                       controller: _usernameController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-
-                        // 👇 suffix icon (loader / check / cross)
-                        suffixIcon: _isCheckingUsername
-                            ? const Padding(
-                                padding: EdgeInsets.all(12),
-                                child: SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
+                      error: usernameError,
+                      onChanged: _onUsernameChanged,
+                      suffix: _isCheckingUsername
+                          ? const Padding(
+                              padding: EdgeInsets.all(12),
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                              )
-                            : _isUsernameAvailable == null
-                            ? null
-                            : Icon(
-                                _isUsernameAvailable!
-                                    ? Icons.check_circle
-                                    : Icons.cancel,
-                                color: _isUsernameAvailable!
-                                    ? Colors.green
-                                    : Colors.red,
                               ),
-                      ),
+                            )
+                          : _isUsernameAvailable == null
+                          ? null
+                          : Icon(
+                              _isUsernameAvailable!
+                                  ? Icons.check_circle
+                                  : Icons.cancel,
+                              color: _isUsernameAvailable!
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
                     ),
 
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Your email',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                    /// EMAIL
+                    _buildTextField(
+                      label: "Email",
                       controller: _emailController,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                      ),
+                      error: emailError,
                     ),
-                    const SizedBox(height: 20),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Password',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: Colors.black,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+
+                    /// PASSWORD
+                    _buildTextField(
+                      label: "Password",
                       controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      decoration: InputDecoration(
-                        hintText: '6+ characters required',
-                        hintStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.w200,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.black),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_outlined
-                                : Icons.visibility_off_outlined,
-                            color: Colors.black,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
+                      error: passwordError,
+                      obscure: _obscurePassword,
+                      toggleObscure: () {
+                        setState(() => _obscurePassword = !_obscurePassword);
+                      },
                     ),
-                    const SizedBox(height: 20),
+
+                    /// CONFIRM PASSWORD
+                    _buildTextField(
+                      label: "Confirm Password",
+                      controller: _confirmPasswordController,
+                      error: confirmPasswordError,
+                      obscure: _obscureConfirmPassword,
+                      toggleObscure: () {
+                        setState(
+                          () => _obscureConfirmPassword =
+                              !_obscureConfirmPassword,
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// TERMS
                     Row(
                       children: [
                         Checkbox(
@@ -297,112 +336,117 @@ class _GuestSignUpState extends State<GuestSignUp> {
                           onChanged: (value) {
                             setState(() {
                               _agreeToTerms = value ?? false;
+                              termsError = false;
                             });
                           },
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(4),
-                          ),
                         ),
                         Expanded(
                           child: Text(
-                            'I agree to the Terms and Conditions',
-                            style: TextStyle(fontSize: 14, color: Colors.black),
+                            "I agree to Terms & Conditions",
+                            style: TextStyle(
+                              color: termsError ? Colors.red : Colors.black,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 30),
+
+                    const SizedBox(height: 20),
+
+                    /// BUTTON
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: () async {
-                          if (_isCheckingUsername) {
-                            CustomSnackbar.showSuccess(
-                              "Please wait\nChecking username availability",
-                            );
-
-                            return;
-                          }
-
-                          if (_isUsernameAvailable == false) {
-                            CustomSnackbar.showError(
-                              "Username Taken\nPlease choose another username",
-                            );
-                            return;
-                          }
-
-                          if (_usernameController.text.trim().isEmpty ||
-                              _emailController.text.trim().isEmpty ||
-                              _passwordController.text.trim().isEmpty) {
-                            CustomSnackbar.showError(
-                              "Missing Information\nAll fields are required",
-                            );
-                            return;
-                          }
-                          if (_passwordController.text.trim().length < 6) {
-                            CustomSnackbar.showError(
-                              "Weak Password\nPassword must be at least 6 characters long",
-                            );
-                            return;
-                          }
-                          final email = _emailController.text.trim();
-
-                          final emailRegex = RegExp(
-                            r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                          );
-
-                          if (!emailRegex.hasMatch(email)) {
-                            CustomSnackbar.showError(
-                              "Invalid Email\nPlease enter a valid email address",
-                            );
-                            return;
-                          }
-                          if (!_agreeToTerms) {
-                            CustomSnackbar.showError(
-                              "Terms Required\nPlease accept Terms & Conditions",
-                            );
-                            return;
-                          }
-
-                          // ✅ Safe to signup
-                          signup(
-                            _usernameController.text.trim(),
-                            _emailController.text.trim(),
-                            _passwordController.text.trim(),
-                            "guest",
-                          );
-                        },
-
+                        onPressed: _handleSignup,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFc71f37),
+                          backgroundColor: const Color(0xFFc71f37),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                         ),
                         child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          "Sign Up",
+                          style: TextStyle(fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
                   ],
                 ),
               ),
-              if (isloading)
-                Container(
-                  color: Colors.black.withOpacity(0.4),
-                  child: const Center(
-                    child: CircularProgressIndicator(color: Colors.white),
-                  ),
-                ),
-            ],
+            ),
           ),
-        ),
+
+          if (isloading)
+            Container(
+              color: Colors.black.withOpacity(0.4),
+              child: const Center(
+                child: CircularProgressIndicator(color: Colors.white),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  /// ================= COMMON TEXTFIELD =================
+  Widget _buildTextField({
+    required String label,
+    required TextEditingController controller,
+    required bool error,
+    bool obscure = false,
+    VoidCallback? toggleObscure,
+    Widget? suffix,
+    Function(String)? onChanged,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: controller,
+            obscureText: obscure,
+            onChanged:
+                onChanged ??
+                (_) {
+                  setState(() {});
+                },
+            decoration: InputDecoration(
+              suffixIcon: error
+                  ? const Icon(Icons.error_outline, color: Colors.red)
+                  : toggleObscure != null
+                  ? IconButton(
+                      icon: Icon(
+                        obscure
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                      ),
+                      onPressed: toggleObscure,
+                    )
+                  : suffix,
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: error ? Colors.red : Colors.black,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+                borderSide: BorderSide(
+                  color: error ? Colors.red : Colors.black,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 14,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

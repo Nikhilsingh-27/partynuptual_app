@@ -353,7 +353,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       CustomSnackbar.showError("Please fill all password fields");
       return;
     }
-
+    if (newPasswordCtrl.text.trim().length < 6) {
+      CustomSnackbar.showError("Password must be at least 6 characters");
+      return;
+    }
     try {
       final response = await ProfileService().updatepasswordfun(
         user_id: auth.userId!,

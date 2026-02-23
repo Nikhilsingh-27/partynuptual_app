@@ -26,11 +26,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       final response = await AuthenticationService().forgotpassfun(
         email: emailOrUsername,
       );
-      if (response["status"] == false)
+
+      if (response["status"] == false) {
         CustomSnackbar.showError(" Email not found in our records");
-      else
+      } else {
         CustomSnackbar.showSuccess("Temporary password is sent to your email");
-      Get.offAllNamed("/home"); // better than toNamed
+      }
+
+      Get.offAllNamed("/home");
     } catch (e) {
       CustomSnackbar.showError("Something went wrong");
     }
@@ -42,86 +45,106 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(backgroundColor: Colors.white),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 40),
-
-              const Text(
-                "Forgot Password?",
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
+        child: Center(
+          child: Container(
+            margin: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 10,
+                  spreadRadius: 2,
                 ),
-              ),
+              ],
+            ),
 
-              const SizedBox(height: 12),
+            // 🔽 Your original content (unchanged)
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 40),
 
-              const Text(
-                "Enter the email address or username associated with an account.",
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.black54,
-                  height: 1.5,
-                ),
-              ),
-
-              const SizedBox(height: 40),
-
-              const Text(
-                "Enter email or username",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black87,
-                ),
-              ),
-
-              const SizedBox(height: 8),
-
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: "Enter email or username",
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 16,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _onResetPressed,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFC61D36),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  child: const Text(
-                    "Reset Password",
+                  const Text(
+                    "Forgot Password?",
                     style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.black87,
                     ),
                   ),
-                ),
+
+                  const SizedBox(height: 12),
+
+                  const Text(
+                    "Enter the email address or username associated with an account.",
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.black,
+                      height: 1.5,
+                    ),
+                  ),
+
+                  const SizedBox(height: 40),
+
+                  const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      "Enter email or username",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      hintText: "Enter email or username",
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 32),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 54,
+                    child: ElevatedButton(
+                      onPressed: _onResetPressed,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFC61D36),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        "Reset Password",
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

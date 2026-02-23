@@ -16,6 +16,20 @@ class CustomSnackbar {
     );
   }
 
+  static void showSuccessSlow(String message) {
+    Get.snackbar(
+      "Success",
+      message,
+      snackPosition: SnackPosition.TOP,
+      backgroundColor: Colors.green,
+      colorText: Colors.white,
+      margin: const EdgeInsets.all(12),
+      borderRadius: 8,
+      duration: const Duration(seconds: 5),
+      icon: const Icon(Icons.check_circle, color: Colors.white),
+    );
+  }
+
   static void showError(String message) {
     Get.snackbar(
       "Error",

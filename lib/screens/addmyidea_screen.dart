@@ -20,22 +20,29 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
   String? selectedTheme;
   bool isThemeLoading = false;
 
+  // ✅ Error Flags
+  bool showThemeError = false;
+  bool showVenueError = false;
+  bool showDescError = false;
+  bool showImageError = false;
+
+  late String ideaId;
+
+  final TextEditingController _venueCtrl = TextEditingController();
+  final TextEditingController _descCtrl = TextEditingController();
+
+  final ImagePicker _picker = ImagePicker();
+  File? selectedImage;
+  String? existingImageUrl;
+
+  // ================= LOAD THEMES =================
   Future<void> _loadPartyThemes() async {
     try {
       setState(() => isThemeLoading = true);
-
       final response = await ProfileService().getpartythemesfun();
 
       if (response["status"] == "success") {
         partyThemes = List<Map<String, dynamic>>.from(response["data"]);
-
-        // EDIT MODE: keep already selected theme
-        if (selectedTheme != null &&
-            partyThemes.any((e) => e["id"] == selectedTheme)) {
-          // keep it
-        } else {
-          selectedTheme = null;
-        }
       }
     } catch (e) {
       CustomSnackbar.showError("Failed to load party themes");
@@ -47,16 +54,7 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     }
   }
 
-  late String ideaId;
-
-  final TextEditingController _themeCtrl = TextEditingController();
-  final TextEditingController _venueCtrl = TextEditingController();
-  final TextEditingController _descCtrl = TextEditingController();
-
-  final ImagePicker _picker = ImagePicker();
-  File? selectedImage;
-
-  String? existingImageUrl;
+  // ================= LOAD EDIT DATA =================
   Future<void> _loadIdeaDetails() async {
     final auth = Get.find<AuthenticationController>();
 
@@ -68,14 +66,14 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
 
       final idea = response["data"];
 
-      selectedTheme = idea["party_theme"] ?? "";
+      selectedTheme = idea["party_theme"];
       _venueCtrl.text = idea["venue"] ?? "";
       _descCtrl.text = idea["description"] ?? "";
 
-      setState(() {
-        existingImageUrl =
-            "https://partynuptual.com/public/uploads/ideas/${idea["image"]}";
-      });
+      existingImageUrl =
+          "https://partynuptual.com/public/uploads/ideas/${idea["image"]}";
+
+      setState(() {});
     } catch (e) {
       CustomSnackbar.showError(e.toString());
     }
@@ -86,15 +84,14 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     super.initState();
 
     final args = Get.arguments;
-
     ideaId = args != null && args["idea_id"] != null
         ? args["idea_id"].toString()
         : "";
 
-    _loadPartyThemes(); // 👈 always load dropdown data
+    _loadPartyThemes();
 
     if (ideaId.isNotEmpty) {
-      _loadIdeaDetails(); // 👈 edit mode
+      _loadIdeaDetails();
     }
   }
 
@@ -103,94 +100,131 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: const BoxDecoration(
-                color: Color.fromRGBO(226, 55, 68, 1),
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.lightbulb_outline,
-                size: 20,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              "Share Your Party Idea",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+        title: const Text(
+          "Share Your Party Idea",
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
-
       body: isloading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // ================= PARTY THEME =================
                   _label("Party Theme"),
-                  isThemeLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : DropdownButtonFormField<String>(
-                          value: selectedTheme,
-                          hint: const Text(
-                            "Select Party Theme",
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                            ),
+                  DropdownButtonFormField<String>(
+                    value: selectedTheme,
+                    hint: const Text(
+                      "Select Party Theme",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black,
+                      ),
+                    ),
+                    items: partyThemes
+                        .map(
+                          (theme) => DropdownMenuItem<String>(
+                            value: theme["id"],
+                            child: Text(theme["name"]),
                           ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedTheme = value;
+                        showThemeError = false;
+                      });
+                    },
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
 
-                          items: partyThemes
-                              .where((e) => e["id"] != "")
-                              .map(
-                                (theme) => DropdownMenuItem<String>(
-                                  value: theme["id"],
-                                  child: Text(theme["name"]),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (value) {
-                            setState(() {
-                              selectedTheme = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                              borderSide: const BorderSide(color: Colors.black),
-                            ),
-                          ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: showThemeError ? Colors.red : Colors.black,
                         ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(
+                          color: showThemeError ? Colors.red : Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  if (showThemeError)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        "Party Theme is required.",
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
 
                   const SizedBox(height: 16),
 
+                  // ================= VENUE =================
                   _label("Venue"),
-                  _textField(controller: _venueCtrl, hint: "Country/City"),
+                  _textField(
+                    controller: _venueCtrl,
+                    hint: "Country/City",
+                    showError: showVenueError,
+                    onChanged: (val) {
+                      if (val.trim().isNotEmpty) {
+                        setState(() => showVenueError = false);
+                      }
+                    },
+                  ),
+                  if (showVenueError)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        "Venue is required.",
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
 
                   const SizedBox(height: 16),
 
+                  // ================= DESCRIPTION =================
                   _label("Description"),
-                  _textField(controller: _descCtrl, maxLines: 5),
+                  _textField(
+                    controller: _descCtrl,
+                    maxLines: 5,
+                    showError: showDescError,
+                    onChanged: (val) {
+                      if (val.trim().isNotEmpty) {
+                        setState(() => showDescError = false);
+                      }
+                    },
+                  ),
+                  if (showDescError)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        "Description is required.",
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
 
                   const SizedBox(height: 20),
 
+                  // ================= IMAGE =================
                   _label("Main Image"),
                   _filePicker(),
+                  if (showImageError)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Text(
+                        "Image is required.",
+                        style: TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                    ),
 
                   const SizedBox(height: 30),
 
@@ -200,7 +234,7 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
                       height: 48,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromRGBO(199, 31, 55, 1),
+                          backgroundColor: const Color.fromRGBO(199, 31, 55, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -226,17 +260,19 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
   // ================= FILE PICKER =================
   Widget _filePicker() {
     return GestureDetector(
-      onTap: _pickImage,
+      onTap: () async {
+        await _pickImage();
+        setState(() => showImageError = false);
+      },
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.black),
+          border: Border.all(color: showImageError ? Colors.red : Colors.black),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           children: [
             Container(
-              height: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               alignment: Alignment.center,
               decoration: const BoxDecoration(
@@ -249,19 +285,21 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
               child: Text(
                 selectedImage != null
                     ? selectedImage!.path.split('/').last
-                    : existingImageUrl != null
-                    ? existingImageUrl!.split('/').last
-                    : "No file chosen",
+                    : existingImageUrl ?? "No file chosen",
                 overflow: TextOverflow.ellipsis,
               ),
             ),
+            if (showImageError)
+              const Padding(
+                padding: EdgeInsets.only(right: 8),
+                child: Icon(Icons.error_outline, color: Colors.red, size: 20),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // ================= IMAGE PICK FUNCTION =================
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
@@ -269,71 +307,66 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
       setState(() {
         selectedImage = File(image.path);
       });
-
-      print("Image selected: ${image.path}");
     }
   }
 
   // ================= SUBMIT =================
   Future<void> _submitData() async {
-    final AuthenticationController auth = Get.find<AuthenticationController>();
+    final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null || auth.userId!.isEmpty) {
       Get.toNamed('/vsignin');
       return;
     }
 
-    if (selectedTheme == null ||
-        _venueCtrl.text.isEmpty ||
-        _descCtrl.text.isEmpty) {
-      CustomSnackbar.showError("All fields are required");
-      return;
-    }
+    setState(() {
+      showThemeError = selectedTheme == null;
+      showVenueError = _venueCtrl.text.trim().isEmpty;
+      showDescError = _descCtrl.text.trim().isEmpty;
+      showImageError = selectedImage == null && existingImageUrl == null;
+    });
 
-    if (selectedImage == null && existingImageUrl == null) {
-      CustomSnackbar.showError("Please select an image");
+    if (showThemeError || showVenueError || showDescError || showImageError) {
+      CustomSnackbar.showError("Please fill all required fields");
       return;
     }
 
     try {
       CustomSnackbar.showSuccess("Please wait..");
+
       late Map<String, dynamic> response;
 
-      // 🆕 ADD MODE
       if (ideaId.isEmpty) {
         response = await ProfileService().submitideafun(
           party_theme: selectedTheme!,
           venue: _venueCtrl.text.trim(),
           description: _descCtrl.text.trim(),
           user_id: auth.userId!,
-          image: selectedImage!, // must exist in add
+          image: selectedImage!,
         );
-      }
-      // ✏️ EDIT MODE
-      else {
+      } else {
         response = await ProfileService().editmyidea(
           party_theme: selectedTheme!,
           venue: _venueCtrl.text.trim(),
           description: _descCtrl.text.trim(),
           user_id: auth.userId!,
           idea_id: ideaId,
-          image: selectedImage, // nullable ✔
+          image: selectedImage,
         );
       }
 
       if (response['status'] == true || response['status'] == "success") {
-        CustomSnackbar.showSuccess("Party idea submitted successfully");
+        CustomSnackbar.showSuccess("Success");
 
-        // Clear only in ADD mode
         if (ideaId.isEmpty) {
-          _themeCtrl.clear();
           _venueCtrl.clear();
           _descCtrl.clear();
           setState(() {
+            selectedTheme = null;
             selectedImage = null;
           });
         } else {
-          Get.back(); // go back after edit
+          Get.back();
         }
       } else {
         CustomSnackbar.showError(response['message'] ?? "Something went wrong");
@@ -343,7 +376,6 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     }
   }
 
-  // ================= UI HELPERS =================
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -358,24 +390,29 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
     required TextEditingController controller,
     String? hint,
     int maxLines = 1,
+    bool showError = false,
+    required Function(String) onChanged,
   }) {
     return TextField(
       controller: controller,
       maxLines: maxLines,
-      style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+      onChanged: onChanged,
       decoration: InputDecoration(
         hintText: hint,
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 14,
         ),
+        suffixIcon: showError
+            ? const Icon(Icons.error_outline, color: Colors.red)
+            : null,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black),
+          borderSide: BorderSide(color: showError ? Colors.red : Colors.black),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: Colors.black),
+          borderSide: BorderSide(color: showError ? Colors.red : Colors.black),
         ),
       ),
     );
@@ -383,7 +420,6 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
 
   @override
   void dispose() {
-    _themeCtrl.dispose();
     _venueCtrl.dispose();
     _descCtrl.dispose();
     super.dispose();
