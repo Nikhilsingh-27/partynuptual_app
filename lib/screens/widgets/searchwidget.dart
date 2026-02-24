@@ -15,12 +15,8 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   final HomeController controller = Get.find();
 
-  // Dummy categories (can be API later)
-
-  String? selectedCategory;
   String? selectedCountryId;
-  String? selectedCategoryId; // ✅ store country_id
-  String? selectedState;
+  String? selectedCategoryId;
   String? selectedStateId;
 
   List stateList = [];
@@ -50,27 +46,22 @@ class _SearchWidgetState extends State<SearchWidget> {
         return const SizedBox();
       }
 
-      // ✅ API countries (List<Map>)
       final List countries = homeData.data["data"]["countries"] as List;
+      final List categories = homeData.data["data"]["categories_all"] as List;
 
-      final List allcategory = homeData.data["data"]["categories_all"] as List;
       return Container(
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
-            /// CATEGORY DROPDOWN
+            /// CATEGORY
             Expanded(
               child: _buildDropdown<String>(
-                hint: 'Category',
+                hint: 'Select Category',
                 value: selectedCategoryId,
-                items: allcategory.map<DropdownMenuItem<String>>((category) {
+                items: categories.map<DropdownMenuItem<String>>((category) {
                   return DropdownMenuItem<String>(
-                    value: category['category_id'].toString(), // ✅ ID
-                    child: Text(
-                      category['category_name'], // ✅ Name
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    value: category['category_id'].toString(),
+                    child: _singleLineText(category['category_name']),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -83,26 +74,23 @@ class _SearchWidgetState extends State<SearchWidget> {
 
             const SizedBox(width: 8),
 
-            /// COUNTRY DROPDOWN (API BASED)
+            /// COUNTRY
             Expanded(
               child: _buildDropdown<String>(
-                hint: 'Country',
+                hint: 'Select Country',
                 value: selectedCountryId,
                 items: countries.map<DropdownMenuItem<String>>((country) {
                   return DropdownMenuItem<String>(
-                    value: country['country_id'].toString(), // ✅ ID
-                    child: Text(
-                      country['name'], // ✅ Name
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    value: country['country_id'].toString(),
+                    child: _singleLineText(country['name']),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value == null) return;
+
                   setState(() {
                     selectedCountryId = value;
-                    selectedState = null; // reset state when country changes
+                    selectedStateId = null;
                     stateList.clear();
                   });
 
@@ -113,23 +101,15 @@ class _SearchWidgetState extends State<SearchWidget> {
 
             const SizedBox(width: 8),
 
-            /// STATE DROPDOWN
+            /// STATE
             Expanded(
               child: _buildDropdown<String>(
-                hint: isStateLoading
-                    ? 'Loading...'
-                    : selectedCountryId == null
-                    ? 'State'
-                    : 'State',
+                hint: isStateLoading ? 'Loading...' : 'Select State',
                 value: stateList.isEmpty ? null : selectedStateId,
                 items: stateList.map<DropdownMenuItem<String>>((state) {
                   return DropdownMenuItem<String>(
                     value: state['state_id'].toString(),
-                    child: Text(
-                      state['name'],
-                      style: const TextStyle(fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    child: _singleLineText(state['name']),
                   );
                 }).toList(),
                 onChanged:
@@ -137,7 +117,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                         isStateLoading ||
                         stateList.isEmpty)
                     ? null
-                    : (String? value) {
+                    : (value) {
                         setState(() {
                           selectedStateId = value;
                         });
@@ -159,56 +139,32 @@ class _SearchWidgetState extends State<SearchWidget> {
                 icon: const Icon(Icons.search, color: Colors.white, size: 20),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
-                onPressed: () async{
+                onPressed: () async {
                   if (selectedCountryId == null ||
                       selectedStateId == null ||
                       selectedCategoryId == null) {
                     debugPrint("Please select all fields");
                     return;
                   }
-                  final selectedCountry = countries.firstWhere(
-                    (c) => c['country_id'].toString() == selectedCountryId,
-                    orElse: () => null,
-                  );
-                  final selectedcategory = allcategory.firstWhere(
-                    (c) => c['category_id'].toString() == selectedCategoryId,
-                    orElse: () => null,
-                  );
-                  final selectedstate = stateList.firstWhere(
-                    (c) => c['state_id'].toString() == selectedStateId,
-                    orElse: () => null,
-                  );
 
-                  // debugPrint('''
-                  //   Category: ${selectedcategory?['category_name']}
-                  //   Country: ${selectedCountry?['name']}
-                  //   State : ${selectedstate?['name']}
-                  //   ''');
                   try {
                     final response = await ProfileService().searchfun(
-                      country_id: selectedCountryId.toString(),
-                      state: selectedStateId.toString(),
-                      category: selectedCategoryId.toString(),
-                      page: "1", // first page
+                      country_id: selectedCountryId!,
+                      state: selectedStateId!,
+                      category: selectedCategoryId!,
+                      page: "1",
                     );
 
-// Navigate to SearchListingsPage and pass all required params
                     Get.to(
-                          () => SearchListingsPage(
-                        categoryId: selectedCategoryId.toString(),
-                        countryId: selectedCountryId.toString(),
-                        stateId: selectedStateId.toString(),
+                      () => SearchListingsPage(
+                        categoryId: selectedCategoryId!,
+                        countryId: selectedCountryId!,
+                        stateId: selectedStateId!,
                         totalPagesFromPrevious: response["total_pages"] is int
                             ? response["total_pages"]
                             : int.parse(response["total_pages"].toString()),
                       ),
-                  );
-
-                    // debugPrint("Search Response: $response");
-
-                    // If you want to navigate after success:
-                    // Get.to(() => ResultScreen(data: response));
-
+                    );
                   } catch (e) {
                     debugPrint("Search Error: $e");
                   }
@@ -221,7 +177,22 @@ class _SearchWidgetState extends State<SearchWidget> {
     });
   }
 
-  /// 🔹 REUSABLE DROPDOWN WIDGET
+  /// 🔹 SINGLE LINE RESPONSIVE TEXT
+  Widget _singleLineText(String text) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.visible,
+        style: const TextStyle(fontSize: 14, color: Colors.black),
+      ),
+    );
+  }
+
+  /// 🔹 REUSABLE DROPDOWN
   Widget _buildDropdown<T>({
     required String hint,
     required T? value,
@@ -237,15 +208,12 @@ class _SearchWidgetState extends State<SearchWidget> {
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
-          hint: Text(
-            hint,
-            style: const TextStyle(fontSize: 12, color: Colors.black),
-          ),
-          value: value,
           isExpanded: true,
-          style: const TextStyle(fontSize: 12, color: Colors.black),
-          items: items,
+          value: value,
           onChanged: onChanged,
+          style: const TextStyle(fontSize: 14, color: Colors.black),
+          hint: _singleLineText(hint),
+          items: items,
         ),
       ),
     );

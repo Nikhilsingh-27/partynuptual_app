@@ -657,6 +657,8 @@ class ProfileService {
     required String message,
   }) async {
     try {
+      print("user id is :$user_id");
+      print("receiver id is :$receiver_id");
       final response = await _dio.post(
         ApiEndpoints.sendmessage,
         data: {

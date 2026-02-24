@@ -230,7 +230,7 @@ class _PartyCardScrollState extends State<PartyCardScroll> {
                                 Icon(
                                   Icons.thumb_up_outlined,
                                   size: 16,
-                                  color: isLiked ? Colors.blue : Colors.grey,
+                                  color: isLiked ? Colors.blue : Colors.black,
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
@@ -250,7 +250,7 @@ class _PartyCardScrollState extends State<PartyCardScroll> {
                                 Icon(
                                   Icons.thumb_down_outlined,
                                   size: 16,
-                                  color: isDisliked ? Colors.red : Colors.grey,
+                                  color: isDisliked ? Colors.red : Colors.black,
                                 ),
                                 const SizedBox(width: 2),
                                 Text(

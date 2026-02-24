@@ -14,6 +14,19 @@ class BusinessListingCard extends StatelessWidget {
     required this.item,
     required this.onDeleteSuccess,
   });
+  int calculateDaysLeftFromToday(String validDate) {
+    try {
+      DateTime today = DateTime.now();
+      DateTime expiryDate = DateTime.parse(validDate);
+
+      int daysLeft = expiryDate.difference(today).inDays;
+
+      return daysLeft < 0 ? 0 : daysLeft;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   String getLogoImageUrl(String? logoPath) {
     const String baseUrl = "https://partynuptual.com/";
     const String defaultImage = "${baseUrl}public/front/assets/img/list-8.jpg";
@@ -93,6 +106,7 @@ class BusinessListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int daysLeft = calculateDaysLeftFromToday(item["listing_valid_date"] ?? "");
     return Container(
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
@@ -128,6 +142,26 @@ class BusinessListingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                item["status"] == "1"
+                    ? Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2E8B57),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Text(
+                          "Active",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
                 Text(
                   item["company_name"]!,
                   style: const TextStyle(
@@ -136,12 +170,21 @@ class BusinessListingCard extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 8),
-
                 Text(
                   item["tag_line"]!,
                   style: const TextStyle(fontSize: 14, height: 1.4),
                 ),
+
+                const SizedBox(height: 8),
+                item["status"] == "1"
+                    ? Text(
+                        "Listing active - $daysLeft days left",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      )
+                    : const SizedBox(),
 
                 const SizedBox(height: 16),
 
@@ -150,15 +193,7 @@ class BusinessListingCard extends StatelessWidget {
                   runSpacing: 10,
                   children: [
                     item["status"] == "1"
-                        ? _actionButton(
-                            icon: Icons.check_circle,
-                            text: "Listing is Activated",
-                            bgColor: const Color(0xFFFFE5E5),
-                            color: Colors.red,
-                            onTap: () {
-                              // Optional: do nothing or show a message
-                            },
-                          )
+                        ? const SizedBox()
                         : _actionButton(
                             icon: Icons.check_circle,
                             text: "Activate Your Listing",

@@ -39,7 +39,6 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
           inboxList = List<Map<String, dynamic>>.from(response["data"]);
         });
       } else {
-        // No data or error
         setState(() {
           inboxList = [];
         });
@@ -58,6 +57,26 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
         isLoading = false;
       });
     }
+  }
+
+  void openChat({
+    required String conversation_id,
+    required String user_id,
+    required String vendor_id,
+    required String vendorName,
+    String? avatar,
+  }) async {
+    await Get.toNamed(
+      '/conversation',
+      arguments: {
+        "conversation_id": conversation_id,
+        "user_id": user_id,
+        "vendor_id": vendor_id,
+        "vendor_name": vendorName,
+        "avatar": avatar,
+      },
+    );
+    fetchInbox();
   }
 
   @override
@@ -101,28 +120,18 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
 
   Widget _messageTile(Map<String, dynamic> item, int index) {
     String vendorName = item["vendor_name"] ?? "Unknown";
-    String vendorEmail = item["vendor_email"] ?? "";
     String? avatar = item["avatar"];
     String unreadCount = item["unread_count"] ?? "0";
-    String user_id = item["user_id"] ?? "";
-    String vendor_id = item["vendor_id"] ?? "";
+    String user_id = auth.userId ?? "";
+    String vendor_id = user_id == item["vendor_id"]
+        ? item["user_id"]
+        : (user_id == item["user_id"] ? item["vendor_id"] : "");
+    //String vendor_id = item["vendor_id"] ?? "";
     String conversation_id = item["id"] ?? "";
-    void openchat() {
-      // Navigate to conversation screen
-      Get.toNamed(
-        '/conversation',
-        arguments: {
-          "conversation_id": conversation_id,
-          "user_id": user_id,
-          "vendor_id": vendor_id,
-          "vendor_name": vendorName,
-          "avatar": avatar,
-        },
-      );
-    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(vertical: 12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(8),
@@ -136,37 +145,20 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
       ),
       child: Row(
         children: [
-          // Left red indicator if unread
-          Container(
-            width: 4,
-            height: 80,
-            decoration: BoxDecoration(
-              color: unreadCount != "0" ? Colors.red : Colors.transparent,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                bottomLeft: Radius.circular(8),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-
-          // Profile avatar (clickable)
+          /// Red unread indicator
+          /// Unread Count Badge
           GestureDetector(
-            onTap: () {
-              // Navigate to conversation screen
-              Get.toNamed(
-                '/conversation',
-                arguments: {
-                  "conversation_id": conversation_id,
-                  "user_id": user_id,
-                  "vendor_id": vendor_id,
-                  "vendor_name": vendorName,
-                  "avatar": avatar,
-                },
-              );
-            },
+            onTap: () => openChat(
+              conversation_id: conversation_id,
+              user_id: user_id,
+              vendor_id: vendor_id,
+              vendorName: vendorName,
+              avatar: avatar,
+            ),
             child: Stack(
+              clipBehavior: Clip.none,
               children: [
+                /// Avatar
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: const Color(0xFF5B6786),
@@ -179,42 +171,59 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                       ? const Icon(Icons.person, size: 32, color: Colors.white)
                       : null,
                 ),
-                Positioned(
-                  right: 2,
-                  top: 2,
-                  child: Container(
-                    width: 12,
-                    height: 12,
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white, width: 2),
+
+                /// Unread Badge (top-right)
+                if (unreadCount != "0")
+                  Positioned(
+                    right: -2,
+                    top: -2,
+                    child: Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: const BoxDecoration(
+                        color: Colors.green,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 22,
+                        minHeight: 22,
+                      ),
+                      child: Text(
+                        unreadCount,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
-
           const SizedBox(width: 12),
 
-          // Name & Email
+          /// Name section (Expanded pushes button to end)
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  vendorName,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+            child: InkWell(
+              onTap: () => openChat(
+                conversation_id: conversation_id,
+                user_id: user_id,
+                vendor_id: vendor_id,
+                vendorName: vendorName,
+                avatar: avatar,
+              ),
+              child: Text(
+                vendorName,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
-              ],
+              ),
             ),
           ),
 
-          // Remove button
+          /// Remove button at extreme right
           Padding(
             padding: const EdgeInsets.only(right: 12),
             child: OutlinedButton.icon(
@@ -233,7 +242,6 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                   );
                 }
               },
-
               icon: const Icon(Icons.delete, color: Colors.red, size: 16),
               label: const Text(
                 "Remove",

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/count.dart';
 import 'package:new_app/screens/widgets/autoscrollforideas.dart';
 import 'package:new_app/screens/widgets/autoscrollrecentlyadded.dart';
 import 'package:new_app/screens/widgets/block_card_home.dart';
@@ -125,10 +126,15 @@ class _HomePageState extends State<HomePage> {
 
   late AuthenticationController auth;
   late HomeController controller;
-
+  late InboxController inboxController;
   void _refreshHomePage() {
     // 🔥 If API data must refresh
-    controller.fetchHomeData(); // or whatever your API method is
+    controller.fetchHomeData();
+    // final auth = Get.find<AuthenticationController>();
+    //
+    // if (auth.userId != null) {
+    //   inboxController.fetchInbox(auth.userId!);
+    // } // or whatever your API method is
   }
 
   @override
@@ -139,6 +145,9 @@ class _HomePageState extends State<HomePage> {
     if (!Get.isRegistered<AuthenticationController>()) {
       Get.put(AuthenticationController(), permanent: true);
     }
+    if (!Get.isRegistered<InboxController>()) {
+      Get.put(InboxController(), permanent: true);
+    }
 
     if (!Get.isRegistered<HomeController>()) {
       Get.put(HomeController());
@@ -146,7 +155,7 @@ class _HomePageState extends State<HomePage> {
 
     auth = Get.find<AuthenticationController>();
     controller = Get.find<HomeController>();
-
+    inboxController = Get.find<InboxController>();
     _startAutoScroll();
   }
 
@@ -185,6 +194,12 @@ class _HomePageState extends State<HomePage> {
       onEndDrawerChanged: (isOpened) {
         if (!isOpened) {
           _refreshHomePage();
+        } else {
+          final auth = Get.find<AuthenticationController>();
+
+          if (auth.userId != null) {
+            inboxController.fetchInbox(auth.userId!);
+          }
         }
       },
       appBar: PreferredSize(

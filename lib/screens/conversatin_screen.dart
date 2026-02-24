@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _timer;
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
+  final auth = Get.find<AuthenticationController>();
   late String conversationId;
   late String userId;
   late String receiverId;
@@ -30,8 +31,15 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final args = Get.arguments ?? {};
     conversationId = args["conversation_id"] ?? "";
-    userId = args["user_id"] ?? "";
+    //receiverId = args["vendor_id"] ?? "";
+
+    // userId = args["vendor_id"] ?? "";
+    userId = auth.userId ?? "";
     receiverId = args["vendor_id"] ?? "";
+    print("user id :$userId");
+    print(args["vendor_id"]);
+    print(args["user_id"]);
+    print("receiver id :$receiverId");
     vendorname = args["vendor_name"] ?? "";
     avatar = args["avatar"] ?? "";
     _loadMessages();
@@ -124,6 +132,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -176,42 +185,52 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
 
           // ================= INPUT =================
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: Color(0xFFEAEAEA))),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: TextField(
-                      textAlignVertical: TextAlignVertical(y: -0.3),
-                      controller: _messageController,
-                      decoration: const InputDecoration(
-                        hintText: "Type Your Message",
-                        border: InputBorder.none,
+          // ================= INPUT =================
+          SafeArea(
+            top: false,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                10,
+                16,
+                16, // ❌ remove viewInsets here
+              ),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: Color(0xFFEAEAEA))),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 48,
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      onSubmitted: (_) => _sendMessage(),
+                      child: TextField(
+                        controller: _messageController,
+                        textAlignVertical: TextAlignVertical.center,
+                        decoration: const InputDecoration(
+                          hintText: "Type Your Message",
+                          border: InputBorder.none,
+                        ),
+                        onSubmitted: (_) => _sendMessage(),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: const Color(0xFFFFE5E5),
-                  child: IconButton(
-                    icon: const Icon(Icons.send, color: Colors.red),
-                    onPressed: _sendMessage,
+                  const SizedBox(width: 12),
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: const Color(0xFFFFE5E5),
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.red),
+                      onPressed: _sendMessage,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
