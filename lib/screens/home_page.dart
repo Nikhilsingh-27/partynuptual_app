@@ -199,6 +199,7 @@ class _HomePageState extends State<HomePage> {
 
           if (auth.userId != null) {
             inboxController.fetchInbox(auth.userId!);
+            inboxController.fetchInquiries(auth.userId!);
           }
         }
       },

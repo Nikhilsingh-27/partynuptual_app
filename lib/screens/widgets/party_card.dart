@@ -34,6 +34,7 @@ class _PartyCardState extends State<PartyCard> {
   late int dislikeCount;
   bool isLiked = false;
   bool isDisliked = false;
+  bool isLoadingReaction = false;
 
   @override
   void initState() {
@@ -43,6 +44,8 @@ class _PartyCardState extends State<PartyCard> {
   }
 
   Future<void> onLikePressed() async {
+    if (isLoadingReaction) return;
+
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null || auth.userId!.isEmpty) {
@@ -50,33 +53,37 @@ class _PartyCardState extends State<PartyCard> {
       return;
     }
 
-    setState(() {
-      if (!isLiked) {
-        likeCount++;
-        isLiked = true;
-        if (isDisliked) {
-          dislikeCount--;
-          isDisliked = false;
-        }
-      }
-    });
+    setState(() => isLoadingReaction = true);
 
     try {
-      await ProfileService().likedislikefun(
+      final response = await ProfileService().likedislikefun(
         user_id: auth.userId!,
         idea_id: widget.id,
         action: "like",
       );
+
+      if (response["status"] == "success") {
+        setState(() {
+          likeCount =
+              int.tryParse(response["like_count"].toString()) ?? likeCount;
+          dislikeCount =
+              int.tryParse(response["dislike_count"].toString()) ??
+              dislikeCount;
+
+          isLiked = true; // 🔥 turn red
+          isDisliked = false; // 🔥 remove other
+        });
+      }
     } catch (e) {
-      setState(() {
-        likeCount--;
-        isLiked = false;
-      });
       Get.snackbar('Error', 'Failed to like this item');
     }
+
+    setState(() => isLoadingReaction = false);
   }
 
   Future<void> onDislikePressed() async {
+    if (isLoadingReaction) return;
+
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null || auth.userId!.isEmpty) {
@@ -84,30 +91,32 @@ class _PartyCardState extends State<PartyCard> {
       return;
     }
 
-    setState(() {
-      if (!isDisliked) {
-        dislikeCount++;
-        isDisliked = true;
-        if (isLiked) {
-          likeCount--;
-          isLiked = false;
-        }
-      }
-    });
+    setState(() => isLoadingReaction = true);
 
     try {
-      await ProfileService().likedislikefun(
+      final response = await ProfileService().likedislikefun(
         user_id: auth.userId!,
         idea_id: widget.id,
         action: "dislike",
       );
+
+      if (response["status"] == "success") {
+        setState(() {
+          likeCount =
+              int.tryParse(response["like_count"].toString()) ?? likeCount;
+          dislikeCount =
+              int.tryParse(response["dislike_count"].toString()) ??
+              dislikeCount;
+
+          isDisliked = true; // 🔥 turn red
+          isLiked = false; // 🔥 remove other
+        });
+      }
     } catch (e) {
-      setState(() {
-        dislikeCount--;
-        isDisliked = false;
-      });
       Get.snackbar('Error', 'Failed to dislike this item');
     }
+
+    setState(() => isLoadingReaction = false);
   }
 
   @override
@@ -238,7 +247,7 @@ class _PartyCardState extends State<PartyCard> {
                                 Icon(
                                   Icons.thumb_up_outlined,
                                   size: 16,
-                                  color: isLiked ? Colors.blue : Colors.grey,
+                                  color: isLiked ? Colors.red : Colors.black,
                                 ),
                                 const SizedBox(width: 2),
                                 Text(
@@ -258,7 +267,7 @@ class _PartyCardState extends State<PartyCard> {
                                 Icon(
                                   Icons.thumb_down_outlined,
                                   size: 16,
-                                  color: isDisliked ? Colors.red : Colors.grey,
+                                  color: isDisliked ? Colors.red : Colors.black,
                                 ),
                                 const SizedBox(width: 2),
                                 Text(

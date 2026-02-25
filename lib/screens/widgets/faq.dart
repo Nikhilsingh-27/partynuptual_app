@@ -5,10 +5,7 @@ class FAQItem {
   final String question;
   final String answer;
 
-  const FAQItem({
-    required this.question,
-    required this.answer,
-  });
+  const FAQItem({required this.question, required this.answer});
 }
 
 /// Reusable FAQ Widget
@@ -16,49 +13,64 @@ class FAQWidget extends StatelessWidget {
   final String title;
   final List<FAQItem> items;
 
-  const FAQWidget({
-    super.key,
-    required this.title,
-    required this.items,
-  });
+  const FAQWidget({super.key, required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section Title
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
+        /// Section Title
+        const SizedBox(height: 6),
 
-        ExpansionPanelList.radio(
-          animationDuration: const Duration(milliseconds: 300),
+        /// FAQ Items
+        Column(
           children: items.map((item) {
-            return ExpansionPanelRadio(
-              value: item.question, // must be unique
-              canTapOnHeader: true,
-              headerBuilder: (context, isExpanded) {
-                return ListTile(
+            return Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 6,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+
+              /// REMOVE DEFAULT DIVIDER + SPLASH EFFECT
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  dividerColor: Colors.transparent, // 🔥 removes black line
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
+                child: ExpansionTile(
+                  backgroundColor: Colors.transparent,
+                  collapsedBackgroundColor: Colors.transparent,
+                  tilePadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 6,
+                  ),
+                  childrenPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                   title: Text(
                     item.question,
                     style: const TextStyle(fontWeight: FontWeight.w600),
                   ),
-                );
-              },
-              body: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                child: Text(
-                  item.answer,
-                  style: const TextStyle(color: Colors.black87),
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        item.answer,
+                        style: const TextStyle(color: Colors.black87),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             );

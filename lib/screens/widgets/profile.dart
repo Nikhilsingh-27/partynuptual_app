@@ -28,7 +28,8 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId != null) {
-      inbox.fetchInbox(auth.userId!); // ✅ use existing instance
+      inbox.fetchInbox(auth.userId!);
+      inbox.fetchInquiries(auth.userId!); // ✅ use existing instance
     }
   }
 
@@ -179,9 +180,14 @@ class _ProfileDropdownTileState extends State<ProfileDropdownTile>
                     _buildSubItem(
                       icon: Icons.speed_outlined,
                       title: "My Inquiries",
-                      route: "/inquirie",
-                      badgeCount: 0, // change if different
+                      route: "",
+                      badgeCount:
+                          inbox.totalInquiryUnread.value, // change if different
                       showBadge: true,
+                      onTap: () async {
+                        await Get.toNamed("/inquirie");
+                        _refreshHomePage();
+                      },
                     ),
                   ],
 

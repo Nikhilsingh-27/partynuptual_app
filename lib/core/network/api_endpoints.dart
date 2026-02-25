@@ -56,4 +56,6 @@ class ApiEndpoints {
   static const String deleteconversation = "/delete_conversation";
   static const String fetchmessages = "/fetch_messages";
   static const String sendmessage = "/send_message";
+
+  static const String faq = "/faqs_get";
 }

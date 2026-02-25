@@ -8,6 +8,50 @@ import 'package:new_app/screens/widgets/custom_snackbar.dart';
 class BusinessListingCard extends StatelessWidget {
   final VoidCallback onDeleteSuccess;
   final Map<String, dynamic> item;
+  Widget _buildStatusBadge() {
+    final String status = item["status"]?.toString() ?? "";
+    final String? validDate = item["listing_valid_date"];
+
+    if (status == "1") {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFF2E8B57),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          "Active",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    if (status == "0" &&
+        validDate != null &&
+        validDate.toString().trim().isNotEmpty) {
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+        decoration: BoxDecoration(
+          color: const Color(0xFFdc3545),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Text(
+          "Expired",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    return const SizedBox(); // show nothing
+  }
 
   const BusinessListingCard({
     super.key,
@@ -142,26 +186,7 @@ class BusinessListingCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                item["status"] == "1"
-                    ? Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF2E8B57),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Text(
-                          "Active",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      )
-                    : const SizedBox(),
+                _buildStatusBadge(),
                 Text(
                   item["company_name"]!,
                   style: const TextStyle(

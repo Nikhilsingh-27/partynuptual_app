@@ -912,7 +912,9 @@ class _AddListingScreenState extends State<AddListingScreen> {
                           );
                           Get.to(EditListingScreen(data: data));
                         } catch (e) {
-                          CustomSnackbar.showError("Error: ${e.toString()}");
+                          CustomSnackbar.showError(
+                            "Service is temporarily unavailable. Please try again later.",
+                          );
                         }
                       },
                       style: ElevatedButton.styleFrom(

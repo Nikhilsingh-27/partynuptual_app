@@ -674,4 +674,14 @@ class ProfileService {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
+
+  Future<Map<String, dynamic>> faqfun() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.faq);
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }

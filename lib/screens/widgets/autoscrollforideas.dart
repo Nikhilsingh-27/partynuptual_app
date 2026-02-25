@@ -74,20 +74,7 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: PartyCardScroll(
-                  key: ValueKey(item['id']),
-                  id: item['id'],
-                  image: item['image'],
-                  title: item['party_theme'],
-                  location: item['venue'],
-                  description: item['description'],
-                  date: item['date_added'],
-                  likes:
-                      int.tryParse(item['like_count']?.toString() ?? '0') ?? 0,
-                  dislikes:
-                      int.tryParse(item['dislike_count']?.toString() ?? '0') ??
-                      0,
-                ),
+                child: PartyCardScroll(index: index),
               );
             },
           ),
