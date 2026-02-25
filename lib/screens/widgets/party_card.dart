@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 
 class PartyCard extends StatefulWidget {
@@ -30,6 +31,8 @@ class PartyCard extends StatefulWidget {
 }
 
 class _PartyCardState extends State<PartyCard> {
+  final HomeController homeController = Get.find();
+  final AuthenticationController authController = Get.find();
   late int likeCount;
   late int dislikeCount;
   bool isLiked = false;
@@ -69,9 +72,14 @@ class _PartyCardState extends State<PartyCard> {
           dislikeCount =
               int.tryParse(response["dislike_count"].toString()) ??
               dislikeCount;
-
+          homeController.updateIdeaReaction(
+            ideaId: widget.id,
+            newLike: likeCount,
+            newDislike: dislikeCount,
+          );
           isLiked = true; // 🔥 turn red
-          isDisliked = false; // 🔥 remove other
+          isDisliked = false;
+          // 🔥 remove other
         });
       }
     } catch (e) {
@@ -108,8 +116,14 @@ class _PartyCardState extends State<PartyCard> {
               int.tryParse(response["dislike_count"].toString()) ??
               dislikeCount;
 
+          homeController.updateIdeaReaction(
+            ideaId: widget.id,
+            newLike: likeCount,
+            newDislike: dislikeCount,
+          );
           isDisliked = true; // 🔥 turn red
-          isLiked = false; // 🔥 remove other
+          isLiked = false;
+          // 🔥 remove other
         });
       }
     } catch (e) {
