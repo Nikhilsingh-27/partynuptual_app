@@ -11,7 +11,7 @@ class CustomSnackbar {
       colorText: Colors.white,
       margin: const EdgeInsets.all(12),
       borderRadius: 8,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       icon: const Icon(Icons.check_circle, color: Colors.white),
     );
   }
@@ -39,7 +39,7 @@ class CustomSnackbar {
       colorText: Colors.white,
       margin: const EdgeInsets.all(12),
       borderRadius: 8,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
       icon: const Icon(Icons.error, color: Colors.white),
     );
   }

@@ -83,7 +83,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const SizedBox(height: 12),
 
                   const Text(
-                    "Enter the email address or username associated with an account.",
+                    "Enter the email address associated with an account.",
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.black,
@@ -96,7 +96,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      "Enter email or username",
+                      "Enter email",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -110,7 +110,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   TextField(
                     controller: emailController,
                     decoration: InputDecoration(
-                      hintText: "Enter email or username",
+                      hintText: "Enter email",
                       contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,

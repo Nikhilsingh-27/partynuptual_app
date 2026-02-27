@@ -57,18 +57,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Enter the email address or username associated with an account.',
+                  'Enter the email address associated with an account.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[700],
-                  ),
+                  style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 40),
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Enter email or username',
+                    'Enter email',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
@@ -80,7 +77,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 TextField(
                   controller: _emailController,
                   decoration: InputDecoration(
-                    hintText: 'Enter email or username',
+                    hintText: 'Enter email',
                     hintStyle: TextStyle(color: Colors.grey[400]),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -132,4 +129,3 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     );
   }
 }
-
