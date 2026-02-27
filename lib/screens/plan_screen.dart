@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_paypal/flutter_paypal.dart';
 import 'package:get/get.dart';
+import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/home_page.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
@@ -260,6 +261,9 @@ class PricingCard extends StatelessWidget {
                           // Navigate to HomePage only if response is valid
                           if (response != null &&
                               response["status"] == "true") {
+                            final homeController = Get.find<HomeController>();
+
+                            await homeController.fetchHomeData();
                             Get.offAll(() => HomePage());
                           } else {
                             CustomSnackbar.showError(

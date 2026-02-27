@@ -213,6 +213,7 @@ class _BottomSectionState extends State<BottomSection> {
               _buildFooterLink('Privacy Policy'),
               _buildFooterLink('Disclaimer'),
               _buildFooterLink("Faq's"),
+              const SizedBox(height: 40),
             ],
           ),
         ),

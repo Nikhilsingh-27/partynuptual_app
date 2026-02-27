@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:new_app/screens/widgets/video_card.dart';
+import 'package:new_app/screens/widgets/videocardforlisting.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class ListingDetailsDropdown extends StatefulWidget {
@@ -66,6 +66,21 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         )
         .map((e) => e.toString())
         .toList();
+
+    // 👉 If backend sends single string "url1,url2"
+    if (validVideos.isNotEmpty) {
+      String firstVideoRaw = validVideos.first;
+
+      // If comma separated, take first part
+      if (firstVideoRaw.contains(",")) {
+        firstVideoRaw = firstVideoRaw.split(",").first;
+      }
+
+      // Extract videoId from full URL
+      String? id = YoutubePlayer.convertUrlToId(firstVideoRaw);
+
+      validVideos = id != null ? [id] : [];
+    }
   }
 
   final List<bool> _expanded = [true, true, true, true];
@@ -149,22 +164,18 @@ class _ListingDetailsDropdownState extends State<ListingDetailsDropdown> {
         _buildDropdown(
           index: 3,
           title: "Videos",
-          child: SizedBox(
+          child: Container(
             height: 200,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
+            width: double.infinity,
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: Padding(
               padding: const EdgeInsets.all(12),
-              itemCount: validVideos.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
-              itemBuilder: (context, index) {
-                return SizedBox(
-                  width: 250,
-                  child: VideoCard(
-                    key: ValueKey(widget.video[index]),
-                    videoId: validVideos[index],
-                  ),
-                );
-              },
+              child: validVideos.isEmpty
+                  ? const Center(child: Text("No video available"))
+                  : VideoCard(
+                      key: ValueKey(validVideos.first),
+                      videoId: validVideos.first,
+                    ),
             ),
           ),
         ),

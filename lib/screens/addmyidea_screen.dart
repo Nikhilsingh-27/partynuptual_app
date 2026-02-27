@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
@@ -303,11 +304,24 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
 
-    if (image != null) {
-      setState(() {
-        selectedImage = File(image.path);
-      });
+    if (image == null) return;
+
+    final File file = File(image.path);
+
+    // 🔥 Get file size in bytes
+    final int fileSize = await file.length();
+
+    // 1 MB = 1048576 bytes
+    if (fileSize > 2097152) {
+      CustomSnackbar.showError("Image size must be less than 2 MB");
+      return; // ❌ Stop if larger than 1MB
     }
+
+    // ✅ Valid image
+    setState(() {
+      selectedImage = file;
+      existingImageUrl = null; // optional: remove old image if editing
+    });
   }
 
   // ================= SUBMIT =================
@@ -357,7 +371,9 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
 
       if (response['status'] == true || response['status'] == "success") {
         CustomSnackbar.showSuccess("Success");
+        final homeController = Get.find<HomeController>();
 
+        await homeController.fetchHomeData(); // 🔥 REF
         if (ideaId.isEmpty) {
           _venueCtrl.clear();
           _descCtrl.clear();

@@ -54,8 +54,20 @@ class _ChatScreenState extends State<ChatScreen> {
       );
 
       if (response["status"] == true) {
+        final List serverMessages = response["data"];
+
         setState(() {
-          messages = response["data"];
+          for (var serverMsg in serverMessages) {
+            bool exists = messages.any(
+              (localMsg) =>
+                  localMsg["message"] == serverMsg["message"] &&
+                  localMsg["sender_id"] == serverMsg["sender_id"],
+            );
+
+            if (!exists) {
+              messages.add(serverMsg);
+            }
+          }
         });
 
         _scrollToBottom();
@@ -72,27 +84,27 @@ class _ChatScreenState extends State<ChatScreen> {
     _messageController.clear();
     FocusScope.of(context).unfocus();
 
-    try {
-      // 🚫 Stop timer temporarily
-      _timer?.cancel();
+    final tempMessage = {
+      "message": text,
+      "sender_id": userId,
+      "created_at": DateTime.now().toIso8601String(),
+    };
 
-      final response = await ProfileService().sendmessagefun(
+    setState(() {
+      messages.add(tempMessage);
+    });
+
+    _scrollToBottom();
+
+    try {
+      await ProfileService().sendmessagefun(
         id: conversationId,
         user_id: userId,
         receiver_id: receiverId,
         message: text,
       );
-
-      if (response["status"] == true) {
-        // ✅ Immediate fetch after send
-        await _loadMessages();
-      }
-
-      // 🔁 Restart timer
-      _startAutoRefresh();
     } catch (e) {
       print("Send error: $e");
-      _startAutoRefresh();
     }
   }
 

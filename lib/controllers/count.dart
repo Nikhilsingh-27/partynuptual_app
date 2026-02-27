@@ -29,18 +29,11 @@ class InboxController extends GetxController {
 
   Future<void> fetchInquiries(String vendorId) async {
     try {
-      final response = await ProfileService().getinquiry(id: vendorId);
+      final response = await ProfileService().getinquirycountfun(id: vendorId);
 
-      if (response["status"] == "success") {
-        final data = List<Map<String, dynamic>>.from(response["data"]);
-
-        int total = data.fold(
-          0,
-          (sum, item) =>
-              sum + ((item["email_status"]?.toString() == "0") ? 1 : 0),
-        );
-
-        totalInquiryUnread.value = total;
+      if (response["status"] == true) {
+        totalInquiryUnread.value =
+            int.tryParse(response["unread_count"]?.toString() ?? "0") ?? 0;
       } else {
         totalInquiryUnread.value = 0;
       }

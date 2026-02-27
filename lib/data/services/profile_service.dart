@@ -451,26 +451,85 @@ class ProfileService {
         "${ApiEndpoints.updateListing}/${body["listing_id"]}",
         data: body,
       );
-
+      print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
 
+  // Future<Map<String, dynamic>> uploadGalleryfun({
+  //   required String owner_id,
+  //   required String listing_id,
+  //   required String image,
+  // }) async {
+  //   try {
+  //     final response = await _dio.post(
+  //       ApiEndpoints.uploadGallery,
+  //       data: {"owner_id": owner_id, "listing_id": listing_id, "image": image},
+  //     );
+  //     print("upload gallery response :");
+  //     print(response.data);
+  //     return response.data;
+  //   } on dio.DioException catch (e) {
+  //     throw Exception(e.response?.data ?? "API Error");
+  //   }
+  // }
+
   Future<Map<String, dynamic>> uploadGalleryfun({
-    required String owner_id,
-    required String listing_id,
-    required String image,
+    required String ownerId,
+    required String listingId,
+    required File imageFile,
   }) async {
     try {
+      // ✅ Validate file exists
+      if (!imageFile.existsSync()) {
+        throw Exception('Image file not found');
+      }
+
+      final fileName = imageFile.path.split('/').last;
+      print('Uploading gallery image: $fileName');
+      print('Owner: $ownerId | Listing: $listingId');
+
+      final dio.FormData formData = dio.FormData();
+
+      // ✅ Add normal form fields
+      formData.fields.add(MapEntry('owner_id', ownerId));
+      formData.fields.add(MapEntry('listing_id', listingId));
+
+      // ✅ Add image file
+      formData.files.add(
+        MapEntry(
+          'image', // 👈 must match backend key
+          await dio.MultipartFile.fromFile(imageFile.path, filename: fileName),
+        ),
+      );
+
       final response = await _dio.post(
         ApiEndpoints.uploadGallery,
-        data: {"owner_id": owner_id, "listing_id": listing_id, "image": image},
+        data: formData,
+        options: dio.Options(
+          headers: {"Accept": "application/json"},
+          receiveTimeout: const Duration(seconds: 30),
+          sendTimeout: const Duration(seconds: 30),
+        ),
       );
-      return response.data;
+
+      print('Upload Gallery Response: ${response.data}');
+
+      // ✅ Validate response format
+      if (response.data is! Map) {
+        throw Exception('Invalid response format');
+      }
+
+      return Map<String, dynamic>.from(response.data);
     } on dio.DioException catch (e) {
-      throw Exception(e.response?.data ?? "API Error");
+      print('DioException: ${e.message}');
+      print('Response error: ${e.response?.data}');
+      throw Exception(e.response?.data?['message'] ?? e.message ?? "API Error");
+    } catch (e) {
+      print('Upload Gallery Error: $e');
+      throw Exception(e.toString());
     }
   }
 
@@ -528,21 +587,31 @@ class ProfileService {
   }
 
   Future<Map<String, dynamic>> searchfun({
-    required String country_id,
-    required String state,
     required String category,
     required String page,
+    String? country_id,
+    String? state,
   }) async {
     try {
+      Map<String, dynamic> requestData = {"category": category, "page": page};
+
+      // ✅ Add country only if provided
+      if (country_id != null && country_id.isNotEmpty) {
+        requestData["country_id"] = country_id;
+      }
+
+      // ✅ Add state only if provided
+      if (state != null && state.isNotEmpty) {
+        requestData["state"] = state;
+      }
+
+      print("Request Body: $requestData");
+
       final response = await _dio.post(
         ApiEndpoints.searchlistings,
-        data: {
-          "country_id": country_id,
-          "state": state,
-          "category": category,
-          "page": page,
-        },
+        data: requestData,
       );
+
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {
@@ -678,6 +747,26 @@ class ProfileService {
   Future<Map<String, dynamic>> faqfun() async {
     try {
       final response = await _dio.get(ApiEndpoints.faq);
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> getinquirycountfun({required String id}) async {
+    try {
+      final response = await _dio.get("${ApiEndpoints.getinquirycount}/$id");
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> deleteinquirifun({required String id}) async {
+    try {
+      final response = await _dio.get("${ApiEndpoints.deleteinquiry}/$id");
       print(response.data);
       return response.data;
     } on dio.DioException catch (e) {

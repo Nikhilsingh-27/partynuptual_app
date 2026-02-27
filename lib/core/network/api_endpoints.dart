@@ -58,4 +58,7 @@ class ApiEndpoints {
   static const String sendmessage = "/send_message";
 
   static const String faq = "/faqs_get";
+
+  static const String getinquirycount = "/getInquiryCount";
+  static const String deleteinquiry = "/deleteInquiry";
 }

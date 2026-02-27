@@ -71,7 +71,7 @@ class _BlockScreenState extends State<BlockScreen> {
           'Latest Blogs',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        centerTitle: true,
+
         elevation: 0,
       ),
       body: check

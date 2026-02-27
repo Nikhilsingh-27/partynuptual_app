@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
+import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
@@ -30,7 +31,9 @@ class _MyIdeaScreenState extends State<MyIdeaScreen> {
         setState(() {
           listmyideas.removeAt(index);
         });
+        final homeController = Get.find<HomeController>();
 
+        await homeController.fetchHomeData();
         CustomSnackbar.showSuccess("Idea deleted successfully 🗑");
       } else {
         CustomSnackbar.showError(

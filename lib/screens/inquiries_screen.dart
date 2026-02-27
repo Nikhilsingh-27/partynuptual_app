@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class InquiriesScreen extends StatefulWidget {
   const InquiriesScreen({super.key});
@@ -13,29 +14,59 @@ class InquiriesScreen extends StatefulWidget {
 class _InquiriesScreenState extends State<InquiriesScreen> {
   final AuthenticationController auth = Get.find<AuthenticationController>();
 
-  bool isloading = true;
-  final List<dynamic> listinquiries = [];
+  bool isLoading = true;
+  final List<dynamic> listInquiries = [];
 
-  Future<void> getinquiry() async {
+  Future<void> getInquiry() async {
     try {
       final response = await ProfileService().getinquiry(id: auth.userId ?? "");
 
-      if (response == null || response["data"] == null) return;
-
-      setState(() {
-        listinquiries.clear();
-        listinquiries.addAll(response["data"]);
-        isloading = false;
-      });
+      if (response != null && response["data"] != null) {
+        setState(() {
+          listInquiries.clear();
+          listInquiries.addAll(response["data"]);
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } catch (e) {
       debugPrint("Error fetching inquiries: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> deleteInquiry(String id) async {
+    try {
+      Get.dialog(
+        const Center(child: CircularProgressIndicator()),
+        barrierDismissible: false,
+      );
+
+      final response = await ProfileService().deleteinquirifun(id: id);
+
+      Get.back(); // close loader
+
+      if (response["status"] == true) {
+        CustomSnackbar.showSuccess(
+          response["message"] ?? "Deleted successfully",
+        );
+        await getInquiry(); // 🔥 REFRESH LIST
+      }
+    } catch (e) {
+      Get.back();
+      debugPrint("Delete error: $e");
     }
   }
 
   @override
   void initState() {
     super.initState();
-    getinquiry();
+    getInquiry();
   }
 
   @override
@@ -48,9 +79,9 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
         ),
         backgroundColor: Colors.white,
       ),
-      body: isloading
-          ? Center(child: CircularProgressIndicator())
-          : listinquiries.isEmpty
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : listInquiries.isEmpty
           ? const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -70,11 +101,12 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
             )
           : ListView.builder(
               padding: const EdgeInsets.all(12),
-              itemCount: listinquiries.length,
+              itemCount: listInquiries.length,
               itemBuilder: (context, index) {
-                final inquiry = listinquiries[index];
+                final inquiry = listInquiries[index];
+
                 return Card(
-                  color: Colors.white,
+                  color: Colors.grey.shade100,
                   elevation: 4,
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   shape: RoundedRectangleBorder(
@@ -93,6 +125,7 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
+
                         Row(
                           children: [
                             const Icon(Icons.person, size: 16),
@@ -100,7 +133,9 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                             Text(inquiry['name'] ?? ''),
                           ],
                         ),
+
                         const SizedBox(height: 4),
+
                         Row(
                           children: [
                             const Icon(Icons.email, size: 16),
@@ -108,7 +143,9 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                             Text(inquiry['email'] ?? ''),
                           ],
                         ),
+
                         const SizedBox(height: 4),
+
                         Row(
                           children: [
                             const Icon(Icons.phone, size: 16),
@@ -116,20 +153,41 @@ class _InquiriesScreenState extends State<InquiriesScreen> {
                             Text(inquiry['phone'] ?? ''),
                           ],
                         ),
+
                         const SizedBox(height: 8),
+
                         Text(
                           inquiry['message'] ?? '',
                           style: const TextStyle(color: Colors.black87),
                         ),
+
                         const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Text(
-                            inquiry['created_date'] ?? '',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
+
+                        Text(
+                          inquiry['created_date'] ?? '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black,
+                          ),
+                        ),
+
+                        const SizedBox(height: 10),
+
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            deleteInquiry(inquiry["id"].toString());
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                            size: 18,
+                            color: Colors.white,
+                          ),
+                          label: const Text(
+                            "Delete",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
                           ),
                         ),
                       ],

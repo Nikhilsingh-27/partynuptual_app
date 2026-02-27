@@ -65,7 +65,7 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: SizedBox(
-          height: 300,
+          height: 335,
           child: PageView.builder(
             controller: _pageController,
             itemCount: ideas.length,
@@ -74,7 +74,10 @@ class _AutoScrollPartyCardsState extends State<AutoScrollPartyCards> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: PartyCardScroll(index: index),
+                child: PartyCardScroll(
+                  key: ValueKey(item['id']), // 👈 VERY IMPORTANT
+                  index: index,
+                ),
               );
             },
           ),

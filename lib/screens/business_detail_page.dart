@@ -263,13 +263,14 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                     SizedBox(height: 8),
                                     Text(
                                       "Added By",
-                                      style: TextStyle(color: Colors.grey),
+                                      style: TextStyle(color: Colors.black),
                                     ),
                                     Text(
                                       "Vendor",
                                       style: TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
+                                        color: Colors.black,
                                       ),
                                     ),
                                   ],

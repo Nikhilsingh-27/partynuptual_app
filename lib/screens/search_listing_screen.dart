@@ -7,8 +7,8 @@ import 'business_detail_page.dart';
 
 class SearchListingsPage extends StatefulWidget {
   final String categoryId;
-  final String countryId;
-  final String stateId;
+  final String? countryId; // ✅ optional
+  final String? stateId;
   final int totalPagesFromPrevious;
 
   const SearchListingsPage({

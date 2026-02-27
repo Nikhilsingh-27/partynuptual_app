@@ -88,16 +88,19 @@ class _AutoScrollCardsState extends State<AutoScrollCards> {
 
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: buildListingCard(
-                  context: context,
-                  listingid: item["listing_id"],
-                  image: getLogoImageUrl(item['logo_image']),
-                  name: item['company_name'] ?? '',
-                  description: item['about'] ?? '',
-                  phone: item['phone_number'] ?? '',
-                  location: item['office_address'] ?? '',
-                  ownerid: item['owner_id'] ?? '',
-                  tag: item['tag_line'] ?? '',
+                child: KeyedSubtree(
+                  key: ValueKey(item["listing_id"]), // 👈 IMPORTANT
+                  child: buildListingCard(
+                    context: context,
+                    listingid: item["listing_id"],
+                    image: getLogoImageUrl(item['logo_image']),
+                    name: item['company_name'] ?? '',
+                    description: item['about'] ?? '',
+                    phone: item['phone_number'] ?? '',
+                    location: item['office_address'] ?? '',
+                    ownerid: item['owner_id'] ?? '',
+                    tag: item['tag_line'] ?? '',
+                  ),
                 ),
               );
             },

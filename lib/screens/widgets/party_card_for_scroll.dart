@@ -56,6 +56,9 @@ class _PartyCardScrollState extends State<PartyCardScroll>
               ? null
               : "like"; // toggle
         });
+        // final homeControll = Get.find<HomeController>();
+        //
+        // await homeControll.fetchHomeData();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to like');
@@ -97,6 +100,9 @@ class _PartyCardScrollState extends State<PartyCardScroll>
               ? null
               : "dislike"; // toggle
         });
+        // final homeControll = Get.find<HomeController>();
+        //
+        // await homeControll.fetchHomeData();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to dislike');
@@ -139,15 +145,32 @@ class _PartyCardScrollState extends State<PartyCardScroll>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // ClipRRect(
+            //   borderRadius: const BorderRadius.vertical(
+            //     top: Radius.circular(14),
+            //   ),
+            //   child: AspectRatio(
+            //     aspectRatio: 16 / 9,
+            //     child: Image.network(
+            //       "https://partynuptual.com/public/uploads/ideas/${item['image']}",
+            //       fit: BoxFit.cover,
+            //     ),
+            //   ),
+            // ),
             ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(14),
+                top: Radius.circular(8),
               ),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
+              child: SizedBox(
+                height: 200,
+                width: double.infinity,
                 child: Image.network(
                   "https://partynuptual.com/public/uploads/ideas/${item['image']}",
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fill, // ✅ stretches to fill completely
+                  errorBuilder: (_, __, ___) => Container(
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.image_not_supported),
+                  ),
                 ),
               ),
             ),

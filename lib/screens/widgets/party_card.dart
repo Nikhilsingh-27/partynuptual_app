@@ -77,10 +77,14 @@ class _PartyCardState extends State<PartyCard> {
             newLike: likeCount,
             newDislike: dislikeCount,
           );
+
           isLiked = true; // 🔥 turn red
           isDisliked = false;
           // 🔥 remove other
         });
+        final homeControll = Get.find<HomeController>();
+
+        await homeControll.fetchHomeData();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to like this item');
@@ -125,6 +129,9 @@ class _PartyCardState extends State<PartyCard> {
           isLiked = false;
           // 🔥 remove other
         });
+        final homeControll = Get.find<HomeController>();
+
+        await homeControll.fetchHomeData();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to dislike this item');

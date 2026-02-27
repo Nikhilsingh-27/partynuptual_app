@@ -30,7 +30,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       if (response["status"] == false) {
         CustomSnackbar.showError(" Email not found in our records");
       } else {
-        CustomSnackbar.showSuccess("Temporary password is sent to your email");
+        CustomSnackbar.showSuccessSlow(
+          "Temporary password is sent to your email",
+        );
       }
 
       Get.offAllNamed("/home");

@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
   late AuthenticationController auth;
   late HomeController controller;
   late InboxController inboxController;
-  void _refreshHomePage() {
+  void _refreshHomePage() async {
     // 🔥 If API data must refresh
     controller.fetchHomeData();
     // final auth = Get.find<AuthenticationController>();
@@ -135,6 +135,9 @@ class _HomePageState extends State<HomePage> {
     // if (auth.userId != null) {
     //   inboxController.fetchInbox(auth.userId!);
     // } // or whatever your API method is
+    final homeControll = Get.find<HomeController>();
+
+    await homeControll.fetchHomeData();
   }
 
   @override
@@ -629,8 +632,12 @@ class _HomePageState extends State<HomePage> {
               // View More Button for Party Section
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    Get.toNamed("/viewideas");
+                  onPressed: () async {
+                    final result = await Get.toNamed("/viewideas");
+
+                    if (result == true) {
+                      controller.fetchHomeData();
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.grey[800],

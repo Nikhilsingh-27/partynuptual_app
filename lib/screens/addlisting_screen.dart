@@ -154,7 +154,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
 
     if (image != null) {
       final int imageSize = await image.length(); // size in bytes
-
+      // 1048576  //2097152
       if (imageSize > 1048576) {
         CustomSnackbar.showError(
           "Image Too Large\nImage size should not be greater than 1MB",
@@ -934,7 +934,7 @@ class _AddListingScreenState extends State<AddListingScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),

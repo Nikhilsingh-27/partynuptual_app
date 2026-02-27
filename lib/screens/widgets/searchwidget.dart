@@ -140,26 +140,25 @@ class _SearchWidgetState extends State<SearchWidget> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: () async {
-                  if (selectedCountryId == null ||
-                      selectedStateId == null ||
-                      selectedCategoryId == null) {
-                    debugPrint("Please select all fields");
+                  // ✅ Only category is mandatory
+                  if (selectedCategoryId == null) {
+                    debugPrint("Please select category");
                     return;
                   }
 
                   try {
                     final response = await ProfileService().searchfun(
-                      country_id: selectedCountryId!,
-                      state: selectedStateId!,
                       category: selectedCategoryId!,
                       page: "1",
+                      country_id: selectedCountryId, // optional
+                      state: selectedStateId, // optional
                     );
 
                     Get.to(
                       () => SearchListingsPage(
                         categoryId: selectedCategoryId!,
-                        countryId: selectedCountryId!,
-                        stateId: selectedStateId!,
+                        countryId: selectedCountryId, // may be null
+                        stateId: selectedStateId, // may be null
                         totalPagesFromPrevious: response["total_pages"] is int
                             ? response["total_pages"]
                             : int.parse(response["total_pages"].toString()),

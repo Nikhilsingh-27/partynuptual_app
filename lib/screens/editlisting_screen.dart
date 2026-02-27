@@ -9,8 +9,8 @@ import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/controllers/home_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/mylisting_screen.dart';
 import 'package:new_app/screens/plan_screen.dart';
-import 'package:new_app/screens/widgets/convertimgtobase64.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
 class EditListingScreen extends StatefulWidget {
@@ -24,25 +24,37 @@ class EditListingScreen extends StatefulWidget {
 class _EditListingScreenState extends State<EditListingScreen> {
   bool isLoading = false;
   final AuthenticationController auth = Get.find<AuthenticationController>();
-  Future<void> uploadGalleryImages(String listingId) async {
-    if (galleryImages.isEmpty) return;
+  Future<bool> uploadGalleryImages(String listingId) async {
+    if (galleryImages.isEmpty) return true; // nothing to upload
 
     try {
-      for (XFile image in galleryImages) {
-        String? base64Image = await convertImageToBase64(image);
+      const int maxSize = 2 * 1024 * 1024; // 2MB
 
-        // Call API for each image
+      // 🔥 Step 1: Validate each image size
+      for (XFile image in galleryImages) {
+        final File file = File(image.path);
+        final int fileSize = await file.length();
+
+        if (fileSize > maxSize) {
+          CustomSnackbar.showError("Each image must be less than 2MB.");
+          return false;
+        }
+      }
+
+      // ✅ Step 2: Upload using File (NO BASE64)
+      for (XFile image in galleryImages) {
         await ProfileService().uploadGalleryfun(
-          owner_id: auth.userId.toString(),
-          listing_id: listingId,
-          image: base64Image ?? "",
+          ownerId: auth.userId ?? "",
+          listingId: listingId,
+          imageFile: File(image.path), // ✅ send File
         );
       }
 
       debugPrint("All gallery images uploaded successfully");
+      return true;
     } catch (e) {
       debugPrint("Gallery Upload Error: $e");
-      rethrow;
+      return false;
     }
   }
 
@@ -105,13 +117,52 @@ class _EditListingScreenState extends State<EditListingScreen> {
     });
   }
 
+  String getListingStatus(Map<String, dynamic> response, String listingId) {
+    final List<dynamic> listings = response["data"] ?? [];
+
+    final matched = listings.where(
+      (item) => item["listing_id"]?.toString() == listingId,
+    );
+
+    if (matched.isEmpty) return "";
+
+    return matched.first["status"]?.toString() ?? "";
+  }
+
+  String status = "";
+
+  Future<void> fetchlisting() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final response = await ProfileService().getmylistingfun(
+        id: auth.userId.toString(),
+      );
+
+      setState(() {
+        status = getListingStatus(
+          response,
+          widget.data["listing_id"]?.toString() ?? "",
+        );
+      });
+    } catch (e) {
+      print("Fetch listing error: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchlistingbyid(widget.data["listing_id"].toString());
 
     final data = widget.data;
-
+    fetchlisting();
     // 🔹 Basic Fields
     companyNameCtrl.text = data["company_name"]?.toString() ?? "";
     emailCtrl.text = data["email"]?.toString() ?? "";
@@ -321,6 +372,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.data);
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -1067,7 +1119,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 15),
+                  SizedBox(height: 10),
                   // Save & Next
                   Center(
                     child: ElevatedButton(
@@ -1086,11 +1138,6 @@ class _EditListingScreenState extends State<EditListingScreen> {
                         }
 
                         // 🔹 Convert image to base64
-                        String? base64Image;
-
-                        if (isImageChanged && bannerImage != null) {
-                          base64Image = await convertImageToBase64(bannerImage);
-                        }
 
                         try {
                           setState(() {
@@ -1122,36 +1169,55 @@ class _EditListingScreenState extends State<EditListingScreen> {
                           };
 
                           ///  Only add image if changed
-                          if (base64Image != null && base64Image.isNotEmpty) {
-                            body["image"] = base64Image;
-                          }
 
-                          final response = await ProfileService().updateListing(
-                            body,
-                          );
-
-                          print("API Response: $response");
-
-                          //  Upload gallery images AFTER listing updated
-                          await uploadGalleryImages(
+                          bool isUploaded = await uploadGalleryImages(
                             widget.data["listing_id"].toString(),
                           );
+
+                          if (isUploaded) {
+                            final response = await ProfileService()
+                                .updateListing(body);
+                            CustomSnackbar.showSuccess(
+                              "Listing updated successfully",
+                            );
+                            // Optional: handle response
+                            if (status == "1") {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyListingScreen(),
+                                ),
+                              );
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PricingScreen(
+                                    id:
+                                        widget.data["listing_id"]?.toString() ??
+                                        "",
+                                  ),
+                                ),
+                              );
+                            }
+                            debugPrint("Update Listing Response: $response");
+                          } else {
+                            debugPrint(
+                              "Gallery upload failed. Update API not called.",
+                            );
+                          }
+
+                          //print("API Response: $response");
+
+                          //  Upload gallery images AFTER listing updated
 
                           setState(() {
                             isLoading = false;
                           });
 
-                          CustomSnackbar.showSuccess(
-                            "Listing updated successfully",
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => PricingScreen(
-                                id: widget.data["listing_id"].toString() ?? "",
-                              ),
-                            ),
-                          );
+                          print("nikhil");
+
+                          print(status);
                         } catch (e) {
                           CustomSnackbar.showError(e.toString());
                         }
@@ -1172,7 +1238,7 @@ class _EditListingScreenState extends State<EditListingScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
