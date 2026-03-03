@@ -183,7 +183,7 @@ class _GuestSignUpState extends State<GuestSignUp> {
 
       if (isSuccess) {
         CustomSnackbar.showSuccessSlow(
-          "Account created successfully 🎉\nPlease verify your email to continue.",
+          "Signup successful, please check your email to verify your account.\nIf you don't see the email, please check your spam folder.",
         );
 
         await Future.delayed(const Duration(seconds: 1));

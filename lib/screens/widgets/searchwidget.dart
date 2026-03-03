@@ -46,22 +46,28 @@ class _SearchWidgetState extends State<SearchWidget> {
         return const SizedBox();
       }
 
-      final List countries = homeData.data["data"]["countries"] as List;
-      final List categories = homeData.data["data"]["categories_all"] as List;
+      final List countries =
+      homeData.data["data"]["countries"] as List;
+      final List categories =
+      homeData.data["data"]["categories_all"] as List;
 
       return Container(
         padding: const EdgeInsets.all(8),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// CATEGORY
             Expanded(
+              flex: 3,
               child: _buildDropdown<String>(
                 hint: 'Select Category',
                 value: selectedCategoryId,
-                items: categories.map<DropdownMenuItem<String>>((category) {
+                items: categories
+                    .map<DropdownMenuItem<String>>((category) {
                   return DropdownMenuItem<String>(
                     value: category['category_id'].toString(),
-                    child: _singleLineText(category['category_name']),
+                    child: _dropdownText(
+                        category['category_name']),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -72,17 +78,19 @@ class _SearchWidgetState extends State<SearchWidget> {
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
 
             /// COUNTRY
             Expanded(
+              flex: 3,
               child: _buildDropdown<String>(
                 hint: 'Select Country',
                 value: selectedCountryId,
-                items: countries.map<DropdownMenuItem<String>>((country) {
+                items: countries
+                    .map<DropdownMenuItem<String>>((country) {
                   return DropdownMenuItem<String>(
                     value: country['country_id'].toString(),
-                    child: _singleLineText(country['name']),
+                    child: _dropdownText(country['name']),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -99,75 +107,92 @@ class _SearchWidgetState extends State<SearchWidget> {
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
 
             /// STATE
             Expanded(
+              flex: 3,
               child: _buildDropdown<String>(
-                hint: isStateLoading ? 'Loading...' : 'Select State',
-                value: stateList.isEmpty ? null : selectedStateId,
-                items: stateList.map<DropdownMenuItem<String>>((state) {
+                hint:
+                isStateLoading ? 'Loading...' : 'Select State',
+                value:
+                stateList.isEmpty ? null : selectedStateId,
+                items: stateList
+                    .map<DropdownMenuItem<String>>((state) {
                   return DropdownMenuItem<String>(
                     value: state['state_id'].toString(),
-                    child: _singleLineText(state['name']),
+                    child: _dropdownText(state['name']),
                   );
                 }).toList(),
-                onChanged:
-                    (selectedCountryId == null ||
-                        isStateLoading ||
-                        stateList.isEmpty)
+                onChanged: (selectedCountryId == null ||
+                    isStateLoading ||
+                    stateList.isEmpty)
                     ? null
                     : (value) {
-                        setState(() {
-                          selectedStateId = value;
-                        });
-                      },
+                  setState(() {
+                    selectedStateId = value;
+                  });
+                },
               ),
             ),
 
-            const SizedBox(width: 8),
+            const SizedBox(width: 6),
 
             /// SEARCH BUTTON
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                color: const Color(0xFFC71F37),
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: IconButton(
-                icon: const Icon(Icons.search, color: Colors.white, size: 20),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () async {
-                  // ✅ Only category is mandatory
-                  if (selectedCategoryId == null) {
-                    debugPrint("Please select category");
-                    return;
-                  }
+            Expanded(
+              flex: 1,
+              child: Container(
+                height: 50,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFC71F37),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.search,
+                      color: Colors.white, size: 20),
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    if (selectedCategoryId == null) {
+                      debugPrint(
+                          "Please select category");
+                      return;
+                    }
 
-                  try {
-                    final response = await ProfileService().searchfun(
-                      category: selectedCategoryId!,
-                      page: "1",
-                      country_id: selectedCountryId, // optional
-                      state: selectedStateId, // optional
-                    );
+                    try {
+                      final response =
+                      await ProfileService()
+                          .searchfun(
+                        category: selectedCategoryId!,
+                        page: "1",
+                        country_id:
+                        selectedCountryId,
+                        state: selectedStateId,
+                      );
 
-                    Get.to(
-                      () => SearchListingsPage(
-                        categoryId: selectedCategoryId!,
-                        countryId: selectedCountryId, // may be null
-                        stateId: selectedStateId, // may be null
-                        totalPagesFromPrevious: response["total_pages"] is int
-                            ? response["total_pages"]
-                            : int.parse(response["total_pages"].toString()),
-                      ),
-                    );
-                  } catch (e) {
-                    debugPrint("Search Error: $e");
-                  }
-                },
+                      Get.to(
+                            () => SearchListingsPage(
+                          categoryId:
+                          selectedCategoryId!,
+                          countryId:
+                          selectedCountryId,
+                          stateId:
+                          selectedStateId,
+                          totalPagesFromPrevious:
+                          response["total_pages"]
+                          is int
+                              ? response[
+                          "total_pages"]
+                              : int.parse(response[
+                          "total_pages"]
+                              .toString()),
+                        ),
+                      );
+                    } catch (e) {
+                      debugPrint(
+                          "Search Error: $e");
+                    }
+                  },
+                ),
               ),
             ),
           ],
@@ -176,22 +201,20 @@ class _SearchWidgetState extends State<SearchWidget> {
     });
   }
 
-  /// 🔹 SINGLE LINE RESPONSIVE TEXT
-  Widget _singleLineText(String text) {
-    return FittedBox(
-      fit: BoxFit.scaleDown,
-      alignment: Alignment.centerLeft,
-      child: Text(
-        text,
-        maxLines: 1,
-        softWrap: false,
-        overflow: TextOverflow.visible,
-        style: const TextStyle(fontSize: 14, color: Colors.black),
+  /// 🔹 Text that wraps to 2 lines (no shrink, no ellipsis)
+  Widget _dropdownText(String text) {
+    return Text(
+      text,
+      maxLines: 2,
+      overflow: TextOverflow.visible,
+      style: const TextStyle(
+        fontSize: 14,
+        color: Colors.black,
       ),
     );
   }
 
-  /// 🔹 REUSABLE DROPDOWN
+  /// 🔹 Reusable Dropdown (height auto grows)
   Widget _buildDropdown<T>({
     required String hint,
     required T? value,
@@ -199,19 +222,26 @@ class _SearchWidgetState extends State<SearchWidget> {
     ValueChanged<T?>? onChanged,
   }) {
     return Container(
-      height: 40,
+      constraints: const BoxConstraints(
+        minHeight: 50,
+      ),
       padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.black54),
-        borderRadius: BorderRadius.circular(6),
+        border:
+        Border.all(color: Colors.black54),
+        borderRadius:
+        BorderRadius.circular(6),
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<T>(
           isExpanded: true,
           value: value,
           onChanged: onChanged,
-          style: const TextStyle(fontSize: 14, color: Colors.black),
-          hint: _singleLineText(hint),
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.black,
+          ),
+          hint: _dropdownText(hint),
           items: items,
         ),
       ),

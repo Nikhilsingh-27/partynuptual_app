@@ -187,7 +187,7 @@ class _VendorSignUpState extends State<VendorSignUp> {
 
       if (isSuccess) {
         CustomSnackbar.showSuccessSlow(
-          "Vendor account created successfully 🎉\nPlease verify your email.",
+          "Signup successful, please check your email to verify your account.\nIf you don't see the email, please check your spam folder.",
         );
 
         await Future.delayed(const Duration(seconds: 1));
