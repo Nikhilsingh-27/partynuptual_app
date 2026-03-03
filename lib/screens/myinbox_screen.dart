@@ -120,7 +120,7 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
 
   Widget _messageTile(Map<String, dynamic> item, int index) {
     String vendorName = item["vendor_name"] ?? "Unknown";
-    String? avatar = item["avatar"];
+    String? avatar = "https://partynuptual.com/public/uploads/customers/${item["avatar"]}";
     String unreadCount = item["unread_count"] ?? "0";
     String user_id = auth.userId ?? "";
     String vendor_id = user_id == item["vendor_id"]
@@ -164,7 +164,7 @@ class _MyInboxScreenState extends State<MyInboxScreen> {
                   backgroundColor: const Color(0xFF5B6786),
                   backgroundImage: avatar != null
                       ? NetworkImage(
-                          "https://partynuptual.com/public/uploads/avatar/$avatar",
+                          avatar,
                         )
                       : null,
                   child: avatar == null

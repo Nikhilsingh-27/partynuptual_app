@@ -42,6 +42,8 @@ class _ChatScreenState extends State<ChatScreen> {
     print("receiver id :$receiverId");
     vendorname = args["vendor_name"] ?? "";
     avatar = args["avatar"] ?? "";
+    print("nn");
+    print(avatar);
     _loadMessages();
     _startAutoRefresh();
   }
