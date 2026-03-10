@@ -72,7 +72,8 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
     } finally {
       setState(() {
         isLoading = false;
-        isPageChanging = false;
+        //isPageChanging = false;
+        check=false;
       });
     }
   }
@@ -143,6 +144,7 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
                               phone: listing['phone_number'] ?? '',
                               location: listing['office_address'] ?? '',
                               ownerid: listing['owner_id'].toString(),
+                              tag: listing['tag_line'] ?? '',
                             ),
                           );
                         }).toList(),
@@ -157,7 +159,8 @@ class _SearchListingsPageState extends State<SearchListingsPage> {
                         onPageChanged: (page) {
                           setState(() {
                             currentPage = page;
-                            isPageChanging = true;
+                            // isPageChanging = true;
+                            check=true;
                           });
                           fetchListings(reset: true);
                         },
@@ -192,6 +195,7 @@ Widget _buildListingCard({
   required String phone,
   required String location,
   required String ownerid,
+  required String tag,
 }) {
   return Container(
     decoration: BoxDecoration(
@@ -215,7 +219,7 @@ Widget _buildListingCard({
             child: Image.network(
               image,
               width: double.infinity,
-              fit: BoxFit.cover,
+              fit: BoxFit.fill,
               errorBuilder: (_, __, ___) => Container(
                 color: Colors.grey[300],
                 alignment: Alignment.center,
@@ -247,20 +251,20 @@ Widget _buildListingCard({
               ),
               const SizedBox(height: 8),
               Text(
-                description,
+                tag,
                 maxLines: 4,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                style: TextStyle(fontSize: 12, color: Colors.black),
               ),
               const SizedBox(height: 10),
               Row(
                 children: [
-                  Icon(Icons.phone, size: 14, color: Colors.grey[600]),
+                  Icon(Icons.phone, size: 14, color: Colors.black),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       phone,
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(fontSize: 12, color: Colors.black),
                     ),
                   ),
                 ],
