@@ -30,7 +30,11 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
   String? subjectErrorText;
   String? messageErrorText;
 
+  bool isLoading = false;
+
   Future<void> _sendMessage() async {
+    if (isLoading) return;
+
     String name = nameController.text.trim();
     String email = emailController.text.trim();
     String phone = phoneController.text.trim();
@@ -92,7 +96,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       CustomSnackbar.showError("Please enter a valid phone number");
       return;
     }
-
+    setState(() {
+      isLoading = true;
+    });
     try {
       final response = await HomeService().contactus(
         name: name,
@@ -101,7 +107,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         subject: subject,
         message: message,
       );
-
+      print("pp");
+      print(response);
       if (response["status"] == "success") {
         CustomSnackbar.showSuccess("Message sent successfully");
 
@@ -111,10 +118,15 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         subjectController.clear();
         queryController.clear();
       } else {
-        CustomSnackbar.showError("Failed to send message");
+        CustomSnackbar.showError(response["message"]);
       }
     } catch (e) {
       CustomSnackbar.showError("Something went wrong. Please try again.");
+    }
+    finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -243,13 +255,21 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: _sendMessage,
+                          onPressed: isLoading ? null :_sendMessage,
                           icon: const Icon(
                             Icons.send,
                             size: 18,
                             color: Colors.white,
                           ),
-                          label: const Text(
+                          label: isLoading
+                              ? const SizedBox(
+                            height: 22,
+                            width: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          ): const Text(
                             "Send Message",
                             style: TextStyle(
                               fontSize: 16,

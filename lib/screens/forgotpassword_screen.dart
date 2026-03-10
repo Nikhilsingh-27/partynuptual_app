@@ -12,7 +12,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final TextEditingController emailController = TextEditingController();
-
+  bool isLoading = false;
   @override
   void dispose() {
     emailController.dispose();
@@ -20,8 +20,15 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   }
 
   void _onResetPressed() async {
+    if (emailController.text.trim()=="") {
+      CustomSnackbar.showError("Please enter your email");
+      return;
+    }
+    if (isLoading) return;
     final emailOrUsername = emailController.text.trim();
-
+    setState(() {
+      isLoading = true;   // START LOADING
+    });
     try {
       final response = await AuthenticationService().forgotpassfun(
         email: emailOrUsername,
@@ -38,6 +45,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       Get.offAllNamed("/home");
     } catch (e) {
       CustomSnackbar.showError("Something went wrong");
+    }finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false;   // STOP LOADING
+        });
+      }
     }
   }
 
@@ -127,14 +140,22 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     width: double.infinity,
                     height: 54,
                     child: ElevatedButton(
-                      onPressed: _onResetPressed,
+                      onPressed: isLoading ? null : _onResetPressed,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFC61D36),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
+                      child:isLoading
+                          ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      ):  const Text(
                         "Reset Password",
                         style: TextStyle(
                           fontSize: 16,

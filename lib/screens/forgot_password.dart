@@ -9,7 +9,7 @@ class ForgotPassword extends StatefulWidget {
 
 class _ForgotPasswordState extends State<ForgotPassword> {
   final TextEditingController _emailController = TextEditingController();
-
+  bool isLoading = false;
   @override
   void dispose() {
     _emailController.dispose();

@@ -74,6 +74,7 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
     fetchlistingbyid(widget.listingid);
   }
 
+  bool inquirycheck=false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -373,63 +374,59 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
 
                                 const SizedBox(height: 16),
 
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton.icon(
-                                    onPressed: () async {
-                                      setState(() {
-                                        showNameError = nameCtrl.text
-                                            .trim()
-                                            .isEmpty;
-                                        showEmailError = emailCtrl.text
-                                            .trim()
-                                            .isEmpty;
-                                        showEmailFormatError =
-                                            emailCtrl.text.isNotEmpty &&
-                                            !GetUtils.isEmail(
-                                              emailCtrl.text.trim(),
-                                            );
-                                        showPhoneError = phoneCtrl.text
-                                            .trim()
-                                            .isEmpty;
-                                        showPhoneLengthError =
-                                            phoneCtrl.text.isNotEmpty &&
-                                            phoneCtrl.text.trim().length < 6;
-                                        showCommentError = commentCtrl.text
-                                            .trim()
-                                            .isEmpty;
-                                      });
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: inquirycheck ? null : () async {
 
-                                      if (showNameError ||
-                                          showEmailError ||
-                                          showEmailFormatError ||
-                                          showPhoneError ||
-                                          showPhoneLengthError ||
-                                          showCommentError) {
-                                        CustomSnackbar.showError(
-                                          "All fields are required",
-                                        );
-                                        return;
-                                      }
+                                    if (inquirycheck) return;
 
-                                      final response = await ProfileService()
-                                          .sendinquiry(
-                                            name: nameCtrl.text.trim(),
-                                            email: emailCtrl.text.trim(),
-                                            phone: phoneCtrl.text.trim(),
-                                            message: commentCtrl.text.trim(),
-                                            listing_id: widget.listingid,
-                                            vendor_id: widget.ownerid,
-                                          );
+                                    setState(() {
+                                      showNameError = nameCtrl.text.trim().isEmpty;
+                                      showEmailError = emailCtrl.text.trim().isEmpty;
+                                      showEmailFormatError =
+                                          emailCtrl.text.isNotEmpty &&
+                                              !GetUtils.isEmail(emailCtrl.text.trim());
+
+                                      showPhoneError = phoneCtrl.text.trim().isEmpty;
+                                      showPhoneLengthError =
+                                          phoneCtrl.text.isNotEmpty &&
+                                              phoneCtrl.text.trim().length < 6;
+
+                                      showCommentError = commentCtrl.text.trim().isEmpty;
+                                    });
+
+                                    if (showNameError ||
+                                        showEmailError ||
+                                        showEmailFormatError ||
+                                        showPhoneError ||
+                                        showPhoneLengthError ||
+                                        showCommentError) {
+                                      CustomSnackbar.showError("All fields are required");
+                                      return;
+                                    }
+
+                                    setState(() {
+                                      inquirycheck = true;
+                                    });
+
+                                    try {
+
+                                      final response = await ProfileService().sendinquiry(
+                                        name: nameCtrl.text.trim(),
+                                        email: emailCtrl.text.trim(),
+                                        phone: phoneCtrl.text.trim(),
+                                        message: commentCtrl.text.trim(),
+                                        listing_id: widget.listingid,
+                                        vendor_id: widget.ownerid,
+                                      );
 
                                       final bool isSuccess =
                                           response["status"] == true ||
-                                          response["status"] == "success";
+                                              response["status"] == "success";
 
                                       if (isSuccess) {
-                                        CustomSnackbar.showSuccess(
-                                          "Inquiry sent successfully",
-                                        );
+                                        CustomSnackbar.showSuccess("Inquiry sent successfully");
 
                                         nameCtrl.clear();
                                         emailCtrl.clear();
@@ -437,27 +434,48 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
                                         commentCtrl.clear();
                                       } else {
                                         CustomSnackbar.showError(
-                                          response["message"] ??
-                                              "Failed to send inquiry",
-                                        );
+                                            response["message"] ?? "Failed to send inquiry");
                                       }
-                                    },
-                                    icon: const Icon(
-                                      Icons.send,
+
+                                    } catch (e) {
+                                      CustomSnackbar.showError("Something went wrong");
+                                    }
+
+                                    if (mounted) {
+                                      setState(() {
+                                        inquirycheck = false;
+                                      });
+                                    }
+
+                                  },
+
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFc71f37),
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                  ),
+
+                                  child: inquirycheck
+                                      ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
                                       color: Colors.white,
                                     ),
-                                    label: const Text(
-                                      "Send Inquiry",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFFc71f37),
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
+                                  )
+                                      : const Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.send, color: Colors.white),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "Send Inquiry",
+                                        style: TextStyle(color: Colors.white),
                                       ),
-                                    ),
+                                    ],
                                   ),
                                 ),
+                              ),
                               ],
                             ),
                           ),

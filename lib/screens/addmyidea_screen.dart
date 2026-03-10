@@ -26,7 +26,7 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
   bool showVenueError = false;
   bool showDescError = false;
   bool showImageError = false;
-
+  bool isLoading = false;
   late String ideaId;
 
   final TextEditingController _venueCtrl = TextEditingController();
@@ -240,8 +240,16 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                        onPressed: _submitData,
-                        child: Text(
+                        onPressed: isLoading?null: _submitData,
+                        child: isLoading
+                            ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        ) : Text(
                           ideaId.isEmpty ? "Submit Idea" : "Update Idea",
                           style: const TextStyle(
                             fontSize: 16,
@@ -326,6 +334,7 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
 
   // ================= SUBMIT =================
   Future<void> _submitData() async {
+    if(isLoading)return;
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null || auth.userId!.isEmpty) {
@@ -344,7 +353,9 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
       CustomSnackbar.showError("Please fill all required fields");
       return;
     }
-
+    setState(() {
+      isLoading=true;
+    });
     try {
       CustomSnackbar.showSuccess("Please wait..");
 
@@ -368,7 +379,8 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
           image: selectedImage,
         );
       }
-
+      print("ii");
+      print(response);
       if (response['status'] == true || response['status'] == "success") {
         CustomSnackbar.showSuccess("Success");
         final homeController = Get.find<HomeController>();
@@ -389,6 +401,8 @@ class _AddMyIdeaScreenState extends State<AddMyIdeaScreen> {
       }
     } catch (e) {
       CustomSnackbar.showError(e.toString());
+    }finally{
+      isLoading=false;
     }
   }
 

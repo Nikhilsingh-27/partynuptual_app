@@ -33,8 +33,9 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
   bool phoneError = false;
   bool reviewError = false;
   bool ratingError = false;
-
+  bool isloading = false;
   Future<void> submitReview() async {
+    if(isloading)return;
     setState(() {
       nameError = nameCtrl.text.trim().isEmpty;
       emailError =
@@ -55,7 +56,9 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
       CustomSnackbar.showError("User not logged in");
       return;
     }
-
+    setState(() {
+      isloading=true;
+    });
     try {
       final response = await ProfileService().addReviewFun(
         vendorId: widget.ownerId,
@@ -84,6 +87,12 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
       }
     } catch (e) {
       CustomSnackbar.showError(e.toString());
+    }finally {
+      if (mounted) {
+        setState(() {
+          isloading = false;   // STOP LOADING
+        });
+      }
     }
   }
 
@@ -177,9 +186,17 @@ class _ReviewToVendorState extends State<ReviewToVendor> {
             width: double.infinity,
             height: 48,
             child: ElevatedButton.icon(
-              onPressed: submitReview,
+              onPressed:isloading ? null: submitReview,
               icon: const Icon(Icons.send, color: Colors.white),
-              label: const Text(
+              label: isloading
+                  ? const SizedBox(
+                height: 22,
+                width: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ) : const Text(
                 "Submit Review",
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
