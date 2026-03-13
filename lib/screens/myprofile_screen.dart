@@ -16,6 +16,8 @@ class MyProfileScreen extends StatefulWidget {
 }
 
 class _MyProfileScreenState extends State<MyProfileScreen> {
+  bool isLoading = false;
+  bool isLoadingforpass = false;
   final AuthenticationController auth = Get.find<AuthenticationController>();
   Future<void> performLogout() async {
     Get.dialog(
@@ -166,7 +168,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   _input("Old Password", oldPasswordCtrl, obscure: true),
                   _input("New Password", newPasswordCtrl, obscure: true),
                   const SizedBox(height: 15),
-                  _primaryButton("Update Password", _printPasswordInfo),
+                  _primaryButtonforpassword(
+                    "Update Password",
+                    _printPasswordInfo,
+                  ),
                 ],
               ),
             ),
@@ -178,24 +183,38 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               child: Column(
                 children: [
                   ElevatedButton(
-                    onPressed: () async {
-                      final response = await ProfileService().deleteAccountfun(
-                        id: auth.userId ?? "",
+                    onPressed: () {
+                      Get.defaultDialog(
+                        title: "Delete Account",
+                        middleText:
+                            "Are you sure you want to delete your account? This action cannot be undone.",
+                        textCancel: "Cancel",
+                        textConfirm: "Yes, Delete",
+                        confirmTextColor: Colors.white,
+                        buttonColor: const Color.fromRGBO(199, 31, 55, 1),
+                        onConfirm: () async {
+                          Get.back(); // close dialog
+
+                          final response = await ProfileService()
+                              .deleteAccountfun(id: auth.userId ?? "");
+
+                          if (response["status"] == "success") {
+                            await performLogout();
+                            Get.offAllNamed('/home');
+
+                            CustomSnackbar.showSuccess(
+                              "Account deleted successfully",
+                            );
+                          } else {
+                            CustomSnackbar.showError(
+                              "Failed to delete account",
+                            );
+                          }
+                        },
                       );
-
-                      if (response["status"] == "success") {
-                        // Navigate to home and clear previous routes
-
-                        // Show success snackbar
-
-                        await performLogout();
-                        Get.offAllNamed('/home');
-                      } else {
-                        CustomSnackbar.showError("Failed to delete account");
-                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromRGBO(199, 31, 55, 1),
+                      backgroundColor: const Color.fromRGBO(199, 31, 55, 1),
                       minimumSize: const Size(double.infinity, 48),
                     ),
                     child: const Text(
@@ -296,16 +315,45 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   Widget _primaryButton(String text, VoidCallback onTap) {
     return ElevatedButton(
-      onPressed: onTap,
+      onPressed: isLoading ? null : onTap,
       style: ElevatedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
         backgroundColor: Color.fromRGBO(199, 31, 55, 1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
-      child: Text(text, style: TextStyle(color: Colors.white)),
+      child: isLoading
+          ? const SizedBox(
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(text, style: TextStyle(color: Colors.white)),
     );
   }
 
+  Widget _primaryButtonforpassword(String text, VoidCallback onTap) {
+    return ElevatedButton(
+      onPressed: isLoadingforpass ? null : onTap,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 48),
+        backgroundColor: Color.fromRGBO(199, 31, 55, 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      child: isLoadingforpass
+          ? const SizedBox(
+              height: 22,
+              width: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            )
+          : Text(text, style: TextStyle(color: Colors.white)),
+    );
+  }
   // ========================= PRINT FUNCTIONS =========================
 
   void _printBasicInfo() async {
@@ -315,7 +363,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       CustomSnackbar.showError("User not logged in");
       return;
     }
-
+    if (isLoading) return;
+    setState(() {
+      isLoading = true; // START LOADING
+    });
     try {
       final response = await ProfileService().updateInfo(
         userId: auth.userId!,
@@ -338,10 +389,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
     } catch (e) {
       CustomSnackbar.showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoading = false; // STOP LOADING
+        });
+      }
     }
   }
 
   void _printPasswordInfo() async {
+    if (isLoadingforpass) return;
     final auth = Get.find<AuthenticationController>();
 
     if (auth.userId == null) {
@@ -357,6 +415,10 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       CustomSnackbar.showError("Password must be at least 6 characters");
       return;
     }
+
+    setState(() {
+      isLoadingforpass = true; // START LOADING
+    });
     try {
       final response = await ProfileService().updatepasswordfun(
         user_id: auth.userId!,
@@ -380,6 +442,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
     } catch (e) {
       CustomSnackbar.showError(e.toString());
+    } finally {
+      if (mounted) {
+        setState(() {
+          isLoadingforpass = false; // STOP LOADING
+        });
+      }
     }
   }
 }

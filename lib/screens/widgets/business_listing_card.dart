@@ -241,8 +241,14 @@ class BusinessListingCard extends StatelessWidget {
                       text: "Edit",
                       bgColor: const Color(0xFFE9F2FF),
                       color: const Color(0xFF2563EB),
-                      onTap: () {
-                        Get.to(EditListingScreen(data: item));
+                      onTap: () async {
+                        final result = await Get.to(
+                          () => EditListingScreen(data: item),
+                        );
+
+                        if (result == true) {
+                          onDeleteSuccess(); // this calls fetchlisting()
+                        }
                       },
                     ),
                     _actionButton(

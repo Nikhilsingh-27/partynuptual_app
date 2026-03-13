@@ -415,8 +415,8 @@ class ProfileService {
           "state": state,
           "about_company": aboutCompany,
           "image": image,
-          "latitude": latitude,
-          "longitude": longitude,
+          "lattitude": latitude,
+          "longnitude": longitude,
         },
         options: dio.Options(contentType: dio.Headers.jsonContentType),
       );

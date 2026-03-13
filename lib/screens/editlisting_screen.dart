@@ -375,6 +375,12 @@ class _EditListingScreenState extends State<EditListingScreen> {
     print(widget.data);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Get.back(result: true); // return true when user goes back
+          },
+        ),
         title: Row(
           children: const [
             Icon(Icons.note, color: Color(0xFFc71f37)),

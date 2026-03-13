@@ -901,8 +901,8 @@ class _AddListingScreenState extends State<AddListingScreen> {
                             "state": selectedstate["state_id"] ?? "",
                             "about": descriptionCtrl.text.trim(),
                             "logo_image": bannerImage?.path,
-                            "latitude": mapCenter.latitude.toString(),
-                            "longitude": mapCenter.longitude.toString(),
+                            "lattitude": mapCenter.latitude.toString(),
+                            "longnitude": mapCenter.longitude.toString(),
                           };
 
                           print("API Response: $response");
