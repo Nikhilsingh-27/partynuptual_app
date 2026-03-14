@@ -1,25 +1,56 @@
+import 'dart:async';
+
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:new_app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import './controllers/authentication_controller.dart';
+import 'screens/home_page.dart';
+import 'screens/widgets/custom_snackbar.dart';
 
 void main() {
   Get.put(AuthenticationController());
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final AppLinks _appLinks = AppLinks();
+  StreamSubscription<Uri>? _sub;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _sub = _appLinks.uriLinkStream.listen((uri) {
+      if (uri.host == "paypal-success") {
+        Get.offAll(() => HomePage());
+      }
+
+      if (uri.host == "paypal-cancel") {
+        CustomSnackbar.showError("Payment Cancelled");
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
 
   // Function to open WhatsApp
   void openWhatsApp() async {
-    //String phone = '+911234567890'; // Replace with your WhatsApp number
-    //String message = Uri.encodeComponent("Hello, I want to chat with you!");
     String url =
-        'https://api.whatsapp.com/send/?text=Party+Nuptual+%E2%80%93+Book+Wedding%2C+Event+%26+Party+Services+Online+https%3A%2F%2Fpartynuptual.com%2F&type=custom_url&app_absent=0';
+        'https://api.whatsapp.com/send/?text=Party+Nuptual+Book+Wedding+Event+Services+https%3A%2F%2Fpartynuptual.com%2F';
 
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
@@ -42,21 +73,7 @@ class MyApp extends StatelessWidget {
       initialRoute: AppPages.initial,
       getPages: AppPages.routes,
       builder: (context, child) {
-        // Wrap all screens with Stack to show WhatsApp button globally
-        return Stack(
-          children: [
-            child!, // Your app pages
-            // Positioned(
-            //   bottom: 20,
-            //   right: 20,
-            //   child: FloatingActionButton(
-            //     onPressed: openWhatsApp,
-            //     backgroundColor: Colors.green,
-            //     child: const FaIcon(FontAwesomeIcons.whatsapp),
-            //   ),
-            // ),
-          ],
-        );
+        return Stack(children: [child!]);
       },
     );
   }

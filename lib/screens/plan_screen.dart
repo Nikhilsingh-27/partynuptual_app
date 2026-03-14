@@ -70,10 +70,10 @@ class _PricingScreenState extends State<PricingScreen> {
                     return PricingCard(
                       plan: plan,
                       listingId: widget.id,
-                      //clientid: clientid,
+
                       clientid:
-                      "AS32__Zdb-09w3i3feXfRBUoTwCiF80ksnSCXNCdUmZD07OFLJcoTqPAnhMjPGl5_vtxXvYfy7D_UPpp", // ✅ pass here
-                      //secretid: secretid,
+                          "AS32__Zdb-09w3i3feXfRBUoTwCiF80ksnSCXNCdUmZD07OFLJcoTqPAnhMjPGl5_vtxXvYfy7D_UPpp", // ✅ pass here
+
                       secretid:
                           "EHK_fuX5xopFaBTeYzvqjkHRHwbGiWSI-4FwHcq73NuukfO7IcwYWC-Tys5xLOGsUy0niSWt8yX97IJ5",
                     );
@@ -205,13 +205,13 @@ class PricingCard extends StatelessWidget {
                 onPressed: () {
                   Get.to(
                     () => UsePaypal(
-                      sandboxMode: true,
+                      sandboxMode: false,
                       clientId:
-                          "Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
+                          "AS32__Zdb-09w3i3feXfRBUoTwCiF80ksnSCXNCdUmZD07OFLJcoTqPAnhMjPGl5_vtxXvYfy7D_UPpp",
                       secretKey:
-                          "ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
-                      returnURL: "https://samplesite.com/return",
-                      cancelURL: "https://samplesite.com/cancel",
+                          "EHK_fuX5xopFaBTeYzvqjkHRHwbGiWSI-4FwHcq73NuukfO7IcwYWC-Tys5xLOGsUy0niSWt8yX97IJ5",
+                      returnURL: "myapp://paypal-success",
+                      cancelURL: "myapp://paypal-cancel",
 
                       transactions: [
                         {
