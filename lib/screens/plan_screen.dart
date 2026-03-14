@@ -72,9 +72,10 @@ class _PricingScreenState extends State<PricingScreen> {
                       listingId: widget.id,
 
                       clientid:
+                          //"Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
                           "AS32__Zdb-09w3i3feXfRBUoTwCiF80ksnSCXNCdUmZD07OFLJcoTqPAnhMjPGl5_vtxXvYfy7D_UPpp", // ✅ pass here
-
                       secretid:
+                          //"ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
                           "EHK_fuX5xopFaBTeYzvqjkHRHwbGiWSI-4FwHcq73NuukfO7IcwYWC-Tys5xLOGsUy0niSWt8yX97IJ5",
                     );
                   }).toList(),
@@ -207,8 +208,10 @@ class PricingCard extends StatelessWidget {
                     () => UsePaypal(
                       sandboxMode: false,
                       clientId:
+                          //"Ad63rLHIXb4h-Iqf0SJ_hJPPLuCAj_IR4Ay0_2vgMQS4gsfWccc7jxeAQRanZUkDsZ_spJRaPZbPEGEc",
                           "AS32__Zdb-09w3i3feXfRBUoTwCiF80ksnSCXNCdUmZD07OFLJcoTqPAnhMjPGl5_vtxXvYfy7D_UPpp",
                       secretKey:
+                          //"ENbWDdupyzCkLLXbzXgWLw5sUSaqp3BU3pUH3roQMK-aIqx5UrFhx3yEjU4N3_guIh6Xnkz1xU-EPuaX",
                           "EHK_fuX5xopFaBTeYzvqjkHRHwbGiWSI-4FwHcq73NuukfO7IcwYWC-Tys5xLOGsUy0niSWt8yX97IJ5",
                       returnURL: "myapp://paypal-success",
                       cancelURL: "myapp://paypal-cancel",
@@ -259,12 +262,14 @@ class PricingCard extends StatelessWidget {
                           print("verifyAndActivatePlan response: $response");
 
                           // Navigate to HomePage only if response is valid
-                          if (response != null &&
-                              response["status"] == "true") {
+                          if (response["status"] == true) {
                             final homeController = Get.find<HomeController>();
 
                             await homeController.fetchHomeData();
-                            Get.offAll(() => HomePage());
+
+                            CustomSnackbar.showSuccessSlow(
+                              "Listing is Activated",
+                            );
                           } else {
                             CustomSnackbar.showError(
                               "Plan verification failed",
