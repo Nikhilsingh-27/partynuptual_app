@@ -157,7 +157,36 @@ class _BusinessListingCardState extends State<BusinessListingCard> {
       },
     );
   }
+    int paypalsetting = 1;
+  Future<int> paypayfun() async {
+    try {
+      final response = await ProfileService().paypalsetting();
 
+      if (response["success"] == true) {
+        return response["paypal_setting"] ?? 1;
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      print("Paypal Error: $e");
+      return 1;
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadPaypalSetting(); // ✅ call async function
+  }
+   Future<void> loadPaypalSetting() async {
+    final value = await paypayfun();
+
+    setState(() {
+      paypalsetting = value;
+      print("rr");
+      print(paypalsetting);
+    });
+   }
   @override
   Widget build(BuildContext context) {
     final int daysLeft = calculateDaysLeftFromToday(
@@ -234,12 +263,25 @@ class _BusinessListingCardState extends State<BusinessListingCard> {
                         color: const Color(0xFF1E8E5A),
                         onTap: () async {
                           try {
+                            if (paypalsetting == 1) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PricingScreen(
+                                    id: widget.item["listing_id"] ?? "",
+                                  ),
+                                ),
+                              );
+                              return;
+                            }
+
                             final activateResponse = await ProfileService()
                                 .activatelistingfun(
                                   id:
                                       widget.item["listing_id"]?.toString() ??
                                       "",
                                 );
+
                             CustomSnackbar.showSuccess(
                               "Listing activated successfully",
                             );
@@ -249,24 +291,6 @@ class _BusinessListingCardState extends State<BusinessListingCard> {
 
                             // Refresh parent list / page data after activation call.
                             widget.onDeleteSuccess();
-
-                            final value =
-                                int.tryParse(
-                                  activateResponse["value"]?.toString() ?? "",
-                                ) ??
-                                0;
-
-                            // If API indicates 1, navigate to pricing.
-                            if (value == 1) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => PricingScreen(
-                                    id: widget.item["listing_id"] ?? "",
-                                  ),
-                                ),
-                              );
-                            }
                           } catch (e) {
                             CustomSnackbar.showError(e.toString());
                           }
