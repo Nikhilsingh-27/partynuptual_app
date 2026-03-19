@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/services.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -16,7 +17,7 @@ import 'package:new_app/screens/widgets/signup.dart';
 import 'package:new_app/core/storage/local_storage.dart';
 
 import '../../controllers/home_controller.dart';
-import '../widgets/age_confirmation_dialog.dart';
+import './widgets/age_confirmation_dialog.dart';
 import 'listings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -154,7 +155,12 @@ class _HomePageState extends State<HomePage> {
 
     if (confirmed == true) {
       _localStorage.confirmAge();
+      return;
     }
+
+    // User did not confirm age → close the app.
+    // (Used for Android and iOS: exits the app UI.)
+    SystemNavigator.pop();
   }
 
   @override

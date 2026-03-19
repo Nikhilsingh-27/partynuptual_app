@@ -156,9 +156,37 @@ class _EditListingScreenState extends State<EditListingScreen> {
     }
   }
 
+  int paypalsetting = 1;
+  Future<int> paypayfun() async {
+    try {
+      final response = await ProfileService().paypalsetting();
+
+      if (response["success"] == true) {
+        return response["paypal_setting"] ?? 1;
+      } else {
+        return 1;
+      }
+    } catch (e) {
+      print("Paypal Error: $e");
+      return 1;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    loadPaypalSetting(); // ✅ call async function
+  }
+
+  Future<void> loadPaypalSetting() async {
+    final value = await paypayfun();
+
+    setState(() {
+      paypalsetting = value;
+      print("rr");
+      print(paypalsetting);
+    });
+
     fetchlistingbyid(widget.data["listing_id"].toString());
 
     final data = widget.data;
@@ -1183,18 +1211,14 @@ class _EditListingScreenState extends State<EditListingScreen> {
                           if (isUploaded) {
                             final response = await ProfileService()
                                 .updateListing(body);
+
                             CustomSnackbar.showSuccess(
                               "Listing updated successfully",
                             );
-                            // Optional: handle response
-                            if (status == "1") {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MyListingScreen(),
-                                ),
-                              );
-                            } else {
+
+                            // ✅ Check PayPal setting
+                            if (paypalsetting == 1) {
+                              // 👉 Go to Pay Screen
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1205,7 +1229,28 @@ class _EditListingScreenState extends State<EditListingScreen> {
                                   ),
                                 ),
                               );
+                            } else {
+                              // 👉 Directly activate listing
+                              final activateResponse = await ProfileService()
+                                  .activatelistingfun(
+                                    id:
+                                        widget.data["listing_id"]?.toString() ??
+                                        "",
+                                  );
+
+                              debugPrint(
+                                "Activate Listing Response: $activateResponse",
+                              );
+
+                              // 👉 Then go to My Listings
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => MyListingScreen(),
+                                ),
+                              );
                             }
+
                             debugPrint("Update Listing Response: $response");
                           } else {
                             debugPrint(

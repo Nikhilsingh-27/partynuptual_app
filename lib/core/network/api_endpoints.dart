@@ -61,4 +61,7 @@ class ApiEndpoints {
 
   static const String getinquirycount = "/getInquiryCount";
   static const String deleteinquiry = "/deleteInquiry";
+
+  static const String paypalsetting = "/paypal_setting";
+  static const String activatelisting = "/activate_listing";
 }

@@ -773,4 +773,27 @@ class ProfileService {
       throw Exception(e.response?.data ?? "API Error");
     }
   }
+
+  Future<Map<String, dynamic>> paypalsetting() async {
+    try {
+      final response = await _dio.get(ApiEndpoints.paypalsetting);
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
+
+  Future<Map<String, dynamic>> activatelistingfun({required String id}) async {
+    try {
+      final response = await _dio.post(
+        ApiEndpoints.activatelisting,
+        data: {"listing_id": id},
+      );
+      print(response.data);
+      return response.data;
+    } on dio.DioException catch (e) {
+      throw Exception(e.response?.data ?? "API Error");
+    }
+  }
 }

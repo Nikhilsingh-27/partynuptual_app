@@ -5,12 +5,24 @@ import 'package:new_app/screens/editlisting_screen.dart';
 import 'package:new_app/screens/plan_screen.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 
-class BusinessListingCard extends StatelessWidget {
+class BusinessListingCard extends StatefulWidget {
   final VoidCallback onDeleteSuccess;
   final Map<String, dynamic> item;
+
+  const BusinessListingCard({
+    super.key,
+    required this.item,
+    required this.onDeleteSuccess,
+  });
+
+  @override
+  State<BusinessListingCard> createState() => _BusinessListingCardState();
+}
+
+class _BusinessListingCardState extends State<BusinessListingCard> {
   Widget _buildStatusBadge() {
-    final String status = item["status"]?.toString() ?? "";
-    final String? validDate = item["listing_valid_date"];
+    final String status = widget.item["status"]?.toString() ?? "";
+    final String? validDate = widget.item["listing_valid_date"];
 
     if (status == "1") {
       return Container(
@@ -53,11 +65,6 @@ class BusinessListingCard extends StatelessWidget {
     return const SizedBox(); // show nothing
   }
 
-  const BusinessListingCard({
-    super.key,
-    required this.item,
-    required this.onDeleteSuccess,
-  });
   int calculateDaysLeftFromToday(String validDate) {
     try {
       DateTime now = DateTime.now();
@@ -66,9 +73,9 @@ class BusinessListingCard extends StatelessWidget {
       DateTime parsed = DateTime.parse(validDate);
       DateTime expiryDate = DateTime(parsed.year, parsed.month, parsed.day);
 
-      int daysLeft = expiryDate.difference(today).inDays + 1;
+      int daysLeft = expiryDate.difference(today).inDays;
 
-      return daysLeft <= 0 ? 0 : daysLeft;
+      return daysLeft < 0 ? 0 : daysLeft;
     } catch (e) {
       return 0;
     }
@@ -133,7 +140,7 @@ class BusinessListingCard extends StatelessWidget {
 
                     debugPrint("Delete Response: $response");
                     //final controller = Get.find<HomeController>();
-                    onDeleteSuccess();
+                    widget.onDeleteSuccess();
 
                     CustomSnackbar.showSuccess("Listing deleted successfully");
                   } catch (e) {
@@ -153,7 +160,10 @@ class BusinessListingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int daysLeft = calculateDaysLeftFromToday(item["listing_valid_date"] ?? "");
+    final int daysLeft = calculateDaysLeftFromToday(
+      widget.item["listing_valid_date"] ?? "",
+    );
+
     return Container(
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
@@ -175,7 +185,7 @@ class BusinessListingCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
             child: Image.network(
-              getLogoImageUrl(item["logo_image"]!),
+              getLogoImageUrl(widget.item["logo_image"]!),
               height: 160,
               width: 120,
               fit: BoxFit.cover,
@@ -191,7 +201,7 @@ class BusinessListingCard extends StatelessWidget {
               children: [
                 _buildStatusBadge(),
                 Text(
-                  item["company_name"]!,
+                  widget.item["company_name"]!,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -199,20 +209,16 @@ class BusinessListingCard extends StatelessWidget {
                 ),
 
                 Text(
-                  item["tag_line"]!,
+                  widget.item["tag_line"]!,
                   style: const TextStyle(fontSize: 14, height: 1.4),
                 ),
 
                 const SizedBox(height: 8),
-                item["status"] == "1"
-                    ? Text(
-                        "Listing active - $daysLeft days left",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.black,
-                        ),
-                      )
-                    : const SizedBox(),
+                if (widget.item["status"] == "1")
+                  Text(
+                    "Listing active - $daysLeft days left",
+                    style: const TextStyle(fontSize: 14, color: Colors.black),
+                  ),
 
                 const SizedBox(height: 16),
 
@@ -220,24 +226,52 @@ class BusinessListingCard extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    item["status"] == "1"
-                        ? const SizedBox()
-                        : _actionButton(
-                            icon: Icons.check_circle,
-                            text: "Activate Your Listing",
-                            bgColor: const Color(0xFFDFF3EA),
-                            color: const Color(0xFF1E8E5A),
-                            onTap: () {
+                    if (widget.item["status"] != "1")
+                      _actionButton(
+                        icon: Icons.check_circle,
+                        text: "Activate Your Listing",
+                        bgColor: const Color(0xFFDFF3EA),
+                        color: const Color(0xFF1E8E5A),
+                        onTap: () async {
+                          try {
+                            final activateResponse = await ProfileService()
+                                .activatelistingfun(
+                                  id:
+                                      widget.item["listing_id"]?.toString() ??
+                                      "",
+                                );
+                            CustomSnackbar.showSuccess(
+                              "Listing activated successfully",
+                            );
+                            debugPrint(
+                              "Activate Listing Response: $activateResponse",
+                            );
+
+                            // Refresh parent list / page data after activation call.
+                            widget.onDeleteSuccess();
+
+                            final value =
+                                int.tryParse(
+                                  activateResponse["value"]?.toString() ?? "",
+                                ) ??
+                                0;
+
+                            // If API indicates 1, navigate to pricing.
+                            if (value == 1) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => PricingScreen(
-                                    id: item["listing_id"] ?? "",
+                                    id: widget.item["listing_id"] ?? "",
                                   ),
                                 ),
                               );
-                            },
-                          ),
+                            }
+                          } catch (e) {
+                            CustomSnackbar.showError(e.toString());
+                          }
+                        },
+                      ),
 
                     _actionButton(
                       icon: Icons.edit,
@@ -246,11 +280,11 @@ class BusinessListingCard extends StatelessWidget {
                       color: const Color(0xFF2563EB),
                       onTap: () async {
                         final result = await Get.to(
-                          () => EditListingScreen(data: item),
+                          () => EditListingScreen(data: widget.item),
                         );
 
                         if (result == true) {
-                          onDeleteSuccess(); // this calls fetchlisting()
+                          widget.onDeleteSuccess(); // this calls fetchlisting()
                         }
                       },
                     ),
@@ -260,7 +294,7 @@ class BusinessListingCard extends StatelessWidget {
                       bgColor: const Color(0xFFFFE5E5),
                       color: Colors.red,
                       onTap: () {
-                        _showDeleteDialog(context, item["listing_id"]);
+                        _showDeleteDialog(context, widget.item["listing_id"]);
                       },
                     ),
                   ],
