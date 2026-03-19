@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:new_app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,8 +11,13 @@ import './controllers/authentication_controller.dart';
 import 'screens/home_page.dart';
 import 'screens/widgets/custom_snackbar.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init();
+
+  // Initialize app-wide controllers after storage is ready.
   Get.put(AuthenticationController());
+
   runApp(const MyApp());
 }
 

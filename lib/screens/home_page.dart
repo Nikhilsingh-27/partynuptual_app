@@ -13,8 +13,10 @@ import 'package:new_app/screens/widgets/profile.dart';
 import 'package:new_app/screens/widgets/searchwidget.dart';
 import 'package:new_app/screens/widgets/signin.dart';
 import 'package:new_app/screens/widgets/signup.dart';
+import 'package:new_app/core/storage/local_storage.dart';
 
 import '../../controllers/home_controller.dart';
+import '../widgets/age_confirmation_dialog.dart';
 import 'listings_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,6 +28,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final partyurl = "https://partynuptual.com/public";
+  final _localStorage = LocalStorage();
 
   final PageController _pageController = PageController();
   int _currentPage = 0;
@@ -140,6 +143,20 @@ class _HomePageState extends State<HomePage> {
     await homeControll.fetchHomeData();
   }
 
+  Future<void> _showAgeConfirmationIfNeeded() async {
+    if (_localStorage.isAgeConfirmed) return;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const AgeConfirmationDialog(),
+    );
+
+    if (confirmed == true) {
+      _localStorage.confirmAge();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -160,6 +177,10 @@ class _HomePageState extends State<HomePage> {
     controller = Get.find<HomeController>();
     inboxController = Get.find<InboxController>();
     _startAutoScroll();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _showAgeConfirmationIfNeeded();
+    });
   }
 
   @override

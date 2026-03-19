@@ -60,12 +60,15 @@ class BusinessListingCard extends StatelessWidget {
   });
   int calculateDaysLeftFromToday(String validDate) {
     try {
-      DateTime today = DateTime.now();
-      DateTime expiryDate = DateTime.parse(validDate);
+      DateTime now = DateTime.now();
+      DateTime today = DateTime(now.year, now.month, now.day);
 
-      int daysLeft = expiryDate.difference(today).inDays;
+      DateTime parsed = DateTime.parse(validDate);
+      DateTime expiryDate = DateTime(parsed.year, parsed.month, parsed.day);
 
-      return daysLeft < 0 ? 0 : daysLeft;
+      int daysLeft = expiryDate.difference(today).inDays + 1;
+
+      return daysLeft <= 0 ? 0 : daysLeft;
     } catch (e) {
       return 0;
     }
