@@ -4,6 +4,7 @@ import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:new_app/routes/app_pages.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -13,6 +14,7 @@ import 'screens/widgets/custom_snackbar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await MobileAds.instance.initialize();
   await GetStorage.init();
 
   // Initialize app-wide controllers after storage is ready.
@@ -29,13 +31,13 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  InterstitialAd? _interstitialAd;
   final AppLinks _appLinks = AppLinks();
   StreamSubscription<Uri>? _sub;
 
   @override
   void initState() {
     super.initState();
-
     _sub = _appLinks.uriLinkStream.listen((uri) {
       if (uri.host == "paypal-success") {
         Get.offAll(() => HomePage());

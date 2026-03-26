@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:new_app/controllers/authentication_controller.dart';
 import 'package:new_app/data/services/home_service.dart';
 import 'package:new_app/data/services/profile_service.dart';
+import 'package:new_app/screens/widgets/adshelper.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/custom_snackbar.dart';
 import 'package:new_app/screens/widgets/review.dart';
@@ -22,6 +26,62 @@ class BusinessDetailPage extends StatefulWidget {
 }
 
 class _BusinessDetailPageState extends State<BusinessDetailPage> {
+  InterstitialAd? _interstitialAd;
+  Timer? _adTimer;
+  Timer? _initialAdTimer;
+
+  bool _isAdLoaded = false;
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.getInterstatialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isAdLoaded = true;
+
+          _interstitialAd!.setImmersiveMode(true);
+
+          _interstitialAd!.fullScreenContentCallback =
+              FullScreenContentCallback(
+                onAdDismissedFullScreenContent: (ad) {
+                  ad.dispose();
+                  _loadInterstitialAd(); // preload next
+                },
+                onAdFailedToShowFullScreenContent: (ad, error) {
+                  ad.dispose();
+                  _loadInterstitialAd();
+                },
+              );
+        },
+        onAdFailedToLoad: (error) {
+          _isAdLoaded = false;
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    if (_isAdLoaded && _interstitialAd != null) {
+      _interstitialAd!.show();
+      _interstitialAd = null;
+      _isAdLoaded = false;
+    }
+  }
+
+  void _startAdFlow() {
+    // 👉 First ad after 10 seconds
+    _initialAdTimer = Timer(const Duration(seconds: 10), () {
+      _showInterstitialAd();
+
+      // 👉 Then every 4 minutes
+      _adTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+        _showInterstitialAd();
+      });
+    });
+  }
+
   // 🔴 Inquiry Form Errors
   bool showNameError = false;
   bool showEmailError = false;
@@ -72,9 +132,20 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
 
     //print(widget.listingid);
     fetchlistingbyid(widget.listingid);
+    _loadInterstitialAd(); // preload ad
+    _startAdFlow();
   }
 
-  bool inquirycheck=false;
+  @override
+  void dispose() {
+    _adTimer?.cancel();
+    _initialAdTimer?.cancel();
+    _interstitialAd?.dispose();
+
+    super.dispose();
+  }
+
+  bool inquirycheck = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -374,108 +445,144 @@ class _BusinessDetailPageState extends State<BusinessDetailPage> {
 
                                 const SizedBox(height: 16),
 
-                              SizedBox(
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: inquirycheck ? null : () async {
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed: inquirycheck
+                                        ? null
+                                        : () async {
+                                            if (inquirycheck) return;
 
-                                    if (inquirycheck) return;
+                                            setState(() {
+                                              showNameError = nameCtrl.text
+                                                  .trim()
+                                                  .isEmpty;
+                                              showEmailError = emailCtrl.text
+                                                  .trim()
+                                                  .isEmpty;
+                                              showEmailFormatError =
+                                                  emailCtrl.text.isNotEmpty &&
+                                                  !GetUtils.isEmail(
+                                                    emailCtrl.text.trim(),
+                                                  );
 
-                                    setState(() {
-                                      showNameError = nameCtrl.text.trim().isEmpty;
-                                      showEmailError = emailCtrl.text.trim().isEmpty;
-                                      showEmailFormatError =
-                                          emailCtrl.text.isNotEmpty &&
-                                              !GetUtils.isEmail(emailCtrl.text.trim());
+                                              showPhoneError = phoneCtrl.text
+                                                  .trim()
+                                                  .isEmpty;
+                                              showPhoneLengthError =
+                                                  phoneCtrl.text.isNotEmpty &&
+                                                  phoneCtrl.text.trim().length <
+                                                      6;
 
-                                      showPhoneError = phoneCtrl.text.trim().isEmpty;
-                                      showPhoneLengthError =
-                                          phoneCtrl.text.isNotEmpty &&
-                                              phoneCtrl.text.trim().length < 6;
+                                              showCommentError = commentCtrl
+                                                  .text
+                                                  .trim()
+                                                  .isEmpty;
+                                            });
 
-                                      showCommentError = commentCtrl.text.trim().isEmpty;
-                                    });
+                                            if (showNameError ||
+                                                showEmailError ||
+                                                showEmailFormatError ||
+                                                showPhoneError ||
+                                                showPhoneLengthError ||
+                                                showCommentError) {
+                                              CustomSnackbar.showError(
+                                                "All fields are required",
+                                              );
+                                              return;
+                                            }
 
-                                    if (showNameError ||
-                                        showEmailError ||
-                                        showEmailFormatError ||
-                                        showPhoneError ||
-                                        showPhoneLengthError ||
-                                        showCommentError) {
-                                      CustomSnackbar.showError("All fields are required");
-                                      return;
-                                    }
+                                            setState(() {
+                                              inquirycheck = true;
+                                            });
 
-                                    setState(() {
-                                      inquirycheck = true;
-                                    });
+                                            try {
+                                              final response =
+                                                  await ProfileService()
+                                                      .sendinquiry(
+                                                        name: nameCtrl.text
+                                                            .trim(),
+                                                        email: emailCtrl.text
+                                                            .trim(),
+                                                        phone: phoneCtrl.text
+                                                            .trim(),
+                                                        message: commentCtrl
+                                                            .text
+                                                            .trim(),
+                                                        listing_id:
+                                                            widget.listingid,
+                                                        vendor_id:
+                                                            widget.ownerid,
+                                                      );
 
-                                    try {
+                                              final bool isSuccess =
+                                                  response["status"] == true ||
+                                                  response["status"] ==
+                                                      "success";
 
-                                      final response = await ProfileService().sendinquiry(
-                                        name: nameCtrl.text.trim(),
-                                        email: emailCtrl.text.trim(),
-                                        phone: phoneCtrl.text.trim(),
-                                        message: commentCtrl.text.trim(),
-                                        listing_id: widget.listingid,
-                                        vendor_id: widget.ownerid,
-                                      );
+                                              if (isSuccess) {
+                                                CustomSnackbar.showSuccess(
+                                                  "Inquiry sent successfully",
+                                                );
 
-                                      final bool isSuccess =
-                                          response["status"] == true ||
-                                              response["status"] == "success";
+                                                nameCtrl.clear();
+                                                emailCtrl.clear();
+                                                phoneCtrl.clear();
+                                                commentCtrl.clear();
+                                              } else {
+                                                CustomSnackbar.showError(
+                                                  response["message"] ??
+                                                      "Failed to send inquiry",
+                                                );
+                                              }
+                                            } catch (e) {
+                                              CustomSnackbar.showError(
+                                                "Something went wrong",
+                                              );
+                                            }
 
-                                      if (isSuccess) {
-                                        CustomSnackbar.showSuccess("Inquiry sent successfully");
+                                            if (mounted) {
+                                              setState(() {
+                                                inquirycheck = false;
+                                              });
+                                            }
+                                          },
 
-                                        nameCtrl.clear();
-                                        emailCtrl.clear();
-                                        phoneCtrl.clear();
-                                        commentCtrl.clear();
-                                      } else {
-                                        CustomSnackbar.showError(
-                                            response["message"] ?? "Failed to send inquiry");
-                                      }
-
-                                    } catch (e) {
-                                      CustomSnackbar.showError("Something went wrong");
-                                    }
-
-                                    if (mounted) {
-                                      setState(() {
-                                        inquirycheck = false;
-                                      });
-                                    }
-
-                                  },
-
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFc71f37),
-                                    padding: const EdgeInsets.symmetric(vertical: 14),
-                                  ),
-
-                                  child: inquirycheck
-                                      ? const SizedBox(
-                                    height: 22,
-                                    width: 22,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                      : const Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Icons.send, color: Colors.white),
-                                      SizedBox(width: 8),
-                                      Text(
-                                        "Send Inquiry",
-                                        style: TextStyle(color: Colors.white),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFFc71f37),
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 14,
                                       ),
-                                    ],
+                                    ),
+
+                                    child: inquirycheck
+                                        ? const SizedBox(
+                                            height: 22,
+                                            width: 22,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
+                                          )
+                                        : const Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Icon(
+                                                Icons.send,
+                                                color: Colors.white,
+                                              ),
+                                              SizedBox(width: 8),
+                                              Text(
+                                                "Send Inquiry",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
                                   ),
                                 ),
-                              ),
                               ],
                             ),
                           ),

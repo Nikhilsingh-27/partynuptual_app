@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:new_app/screens/listings_page.dart';
+import 'package:new_app/screens/widgets/adshelper.dart';
 import 'package:new_app/screens/widgets/bottom.dart';
 import 'package:new_app/screens/widgets/category_card.dart';
 
@@ -14,6 +18,62 @@ class TopCategoryScreen extends StatefulWidget {
 }
 
 class _TopCategoryScreenState extends State<TopCategoryScreen> {
+  InterstitialAd? _interstitialAd;
+  Timer? _adTimer;
+  Timer? _initialAdTimer;
+
+  bool _isAdLoaded = false;
+  void _loadInterstitialAd() {
+    InterstitialAd.load(
+      adUnitId: AdHelper.getInterstatialAdUnitId,
+      request: const AdRequest(),
+      adLoadCallback: InterstitialAdLoadCallback(
+        onAdLoaded: (ad) {
+          _interstitialAd = ad;
+          _isAdLoaded = true;
+
+          _interstitialAd!.setImmersiveMode(true);
+
+          _interstitialAd!.fullScreenContentCallback =
+              FullScreenContentCallback(
+                onAdDismissedFullScreenContent: (ad) {
+                  ad.dispose();
+                  _loadInterstitialAd(); // preload next
+                },
+                onAdFailedToShowFullScreenContent: (ad, error) {
+                  ad.dispose();
+                  _loadInterstitialAd();
+                },
+              );
+        },
+        onAdFailedToLoad: (error) {
+          _isAdLoaded = false;
+        },
+      ),
+    );
+  }
+
+  void _showInterstitialAd() {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) return;
+    if (_isAdLoaded && _interstitialAd != null) {
+      _interstitialAd!.show();
+      _interstitialAd = null;
+      _isAdLoaded = false;
+    }
+  }
+
+  void _startAdFlow() {
+    // 👉 First ad after 10 seconds
+    _initialAdTimer = Timer(const Duration(seconds: 10), () {
+      _showInterstitialAd();
+
+      // 👉 Then every 4 minutes
+      _adTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+        _showInterstitialAd();
+      });
+    });
+  }
+
   final HomeController controller = Get.find();
 
   final List<Map<String, dynamic>> categories = [
@@ -108,6 +168,21 @@ class _TopCategoryScreenState extends State<TopCategoryScreen> {
     'Icons.child_friendly': Icons.child_friendly,
     'Icons.church': Icons.church,
   };
+  @override
+  void initState() {
+    super.initState();
+    _loadInterstitialAd(); // preload ad
+    _startAdFlow();
+  }
+
+  @override
+  void dispose() {
+    _adTimer?.cancel();
+    _initialAdTimer?.cancel();
+    _interstitialAd?.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
